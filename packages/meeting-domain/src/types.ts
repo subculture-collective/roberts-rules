@@ -18,6 +18,7 @@ export interface RulesProfile {
   quorum: { type: 'fixed'; minimum: number }
   debate: { defaultDurationSeconds: number }
   voteMethods: readonly string[]
+  motionThreshold: { numerator: number; denominator: number; basis: 'votesCast' }
   tiePolicy: 'motionFails' | 'chairDecides'
   overrides: { quorumIndependentActions: readonly string[] }
 }
@@ -49,6 +50,12 @@ export type PointRuling = 'upheld' | 'denied'
 export type AppealOutcome = 'sustained' | 'overturned'
 export interface AppealState { id: string; appellantId: string; appealedAt: string; status: 'pending' | 'decided'; grounds?: string; outcome?: AppealOutcome; reason?: string; decidedAt?: string; deciderId?: string }
 export interface PointOfOrder { id: string; text: string; raiserId: string; motionId: string; raisedAt: string; status: 'pending' | 'ruled' | 'final'; ruling?: PointRuling; rulingReason?: string; ruledAt?: string; rulerId?: string; appeal?: AppealState }
+export type BallotChoice = 'yes' | 'no' | 'abstain'
+export type VoteResult = 'adopted' | 'rejected' | 'tied'
+export interface BallotRecord { choice: BallotChoice; castAt: string }
+export interface VoteRuleSnapshot { rulesProfileId: string; rulesProfileVersion: number; threshold: RulesProfile['motionThreshold']; tiePolicy: RulesProfile['tiePolicy'] }
+export interface VoteState { id: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord>>; yes?: number; no?: number; abstain?: number; result?: VoteResult; recordedAt?: string; recorderId?: string }
+export interface VoteOutcome { voteId: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; yes: number; no: number; abstain: number; result: VoteResult; recordedAt: string; recorderId: string }
 
 export interface MeetingState {
   meetingId?: string
@@ -64,8 +71,8 @@ export interface MeetingState {
   recognitionQueues: Readonly<Record<RecognitionSide, readonly string[]>>
   debate: DebateState | null
   pointsOfOrder: Readonly<Record<string, PointOfOrder>>
-  votes: Readonly<Record<string, unknown>>
-  outcomes: readonly unknown[]
+  votes: Readonly<Record<string, VoteState>>
+  outcomes: readonly VoteOutcome[]
   // Accepted decisions are journal-derived. Rejected attempts require durable
   // deduplication at the future command-store boundary because they emit no events.
   processedCommands: Readonly<Record<string, AcceptedDecision>>
@@ -97,6 +104,10 @@ export type MeetingCommand =
   | { type: 'RuleOnPointOfOrder'; pointId: string; ruling: PointRuling; reason: string }
   | { type: 'AppealRuling'; pointId: string; appealId: string; grounds?: string }
   | { type: 'RecordAppealOutcome'; pointId: string; appealId: string; outcome: AppealOutcome; reason: string }
+  | { type: 'OpenVote'; voteId: string; motionId: string; method: string }
+  | { type: 'CastVote'; voteId: string; choice: BallotChoice }
+  | { type: 'CloseVote'; voteId: string }
+  | { type: 'RecordVoteOutcome'; voteId: string }
 
 export interface CommandEnvelope {
   id: string
@@ -122,6 +133,7 @@ export type MeetingEventType =
   | 'MotionIntroduced' | 'MotionSeconded' | 'MotionAmended' | 'MotionWithdrawn' | 'MotionTabled' | 'MotionDisposed'
   | 'DebateOpened' | 'DebateClosed'
   | 'PointOfOrderRaised' | 'PointOfOrderRuled' | 'RulingAppealed' | 'AppealOutcomeRecorded'
+  | 'VoteOpened' | 'VoteCast' | 'VoteClosed' | 'VoteOutcomeRecorded'
 
 export interface MeetingEventPayloadMap {
   MeetingInitialized: { meetingId: string; rulesProfileId: string; rulesProfileVersion: number }
@@ -150,6 +162,10 @@ export interface MeetingEventPayloadMap {
   PointOfOrderRuled: { pointId: string; ruling: PointRuling; reason: string; ruledAt: string; rulerId: string }
   RulingAppealed: { pointId: string; appeal: AppealState }
   AppealOutcomeRecorded: { pointId: string; appealId: string; outcome: AppealOutcome; reason: string; decidedAt: string; deciderId: string }
+  VoteOpened: { vote: VoteState }
+  VoteCast: { voteId: string; voterId: string; ballot: BallotRecord }
+  VoteClosed: { voteId: string; closedAt: string }
+  VoteOutcomeRecorded: { outcome: VoteOutcome }
 }
 
 export type MeetingEventOf<T extends MeetingEventType> = T extends MeetingEventType ? {

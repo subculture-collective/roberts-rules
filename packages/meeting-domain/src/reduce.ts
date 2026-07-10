@@ -226,6 +226,58 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
         },
       }
     }
+    case 'VoteOpened':
+      return {
+        ...state,
+        votes: {
+          ...state.votes,
+          [event.payload.vote.id]: { ...event.payload.vote, ballots: {} },
+        },
+      }
+    case 'VoteCast': {
+      const vote = state.votes[event.payload.voteId]!
+      return {
+        ...state,
+        votes: {
+          ...state.votes,
+          [vote.id]: {
+            ...vote,
+            ballots: { ...vote.ballots, [event.payload.voterId]: { ...event.payload.ballot } },
+          },
+        },
+      }
+    }
+    case 'VoteClosed': {
+      const vote = state.votes[event.payload.voteId]!
+      return {
+        ...state,
+        votes: {
+          ...state.votes,
+          [vote.id]: { ...vote, status: 'closed', closedAt: event.payload.closedAt },
+        },
+      }
+    }
+    case 'VoteOutcomeRecorded': {
+      const outcome = event.payload.outcome
+      const vote = state.votes[outcome.voteId]!
+      return {
+        ...state,
+        votes: {
+          ...state.votes,
+          [vote.id]: {
+            ...vote,
+            status: 'recorded',
+            yes: outcome.yes,
+            no: outcome.no,
+            abstain: outcome.abstain,
+            result: outcome.result,
+            recordedAt: outcome.recordedAt,
+            recorderId: outcome.recorderId,
+          },
+        },
+        outcomes: [...state.outcomes, { ...outcome }],
+      }
+    }
     default:
       return assertNever(event)
   }
