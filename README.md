@@ -17,6 +17,8 @@ Operators can issue a short-lived, single-use enrollment token directly against 
 DATABASE_URL='postgres://…' pnpm --filter @subculture/roberts-rules-api enrollment:issue -- --meeting <uuid> --participant <private-id> --role delegate --ttl 10
 ```
 
+Redeeming that token creates a 30-minute, revocable, meeting-scoped HttpOnly cookie used by both HTTP commands and WebSocket upgrades. This is not yet hardware-backed device authentication, and initial meeting creation remains an out-of-band operator bootstrap.
+
 ## Quick start
 
 ```bash

@@ -135,6 +135,8 @@ The read-only client and dashboard slice is [Milestone 3C: Live Floor Projection
 
 Authentication before command controls is [Milestone 3D: Meeting-Scoped Sessions](plans/2026-07-10-milestone-3d-meeting-sessions.md).
 
+Milestone 3D is complete: single-use enrollment, revocable meeting-scoped sessions, cookie principal resolution, origin checks, and logout are implemented. Hardware-backed device binding remains a later hardening gate.
+
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.

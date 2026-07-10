@@ -53,5 +53,5 @@
 
 **Files:** `docs/adr/0006-meeting-scoped-stateful-sessions.md`, `docs/adr/README.md`, `docs/reference/stack.md`, `docs/PLAN.md`.
 
-- [ ] Record the token lifecycle, trust boundaries, CSRF/origin policy, revocation, and remaining device-binding limitation.
-- [ ] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete meeting session milestone`.
+- [x] Record the token lifecycle, trust boundaries, CSRF/origin policy, revocation, and remaining device-binding limitation.
+- [x] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete meeting session milestone`.
