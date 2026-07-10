@@ -44,6 +44,11 @@ export interface Motion {
   completionReason?: string
   disposition?: string
 }
+export interface DebateState { motionId: string; openedAt: string; closesAt: string; status: 'open' | 'closed'; closedAt?: string; reason?: string }
+export type PointRuling = 'upheld' | 'denied'
+export type AppealOutcome = 'sustained' | 'overturned'
+export interface AppealState { id: string; appellantId: string; appealedAt: string; status: 'pending' | 'decided'; grounds?: string; outcome?: AppealOutcome; reason?: string; decidedAt?: string; deciderId?: string }
+export interface PointOfOrder { id: string; text: string; raiserId: string; motionId: string; raisedAt: string; status: 'pending' | 'ruled' | 'final'; ruling?: PointRuling; rulingReason?: string; ruledAt?: string; rulerId?: string; appeal?: AppealState }
 
 export interface MeetingState {
   meetingId?: string
@@ -57,8 +62,8 @@ export interface MeetingState {
   motions: Readonly<Record<string, Motion>>
   motionStack: readonly string[]
   recognitionQueues: Readonly<Record<RecognitionSide, readonly string[]>>
-  debate: unknown | null
-  pointsOfOrder: Readonly<Record<string, unknown>>
+  debate: DebateState | null
+  pointsOfOrder: Readonly<Record<string, PointOfOrder>>
   votes: Readonly<Record<string, unknown>>
   outcomes: readonly unknown[]
   // Accepted decisions are journal-derived. Rejected attempts require durable
@@ -86,6 +91,12 @@ export type MeetingCommand =
   | { type: 'WithdrawMotion'; motionId: string; reason?: string }
   | { type: 'TableMotion'; motionId: string; reason: string }
   | { type: 'DisposeMotion'; motionId: string; disposition: string }
+  | { type: 'OpenDebate'; motionId: string; closesAt: string }
+  | { type: 'CloseDebate'; motionId: string; reason?: string }
+  | { type: 'RaisePointOfOrder'; pointId: string; text: string }
+  | { type: 'RuleOnPointOfOrder'; pointId: string; ruling: PointRuling; reason: string }
+  | { type: 'AppealRuling'; pointId: string; appealId: string; grounds?: string }
+  | { type: 'RecordAppealOutcome'; pointId: string; appealId: string; outcome: AppealOutcome; reason: string }
 
 export interface CommandEnvelope {
   id: string
@@ -109,6 +120,8 @@ export type MeetingEventType =
   | 'AgendaAdopted' | 'AgendaAdvanced'
   | 'RecognitionQueueJoined' | 'RecognitionQueueWithdrawn' | 'RecognitionQueueReordered'
   | 'MotionIntroduced' | 'MotionSeconded' | 'MotionAmended' | 'MotionWithdrawn' | 'MotionTabled' | 'MotionDisposed'
+  | 'DebateOpened' | 'DebateClosed'
+  | 'PointOfOrderRaised' | 'PointOfOrderRuled' | 'RulingAppealed' | 'AppealOutcomeRecorded'
 
 export interface MeetingEventPayloadMap {
   MeetingInitialized: { meetingId: string; rulesProfileId: string; rulesProfileVersion: number }
@@ -131,6 +144,12 @@ export interface MeetingEventPayloadMap {
   MotionWithdrawn: { motionId: string; reason?: string }
   MotionTabled: { motionId: string; reason: string }
   MotionDisposed: { motionId: string; disposition: string }
+  DebateOpened: { debate: DebateState }
+  DebateClosed: { motionId: string; closedAt: string; reason?: string }
+  PointOfOrderRaised: { point: PointOfOrder }
+  PointOfOrderRuled: { pointId: string; ruling: PointRuling; reason: string; ruledAt: string; rulerId: string }
+  RulingAppealed: { pointId: string; appeal: AppealState }
+  AppealOutcomeRecorded: { pointId: string; appealId: string; outcome: AppealOutcome; reason: string; decidedAt: string; deciderId: string }
 }
 
 export type MeetingEventOf<T extends MeetingEventType> = T extends MeetingEventType ? {

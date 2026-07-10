@@ -137,6 +137,8 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
         motions: { ...state.motions, [event.payload.motion.id]: { ...event.payload.motion } },
         motionStack: [...state.motionStack, event.payload.motion.id],
         recognitionQueues: emptyRecognitionQueues(),
+        debate: null,
+        pointsOfOrder: finalizeRuledPoints(state.pointsOfOrder, state.motionStack.at(-1)),
       }
     case 'MotionSeconded':
       return {
@@ -156,6 +158,74 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
       return completeMotion(state, event.payload.motionId, 'tabled', event.payload.reason)
     case 'MotionDisposed':
       return completeMotion(state, event.payload.motionId, 'disposed', undefined, event.payload.disposition)
+    case 'DebateOpened':
+      return { ...state, debate: { ...event.payload.debate } }
+    case 'DebateClosed':
+      return {
+        ...state,
+        debate: state.debate === null ? null : {
+          ...state.debate,
+          status: 'closed',
+          closedAt: event.payload.closedAt,
+          ...(event.payload.reason === undefined ? {} : { reason: event.payload.reason }),
+        },
+      }
+    case 'PointOfOrderRaised':
+      return {
+        ...state,
+        pointsOfOrder: {
+          ...state.pointsOfOrder,
+          [event.payload.point.id]: { ...event.payload.point },
+        },
+      }
+    case 'PointOfOrderRuled': {
+      const point = state.pointsOfOrder[event.payload.pointId]!
+      return {
+        ...state,
+        pointsOfOrder: {
+          ...state.pointsOfOrder,
+          [point.id]: {
+            ...point,
+            status: 'ruled',
+            ruling: event.payload.ruling,
+            rulingReason: event.payload.reason,
+            ruledAt: event.payload.ruledAt,
+            rulerId: event.payload.rulerId,
+          },
+        },
+      }
+    }
+    case 'RulingAppealed': {
+      const point = state.pointsOfOrder[event.payload.pointId]!
+      return {
+        ...state,
+        pointsOfOrder: {
+          ...state.pointsOfOrder,
+          [point.id]: { ...point, appeal: { ...event.payload.appeal } },
+        },
+      }
+    }
+    case 'AppealOutcomeRecorded': {
+      const point = state.pointsOfOrder[event.payload.pointId]!
+      return {
+        ...state,
+        pointsOfOrder: {
+          ...state.pointsOfOrder,
+          [point.id]: {
+            ...point,
+            status: 'final',
+            appeal: {
+              ...point.appeal!,
+              status: 'decided',
+              outcome: event.payload.outcome,
+              reason: event.payload.reason,
+              decidedAt: event.payload.decidedAt,
+              deciderId: event.payload.deciderId,
+            },
+          },
+        },
+      }
+    }
     default:
       return assertNever(event)
   }
@@ -175,7 +245,22 @@ function completeMotion(state: MeetingState, motionId: string, status: 'withdraw
     },
     motionStack: state.motionStack.filter((id) => id !== motionId),
     recognitionQueues: emptyRecognitionQueues(),
+    debate: null,
+    pointsOfOrder: finalizeRuledPoints(state.pointsOfOrder, motionId),
   }
+}
+
+function finalizeRuledPoints(
+  points: MeetingState['pointsOfOrder'],
+  outgoingMotionId: string | undefined,
+): MeetingState['pointsOfOrder'] {
+  if (outgoingMotionId === undefined) return points
+  return Object.fromEntries(Object.entries(points).map(([id, point]) => [
+    id,
+    point.motionId === outgoingMotionId && point.status === 'ruled' && point.appeal === undefined
+      ? { ...point, status: 'final' as const }
+      : point,
+  ]))
 }
 
 function emptyRecognitionQueues(): MeetingState['recognitionQueues'] {
