@@ -15,7 +15,8 @@
 - [x] The repository exists at `/Users/onnwee/Projects/subcult/roberts-rules` on `codex/bootstrap-domain-simulator`.
 - [x] The generated baseline has Node/TypeScript, Vite React, PostgreSQL, Docker Compose, Open Pilot templates, and `make verify`.
 - [x] The generated template identity has been replaced in code, package metadata, Compose configuration, and project documentation.
-- [ ] No meeting-domain package, command API, real-time service, AT Protocol integration, or voting system exists yet.
+- [x] The meeting-domain foundation implements lifecycle, attendance, quorum transitions, strict replay ordering, and accepted-command idempotency.
+- [ ] No meeting command API, real-time service, AT Protocol integration, or voting system exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
 
@@ -67,28 +68,29 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 ### 1.1 Public Contract
 
-- [ ] Create `packages/meeting-domain/package.json`, `tsconfig.json`, and a Vitest configuration consistent with `backend` and `web`.
-- [ ] Define `RulesProfile` with `id`, `version`, `quorum`, `debate`, `voteMethods`, `tiePolicy`, and organization `overrides` fields. Rules data is an input, never a hidden global.
-- [ ] Define `MeetingState` with `phase`, `version`, `agenda`, `attendance`, `quorum`, `motions`, `recognitionQueues`, `debate`, `pointsOfOrder`, `votes`, `outcomes`, and processed-command decisions.
-- [ ] Define the closed `MeetingRole` union: `administrator`, `chair`, `parliamentarian`, `secretary`, `teller`, `delegate`, `alternate`, `participant`, `observer`, and `technicalOperator`.
-- [ ] Define `CommandEnvelope` as `{ id, expectedVersion, actorId, role, occurredAt, command }`. Define commands as a discriminated union with a literal `type` field.
-- [ ] Define `MeetingEvent` as `{ id, type, aggregateVersion, occurredAt, causationId, payload }`. Define `Decision` as either `{ accepted: true, events }` or `{ accepted: false, code, explanation }`.
-- [ ] Export a stable rejection-code union including `STALE_VERSION`, `DUPLICATE_COMMAND`, `ROLE_FORBIDDEN`, `INVALID_PHASE`, `QUORUM_REQUIRED`, `NO_ACTIVE_QUESTION`, `ACTIVE_QUESTION_EXISTS`, `INVALID_PARENT`, `ALREADY_QUEUED`, `ALREADY_VOTED`, and `INVALID_COMMAND`.
+- [x] Create `packages/meeting-domain/package.json`, `tsconfig.json`, and a Vitest configuration consistent with `backend` and `web`.
+- [x] Define `RulesProfile` with `id`, `version`, `quorum`, `debate`, `voteMethods`, `tiePolicy`, and organization `overrides` fields. Rules data is an input, never a hidden global.
+- [x] Define `MeetingState` with `phase`, `version`, `agenda`, `attendance`, `quorum`, `motions`, `recognitionQueues`, `debate`, `pointsOfOrder`, `votes`, `outcomes`, and processed-command decisions.
+- [x] Define the closed `MeetingRole` union: `administrator`, `chair`, `parliamentarian`, `secretary`, `teller`, `delegate`, `alternate`, `participant`, `observer`, and `technicalOperator`.
+- [x] Define `CommandEnvelope` as `{ id, expectedVersion, actorId, role, occurredAt, command }`. Define commands as a discriminated union with a literal `type` field.
+- [x] Define `MeetingEvent` as `{ id, type, aggregateVersion, occurredAt, causationId, payload }`. Define `Decision` as either `{ accepted: true, events }` or `{ accepted: false, code, explanation }`.
+- [x] Export a stable rejection-code union including `STALE_VERSION`, `DUPLICATE_COMMAND`, `ROLE_FORBIDDEN`, `INVALID_PHASE`, `QUORUM_REQUIRED`, `NO_ACTIVE_QUESTION`, `ACTIVE_QUESTION_EXISTS`, `INVALID_PARENT`, `ALREADY_QUEUED`, `ALREADY_VOTED`, and `INVALID_COMMAND`.
 
 ### 1.2 Commands and Events
 
-- [ ] Support meeting lifecycle commands: `InitializeMeeting`, `OpenMeeting`, `RecessMeeting`, `ResumeMeeting`, and `AdjournMeeting`.
-- [ ] Support agenda and attendance commands: `AdoptAgenda`, `AdvanceAgenda`, `CheckInParticipant`, `CheckOutParticipant`, and `ActivateAlternate`.
+- [x] Support meeting lifecycle commands: `InitializeMeeting`, `OpenMeeting`, `RecessMeeting`, `ResumeMeeting`, and `AdjournMeeting`.
+- [ ] Support agenda commands: `AdoptAgenda` and `AdvanceAgenda`.
+- [x] Support attendance commands: `CheckInParticipant`, `CheckOutParticipant`, and `ActivateAlternate`.
 - [ ] Support floor commands: `JoinRecognitionQueue`, `WithdrawRecognitionQueue`, `ReorderRecognitionQueue`, `IntroduceMotion`, `SecondMotion`, `AmendMotion`, `WithdrawMotion`, `TableMotion`, and `DisposeMotion`.
 - [ ] Support debate and parliamentary commands: `OpenDebate`, `CloseDebate`, `RaisePointOfOrder`, `RuleOnPointOfOrder`, `AppealRuling`, and `RecordAppealOutcome`.
 - [ ] Support non-secret vote commands: `OpenVote`, `CastVote`, `CloseVote`, and `RecordVoteOutcome`.
 - [ ] Support `ApplyChairCorrection` only for a chair or parliamentarian and require a non-empty reason in the command payload.
-- [ ] For every accepted command, emit one or more immutable events with strictly consecutive aggregate versions. Include a `QuorumChanged` event whenever attendance changes the computed quorum result.
+- [x] For every currently supported accepted command, emit one or more immutable events with strictly consecutive aggregate versions. Include a `QuorumChanged` event when attendance changes whether quorum is met.
 
 ### 1.3 Reducer and Decision Rules
 
-- [ ] Implement `createInitialState(profile)` and `reduce(state, event)` without database access, HTTP calls, random IDs, or `Date.now()`.
-- [ ] Implement `decide(profile, state, envelope)` to first return the previously stored decision for an already processed command ID, then reject a mismatched expected version before applying command-specific checks.
+- [x] Implement `createInitialState(profile)` and `reduce(state, event)` without database access, HTTP calls, random IDs, or `Date.now()`.
+- [x] Implement `decide(profile, state, envelope)` to first return the previously stored accepted decision for an already processed command ID, then reject a mismatched expected version before applying command-specific checks. Durable rejected-attempt deduplication belongs to the future command store because rejections do not enter the meeting journal.
 - [ ] Require the appropriate role and phase for every command. Require an in-quorum state for agenda adoption, floor recognition, motion handling, debate, and voting unless the profile explicitly marks that action quorum-independent.
 - [ ] Allow only one active floor question, debate session, and vote at a time. An amendment must refer to an active motion and must not create a parent cycle.
 - [ ] Allow one active recognition-queue entry per participant per queue and one accepted ballot per participant per vote question.
