@@ -25,10 +25,10 @@
 
 **Files:** `backend/migrations/002_meeting_sessions.sql`, `backend/src/session-store.ts`, `backend/src/session-store.test.ts`.
 
-- [ ] Test single-use enrollment consumption, expiry, session lookup, meeting mismatch, and revocation against PostgreSQL.
-- [ ] Store only SHA-256 token hashes; constrain roles, expiry, and consumed/revoked timestamps in SQL.
-- [ ] Consume enrollment and create the session in one locked transaction.
-- [ ] Run the real PostgreSQL suite, `make verify`, and commit `feat: add meeting session store`.
+- [x] Test single-use enrollment consumption, expiry, session lookup, meeting mismatch, and revocation against PostgreSQL.
+- [x] Store only SHA-256 token hashes; constrain roles, expiry, and consumed/revoked timestamps in SQL.
+- [x] Consume enrollment and create the session in one locked transaction.
+- [x] Run the real PostgreSQL suite, `make verify`, and commit `feat: add meeting session store`.
 
 ## Task 3D.2: Operator enrollment CLI
 
@@ -55,4 +55,3 @@
 
 - [ ] Record the token lifecycle, trust boundaries, CSRF/origin policy, revocation, and remaining device-binding limitation.
 - [ ] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete meeting session milestone`.
-

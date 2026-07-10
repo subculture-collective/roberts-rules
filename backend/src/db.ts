@@ -1,12 +1,12 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import type { Pool, PoolClient } from 'pg';
 
-const migrationUrl = new URL('../migrations/001_meeting_journal.sql', import.meta.url);
+const migrationsUrl = new URL('../migrations/', import.meta.url);
 
 export async function migrate(pool: Pool): Promise<void> {
-  const sql = await readFile(migrationUrl, 'utf8');
+  const files = (await readdir(migrationsUrl)).filter((file) => file.endsWith('.sql')).sort();
   await withTransaction(pool, async (client) => {
-    await client.query(sql);
+    for (const file of files) await client.query(await readFile(new URL(file, migrationsUrl), 'utf8'));
   });
 }
 
