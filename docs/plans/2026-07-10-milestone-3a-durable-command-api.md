@@ -48,7 +48,7 @@
 - Create: `backend/src/db.test.ts`
 - Modify: `backend/package.json`
 
-- [ ] **Write a failing migration test** that applies migrations twice and asserts the three tables and uniqueness constraints exist.
+- [x] **Write a failing migration test** that applies migrations twice and asserts the three tables and uniqueness constraints exist.
 
 ```ts
 it("applies the meeting journal schema idempotently", async () => {
@@ -60,7 +60,7 @@ it("applies the meeting journal schema idempotently", async () => {
 });
 ```
 
-- [ ] **Run the test and confirm RED.**
+- [x] **Run the test and confirm RED.**
 
 ```bash
 pnpm --filter @subculture/roberts-rules-api test -- db.test.ts
@@ -68,7 +68,7 @@ pnpm --filter @subculture/roberts-rules-api test -- db.test.ts
 
 Expected: failure because the migration runner and schema do not exist.
 
-- [ ] **Create the schema.** Use `UUID` meeting IDs, `BIGINT` aggregate versions, `JSONB` profiles/events/decisions, and these keys:
+- [x] **Create the schema.** Use `UUID` meeting IDs, `BIGINT` aggregate versions, `JSONB` profiles/events/decisions, and these keys:
 
 ```sql
 CREATE TABLE IF NOT EXISTS meetings (
@@ -93,8 +93,8 @@ CREATE TABLE IF NOT EXISTS command_decisions (
 );
 ```
 
-- [ ] **Implement `withTransaction(pool, callback)`** with `BEGIN`, `COMMIT`, and guaranteed `ROLLBACK` on error. Never expose a checked-out client after callback completion.
-- [ ] **Run the focused test and `make verify`.** Expected: all checks pass.
+- [x] **Implement `withTransaction(pool, callback)`** with `BEGIN`, `COMMIT`, and guaranteed `ROLLBACK` on error. Never expose a checked-out client after callback completion.
+- [x] **Run the focused test and `make verify`.** Expected: all checks pass.
 
 ## Task 3A.2: Implement the persistence port
 
@@ -206,4 +206,3 @@ export interface PrincipalProvider {
 - [ ] HTTP cannot supply actor identity or role.
 - [ ] Snapshots are reconstructed from the authoritative journal.
 - [ ] `make verify` passes without adding WebSockets or browser command controls.
-
