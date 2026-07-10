@@ -16,10 +16,10 @@
 
 **Files:** `web/src/meeting-client.ts`, `web/src/meeting-client.test.ts`, `web/package.json`.
 
-- [ ] Test snapshot hydration, ordered event application, duplicate suppression, gap-triggered refresh, and reconnect from the last applied version.
-- [ ] Implement injected Fetch/WebSocket factories, exponential reconnect with jitter, and an explicit `connecting|live|reconnecting|closed|error` status.
-- [ ] Never queue meeting commands in this client; it is read-only.
-- [ ] Run `make verify` and commit `feat: add live meeting projection client`.
+- [x] Test snapshot hydration, ordered event application, duplicate suppression, gap-triggered refresh, and reconnect from the last applied version.
+- [x] Implement injected Fetch/WebSocket factories, exponential reconnect with jitter, and an explicit `connecting|live|reconnecting|closed|error` status.
+- [x] Never queue meeting commands in this client; it is read-only.
+- [x] Run `make verify` and commit `feat: add live meeting projection client`.
 
 ## Task 3C.2: Role-aware live-floor dashboard
 
@@ -37,4 +37,3 @@
 
 - [ ] Document read-only projection/reconnect semantics and keep command controls unchecked.
 - [ ] Run `make verify`, `git diff --check`, and commit `docs: complete live floor projection milestone`.
-
