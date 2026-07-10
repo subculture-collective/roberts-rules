@@ -139,6 +139,8 @@ Milestone 3D is complete: single-use enrollment, revocable meeting-scoped sessio
 
 The first authenticated command controls are [Milestone 3E: Credential-Backed Command Controls](plans/2026-07-10-milestone-3e-command-controls.md).
 
+The remaining live-floor command families are [Milestone 3F: Complete Live Floor Controls](plans/2026-07-10-milestone-3f-complete-live-floor.md).
+
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.
