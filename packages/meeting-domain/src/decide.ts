@@ -353,7 +353,10 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (invalid) return invalid
       const vote = state.votes[envelope.command.voteId.trim()]
       if (!vote || vote.status !== 'open' || vote.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Named vote is not open for the current question')
-      if (vote.ballots[envelope.actorId]) return reject('ALREADY_VOTED', 'Representative has already voted')
+      if (Object.values(state.votes).some((candidate) => candidate.motionId === vote.motionId
+        && candidate.ballots[envelope.actorId] !== undefined)) {
+        return reject('ALREADY_VOTED', 'Representative has already voted')
+      }
       if (parseIso(envelope.occurredAt)! < parseIso(vote.openedAt)!) return reject('INVALID_COMMAND', 'Ballot cannot precede vote opening')
       return accept([event(envelope, state.version + 1, 0, 'VoteCast', { voteId: vote.id, voterId: envelope.actorId, ballot: { choice: envelope.command.choice, castAt: envelope.occurredAt } })])
     }

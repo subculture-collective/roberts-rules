@@ -1,0 +1,5 @@
+{"format":"roberts-rules-transcript-v1","profile":{"id":"fixture-rules","version":1,"quorum":{"type":"fixed","minimum":2},"debate":{"defaultDurationSeconds":600},"voteMethods":["counted"],"motionThreshold":{"numerator":1,"denominator":2,"basis":"votesCast"},"tiePolicy":"motionFails","overrides":{"quorumIndependentActions":[]}}}
+{"id":"init","expectedVersion":0,"actorId":"admin","role":"administrator","occurredAt":"2026-07-10T15:00:00.000Z","command":{"type":"InitializeMeeting","meetingId":"rejections"}}
+{"id":"invalid-role","expectedVersion":1,"actorId":"observer-1","role":"observer","occurredAt":"2026-07-10T15:01:00.000Z","command":{"type":"OpenMeeting"}}
+{"id":"stale-open","expectedVersion":0,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:02:00.000Z","command":{"type":"OpenMeeting"}}
+{"id":"valid-open","expectedVersion":1,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:03:00.000Z","command":{"type":"OpenMeeting"}}

@@ -1,0 +1,2 @@
+{"format":"roberts-rules-transcript-v1","profile":{"id":"fixture-rules","version":1,"quorum":{"type":"fixed","minimum":1},"debate":{"defaultDurationSeconds":600},"voteMethods":["counted"],"motionThreshold":{"numerator":1,"denominator":2,"basis":"votesCast"},"tiePolicy":"motionFails","overrides":{"quorumIndependentActions":[]}}}
+{"id":"broken"

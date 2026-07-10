@@ -1,0 +1,13 @@
+{"format":"roberts-rules-transcript-v1","profile":{"id":"fixture-rules","version":1,"quorum":{"type":"fixed","minimum":2},"debate":{"defaultDurationSeconds":600},"voteMethods":["counted"],"motionThreshold":{"numerator":1,"denominator":2,"basis":"votesCast"},"tiePolicy":"motionFails","overrides":{"quorumIndependentActions":[]}}}
+{"id":"init","expectedVersion":0,"actorId":"admin","role":"administrator","occurredAt":"2026-07-10T15:00:00.000Z","command":{"type":"InitializeMeeting","meetingId":"amendment-debate"}}
+{"id":"in-1","expectedVersion":1,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:01:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-1","participantRole":"delegate"}}
+{"id":"in-2","expectedVersion":2,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:02:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-2","participantRole":"delegate"}}
+{"id":"open","expectedVersion":4,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:03:00.000Z","command":{"type":"OpenMeeting"}}
+{"id":"main","expectedVersion":5,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:04:00.000Z","command":{"type":"IntroduceMotion","motionId":"main-1","text":"Fund the garden"}}
+{"id":"second-main","expectedVersion":6,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:05:00.000Z","command":{"type":"SecondMotion","motionId":"main-1"}}
+{"id":"amend","expectedVersion":7,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:06:00.000Z","command":{"type":"AmendMotion","motionId":"amend-1","parentId":"main-1","text":"Cap funding at 500"}}
+{"id":"second-amend","expectedVersion":8,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:07:00.000Z","command":{"type":"SecondMotion","motionId":"amend-1"}}
+{"id":"open-debate","expectedVersion":9,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:08:00.000Z","command":{"type":"OpenDebate","motionId":"amend-1","closesAt":"2026-07-10T15:20:00.000Z"}}
+{"id":"close-debate","expectedVersion":10,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:20:00.000Z","command":{"type":"CloseDebate","motionId":"amend-1"}}
+{"id":"dispose-amend","expectedVersion":11,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:21:00.000Z","command":{"type":"DisposeMotion","motionId":"amend-1","disposition":"adopted"}}
+{"id":"dispose-main","expectedVersion":12,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:22:00.000Z","command":{"type":"DisposeMotion","motionId":"main-1","disposition":"adopted as amended"}}
