@@ -131,6 +131,8 @@ Milestone 3 is intentionally split into independently verified vertical slices. 
 
 The next slice is [Milestone 3B: Resumable Meeting Event Stream](plans/2026-07-10-milestone-3b-resumable-event-stream.md).
 
+The read-only client and dashboard slice is [Milestone 3C: Live Floor Projection](plans/2026-07-10-milestone-3c-live-floor-projection.md).
+
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [ ] Add chair, secretary, parliamentarian, delegate, alternate, observer, and operator views that render projected state only.
