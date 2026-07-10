@@ -35,5 +35,5 @@
 
 **Files:** `README.md`, `docs/PLAN.md`, `docs/reference/stack.md`.
 
-- [ ] Document read-only projection/reconnect semantics and keep command controls unchecked.
-- [ ] Run `make verify`, `git diff --check`, and commit `docs: complete live floor projection milestone`.
+- [x] Document read-only projection/reconnect semantics and keep command controls unchecked.
+- [x] Run `make verify`, `git diff --check`, and commit `docs: complete live floor projection milestone`.

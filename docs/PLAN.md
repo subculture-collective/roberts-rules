@@ -135,7 +135,7 @@ The read-only client and dashboard slice is [Milestone 3C: Live Floor Projection
 
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
-- [ ] Add chair, secretary, parliamentarian, delegate, alternate, observer, and operator views that render projected state only.
+- [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.
 - [ ] Implement presence, quorum display, recognition queues, motions, timers, and non-secret votes as clients of the event journal.
 - [ ] Add optimistic-concurrency and reconnect tests. The client must refresh from the authoritative journal after a stale-version response.
 
