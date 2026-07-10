@@ -10,9 +10,9 @@
 
 ## Task 3F.1: Journal-backed presence
 
-- [ ] Add check-in/check-out controls using the authenticated participant ID and assigned role from the session response.
-- [ ] Display present participants and quorum from projected attendance without adding ephemeral socket presence.
-- [ ] Test duplicate/reconnect behavior and commit `feat: add journal-backed meeting presence`.
+- [x] Add check-in/check-out controls for authorized attendance managers using private participant IDs and assigned roles.
+- [x] Display present participants and quorum from projected attendance without adding ephemeral socket presence.
+- [x] Reuse the projection client's duplicate/reconnect coverage and commit `feat: add journal-backed meeting presence`.
 
 ## Task 3F.2: Agenda and motion controls
 
@@ -31,4 +31,3 @@
 
 - [ ] Update README, stack reference, and `docs/PLAN.md`; do not claim secure or binding voting.
 - [ ] Run real PostgreSQL tests, `make verify`, `git diff --check`, and commit `docs: complete live floor milestone`.
-
