@@ -14,10 +14,10 @@
 
 **Files:** `web/src/meeting-actions.ts`, `web/src/meeting-actions.test.ts`, `web/src/meeting-client.ts`.
 
-- [ ] Test enrollment redemption, command submission, cookie credentials, pending/error states, and stale-version snapshot refresh.
-- [ ] Generate command IDs with `crypto.randomUUID()` and timestamps at submission; never reuse IDs for a changed command.
-- [ ] Return domain rejections as typed results and HTTP failures as sanitized errors.
-- [ ] Run `make verify` and commit `feat: add authenticated meeting action client`.
+- [x] Test enrollment redemption, command submission, cookie credentials, pending/error states, and stale-version snapshot refresh.
+- [x] Generate command IDs with `crypto.randomUUID()` and timestamps at submission; never reuse IDs for a changed command.
+- [x] Return domain rejections as typed results and HTTP failures as sanitized errors.
+- [x] Run `make verify` and commit `feat: add authenticated meeting action client`.
 
 ## Task 3E.2: Minimal role-aware controls
 
@@ -35,4 +35,3 @@
 
 - [ ] Document non-optimistic command behavior and stale refresh.
 - [ ] Run `make verify`, `git diff --check`, and commit `docs: complete command control milestone`.
-

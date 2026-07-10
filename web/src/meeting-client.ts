@@ -16,6 +16,7 @@ export class MeetingProjectionClient {
 
   subscribe(listener: (projection: Projection) => void): () => void { this.listeners.add(listener); listener(this.projection); return () => this.listeners.delete(listener); }
   async start(): Promise<void> { this.stopped = false; await this.refresh('connecting'); }
+  async refreshSnapshot(): Promise<void> { if(this.socket){this.socket.onclose=null;this.socket.close();} await this.refresh('reconnecting'); }
   stop(): void { this.stopped = true; this.socket?.close(); this.update({ ...this.projection, status: 'closed' }); }
 
   private async refresh(status: ConnectionStatus): Promise<void> {
