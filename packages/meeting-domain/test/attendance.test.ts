@@ -16,6 +16,7 @@ const profile: RulesProfile = {
   quorum: { type: 'fixed', minimum: 2 },
   debate: { defaultDurationSeconds: 600 },
   voteMethods: ['counted'],
+  motionThreshold: { numerator: 1, denominator: 2, basis: 'votesCast' },
   tiePolicy: 'motionFails',
   overrides: { quorumIndependentActions: [] },
 }

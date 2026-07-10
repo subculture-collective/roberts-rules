@@ -6,6 +6,8 @@ export type {
   AgendaItemStatus,
   AppealOutcome,
   AppealState,
+  BallotChoice,
+  BallotRecord,
   AttendanceRecord,
   CommandEnvelope,
   Decision,
@@ -26,4 +28,8 @@ export type {
   RejectedDecision,
   RejectionCode,
   RulesProfile,
+  VoteOutcome,
+  VoteResult,
+  VoteRuleSnapshot,
+  VoteState,
 } from './types.js'

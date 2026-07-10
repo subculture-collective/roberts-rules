@@ -20,6 +20,10 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
     return reject('STALE_VERSION', `Expected aggregate version ${envelope.expectedVersion}, received ${state.version}`)
   }
 
+  if (profile.id !== state.rulesProfileId || profile.version !== state.rulesProfileVersion) {
+    return reject('INVALID_COMMAND', 'Rules profile identity or version does not match meeting state')
+  }
+
   if (isNewProceduralCommand(envelope.command.type) && parseIso(envelope.occurredAt) === undefined) {
     return reject('INVALID_COMMAND', 'Command time must be a valid timezone-qualified ISO timestamp')
   }
@@ -210,6 +214,7 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (hasUnresolvedProcedure(state, parent.id)) {
         return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
       }
+      if (hasAnyVote(state, parent.id)) return reject('INVALID_COMMAND', 'Current motion has already been voted on')
       const motionId = envelope.command.motionId.trim()
       const text = envelope.command.text.trim()
       if (!validNewMotion(state, motionId, text)) return reject('INVALID_COMMAND', 'Motion ID must be unique and motion text must not be empty')
@@ -223,6 +228,7 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (hasUnresolvedProcedure(state, motion.id)) {
         return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
       }
+      if (hasUnresolvedVote(state, motion.id)) return reject('INVALID_COMMAND', 'Current motion has an unresolved vote')
       if (envelope.role !== 'chair' && (motion.status !== 'pendingSecond' || motion.moverId !== envelope.actorId)) {
         return reject('ROLE_FORBIDDEN', 'Only the mover may withdraw a pending-second motion')
       }
@@ -239,6 +245,7 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (hasUnresolvedProcedure(state, motion.id)) {
         return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
       }
+      if (hasUnresolvedVote(state, motion.id)) return reject('INVALID_COMMAND', 'Current motion has an unresolved vote')
       const value = (envelope.command.type === 'TableMotion' ? envelope.command.reason : envelope.command.disposition).trim()
       if (value === '') return reject('INVALID_COMMAND', 'A reason or disposition is required')
       return envelope.command.type === 'TableMotion'
@@ -250,6 +257,7 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (invalid) return invalid
       const motion = currentMotion(state, envelope.command.motionId.trim())
       if (!motion || motion.status !== 'active') return reject('NO_ACTIVE_QUESTION', 'Debate requires the current active motion')
+      if (hasAnyVote(state, motion.id)) return reject('INVALID_COMMAND', 'Current motion has already been voted on')
       if (state.debate !== null) return reject('INVALID_COMMAND', 'Debate has already occurred for the current question')
       const openedAt = parseIso(envelope.occurredAt)
       const closesAt = parseIso(envelope.command.closesAt)
@@ -327,6 +335,54 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (!reason) return reject('INVALID_COMMAND', 'An appeal outcome reason is required')
       return accept([event(envelope, state.version + 1, 0, 'AppealOutcomeRecorded', { pointId: point.id, appealId: appeal.id, outcome: envelope.command.outcome, reason, decidedAt: envelope.occurredAt, deciderId: envelope.actorId })])
     }
+    case 'OpenVote': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const motion = currentMotion(state, envelope.command.motionId.trim())
+      if (!motion || motion.status !== 'active') return reject('NO_ACTIVE_QUESTION', 'Voting requires the current active motion')
+      if (state.debate?.status === 'open') return reject('INVALID_COMMAND', 'Debate must be closed before voting')
+      if (hasUnresolvedProcedure(state, motion.id) || hasAnyVote(state, motion.id)) return reject('INVALID_COMMAND', 'Current motion has unresolved procedure or a prior vote')
+      const voteId = envelope.command.voteId.trim()
+      if (!voteId || state.votes[voteId]) return reject('INVALID_COMMAND', 'Vote ID must be unique and non-empty')
+      if (envelope.command.method !== 'counted' || !profile.voteMethods.includes('counted')) return reject('INVALID_COMMAND', 'Only permitted non-secret counted voting is supported')
+      if (!validThreshold(profile.motionThreshold)) return reject('INVALID_COMMAND', 'Motion threshold must contain valid positive integers')
+      return accept([event(envelope, state.version + 1, 0, 'VoteOpened', { vote: { id: voteId, motionId: motion.id, method: 'counted', visibility: 'nonSecretSimulator', rule: { rulesProfileId: profile.id, rulesProfileVersion: profile.version, threshold: { ...profile.motionThreshold }, tiePolicy: profile.tiePolicy }, status: 'open', openedAt: envelope.occurredAt, ballots: {} } })])
+    }
+    case 'CastVote': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      const vote = state.votes[envelope.command.voteId.trim()]
+      if (!vote || vote.status !== 'open' || vote.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Named vote is not open for the current question')
+      if (vote.ballots[envelope.actorId]) return reject('ALREADY_VOTED', 'Representative has already voted')
+      if (parseIso(envelope.occurredAt)! < parseIso(vote.openedAt)!) return reject('INVALID_COMMAND', 'Ballot cannot precede vote opening')
+      return accept([event(envelope, state.version + 1, 0, 'VoteCast', { voteId: vote.id, voterId: envelope.actorId, ballot: { choice: envelope.command.choice, castAt: envelope.occurredAt } })])
+    }
+    case 'CloseVote': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const vote = state.votes[envelope.command.voteId.trim()]
+      if (!vote || vote.status !== 'open' || vote.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Named vote is not open for the current question')
+      const closedAt = parseIso(envelope.occurredAt)!
+      if (closedAt < parseIso(vote.openedAt)! || Object.values(vote.ballots).some((ballot) => closedAt < parseIso(ballot.castAt)!)) {
+        return reject('INVALID_COMMAND', 'Vote cannot close before opening or a recorded ballot')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'VoteClosed', { voteId: vote.id, closedAt: envelope.occurredAt })])
+    }
+    case 'RecordVoteOutcome': {
+      const invalid = validateFloorOperation(state, envelope, ['chair', 'teller', 'secretary'])
+      if (invalid) return invalid
+      const vote = state.votes[envelope.command.voteId.trim()]
+      if (!vote || vote.status !== 'closed' || vote.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Named vote is not closed for the current question')
+      if (parseIso(envelope.occurredAt)! < parseIso(vote.closedAt!)!) return reject('INVALID_COMMAND', 'Outcome cannot precede vote closing')
+      const choices = Object.values(vote.ballots).map((ballot) => ballot.choice)
+      const yes = choices.filter((choice) => choice === 'yes').length
+      const no = choices.filter((choice) => choice === 'no').length
+      const abstain = choices.filter((choice) => choice === 'abstain').length
+      const tied = yes === no
+      const result = tied ? (vote.rule.tiePolicy === 'chairDecides' ? 'tied' : 'rejected')
+        : yes * vote.rule.threshold.denominator >= (yes + no) * vote.rule.threshold.numerator ? 'adopted' : 'rejected'
+      return accept([event(envelope, state.version + 1, 0, 'VoteOutcomeRecorded', { outcome: { voteId: vote.id, motionId: vote.motionId, method: vote.method, visibility: vote.visibility, rule: { ...vote.rule, threshold: { ...vote.rule.threshold } }, yes, no, abstain, result, recordedAt: envelope.occurredAt, recorderId: envelope.actorId } })])
+    }
     default:
       return reject('INVALID_COMMAND', 'Command is not implemented')
   }
@@ -388,7 +444,20 @@ function parseIso(value: string): number | undefined {
 }
 
 function isNewProceduralCommand(type: MeetingCommand['type']): boolean {
-  return ['OpenDebate', 'CloseDebate', 'RaisePointOfOrder', 'RuleOnPointOfOrder', 'AppealRuling', 'RecordAppealOutcome'].includes(type)
+  return ['OpenDebate', 'CloseDebate', 'RaisePointOfOrder', 'RuleOnPointOfOrder', 'AppealRuling', 'RecordAppealOutcome', 'OpenVote', 'CastVote', 'CloseVote', 'RecordVoteOutcome'].includes(type)
+}
+
+function hasUnresolvedVote(state: MeetingState, motionId: string): boolean {
+  return Object.values(state.votes).some((vote) => vote.motionId === motionId && vote.status !== 'recorded')
+}
+
+function hasAnyVote(state: MeetingState, motionId: string): boolean {
+  return Object.values(state.votes).some((vote) => vote.motionId === motionId)
+}
+
+function validThreshold(threshold: RulesProfile['motionThreshold']): boolean {
+  return Number.isInteger(threshold.numerator) && Number.isInteger(threshold.denominator)
+    && threshold.numerator > 0 && threshold.denominator > 0 && threshold.numerator <= threshold.denominator
 }
 
 function hasUnresolvedProcedure(state: MeetingState, motionId: string): boolean {
