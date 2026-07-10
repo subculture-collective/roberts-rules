@@ -133,6 +133,8 @@ The next slice is [Milestone 3B: Resumable Meeting Event Stream](plans/2026-07-1
 
 The read-only client and dashboard slice is [Milestone 3C: Live Floor Projection](plans/2026-07-10-milestone-3c-live-floor-projection.md).
 
+Authentication before command controls is [Milestone 3D: Meeting-Scoped Sessions](plans/2026-07-10-milestone-3d-meeting-sessions.md).
+
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.
