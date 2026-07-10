@@ -25,11 +25,11 @@
 
 **Files:** `web/src/LiveFloor.tsx`, `web/src/LiveFloor.test.tsx`, `web/src/App.tsx`, `web/src/styles.css`.
 
-- [ ] Render phase/version, quorum, agenda, active motion, recognition queues, debate deadline, and non-secret simulator vote status from `MeetingState` only.
-- [ ] Add chair/secretary/parliamentarian context panels without command controls; participant and observer views omit private operational details not needed by their role.
-- [ ] Preserve the editorial/industrial design, responsive layout, semantic headings, visible focus, and text alternatives for status color.
-- [ ] Render an authentication-required state honestly when no principal/session exists.
-- [ ] Run `make verify` and commit `feat: add role-aware live floor dashboard`.
+- [x] Render phase/version, quorum, agenda, active motion, recognition queues, debate deadline, and non-secret simulator vote status from `MeetingState` only.
+- [x] Add chair/secretary/parliamentarian context panels without command controls; participant and observer views omit private operational details not needed by their role.
+- [x] Preserve the editorial/industrial design, responsive layout, semantic headings, visible focus, and text alternatives for status color.
+- [x] Render an authentication-required state honestly when no principal/session exists.
+- [x] Run `make verify` and commit `feat: add role-aware live floor dashboard`.
 
 ## Task 3C.3: Close the slice
 

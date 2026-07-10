@@ -1,3 +1,5 @@
+import { AuthenticationRequired } from './LiveFloor';
+
 export default function App() {
   return (
     <main className="min-h-screen bg-[#ece8dc] text-[#1d201c] selection:bg-[#c5d15f] selection:text-[#1d201c]">
@@ -93,6 +95,10 @@ export default function App() {
               within private meeting authority.
             </p>
           </div>
+        </section>
+
+        <section className="py-8" aria-label="Live floor access">
+          <AuthenticationRequired />
         </section>
 
         <footer className="flex flex-col gap-5 py-6 sm:flex-row sm:items-center sm:justify-between">
