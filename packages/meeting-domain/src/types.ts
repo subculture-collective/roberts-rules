@@ -30,17 +30,33 @@ export interface AttendanceRecord {
   alternateFor?: string
 }
 
+export type AgendaItemStatus = 'pending' | 'current' | 'completed'
+export interface AgendaItem { id: string; title: string; status: AgendaItemStatus }
+export type RecognitionSide = 'pro' | 'con'
+export type MotionStatus = 'pendingSecond' | 'active' | 'withdrawn' | 'tabled' | 'disposed'
+export interface Motion {
+  id: string
+  text: string
+  moverId: string
+  seconderId?: string
+  parentId?: string
+  status: MotionStatus
+  completionReason?: string
+  disposition?: string
+}
+
 export interface MeetingState {
   meetingId?: string
   rulesProfileId: string
   rulesProfileVersion: number
   phase: MeetingPhase
   version: number
-  agenda: readonly unknown[]
+  agenda: readonly AgendaItem[]
   attendance: Readonly<Record<string, AttendanceRecord>>
   quorum: { present: number; required: number; met: boolean }
-  motions: Readonly<Record<string, unknown>>
-  recognitionQueues: Readonly<Record<string, readonly unknown[]>>
+  motions: Readonly<Record<string, Motion>>
+  motionStack: readonly string[]
+  recognitionQueues: Readonly<Record<RecognitionSide, readonly string[]>>
   debate: unknown | null
   pointsOfOrder: Readonly<Record<string, unknown>>
   votes: Readonly<Record<string, unknown>>
@@ -59,6 +75,17 @@ export type MeetingCommand =
   | { type: 'CheckInParticipant'; participantId: string; participantRole: MeetingRole; alternateFor?: string }
   | { type: 'CheckOutParticipant'; participantId: string }
   | { type: 'ActivateAlternate'; alternateId: string; delegateId: string }
+  | { type: 'AdoptAgenda'; items: readonly { id: string; title: string }[] }
+  | { type: 'AdvanceAgenda' }
+  | { type: 'JoinRecognitionQueue'; side: RecognitionSide }
+  | { type: 'WithdrawRecognitionQueue'; side: RecognitionSide }
+  | { type: 'ReorderRecognitionQueue'; side: RecognitionSide; participantIds: readonly string[] }
+  | { type: 'IntroduceMotion'; motionId: string; text: string }
+  | { type: 'SecondMotion'; motionId: string }
+  | { type: 'AmendMotion'; motionId: string; text: string; parentId: string }
+  | { type: 'WithdrawMotion'; motionId: string; reason?: string }
+  | { type: 'TableMotion'; motionId: string; reason: string }
+  | { type: 'DisposeMotion'; motionId: string; disposition: string }
 
 export interface CommandEnvelope {
   id: string
@@ -79,6 +106,9 @@ export type MeetingEventType =
   | 'ParticipantCheckedOut'
   | 'AlternateActivated'
   | 'QuorumChanged'
+  | 'AgendaAdopted' | 'AgendaAdvanced'
+  | 'RecognitionQueueJoined' | 'RecognitionQueueWithdrawn' | 'RecognitionQueueReordered'
+  | 'MotionIntroduced' | 'MotionSeconded' | 'MotionAmended' | 'MotionWithdrawn' | 'MotionTabled' | 'MotionDisposed'
 
 export interface MeetingEventPayloadMap {
   MeetingInitialized: { meetingId: string; rulesProfileId: string; rulesProfileVersion: number }
@@ -90,6 +120,17 @@ export interface MeetingEventPayloadMap {
   ParticipantCheckedOut: { participantId: string }
   AlternateActivated: { alternateId: string; delegateId: string; deactivatedAlternateIds: readonly string[] }
   QuorumChanged: { present: number; required: number; met: boolean }
+  AgendaAdopted: { items: readonly AgendaItem[] }
+  AgendaAdvanced: { completedItemId: string; currentItemId?: string }
+  RecognitionQueueJoined: { side: RecognitionSide; participantId: string }
+  RecognitionQueueWithdrawn: { side: RecognitionSide; participantId: string }
+  RecognitionQueueReordered: { side: RecognitionSide; participantIds: readonly string[] }
+  MotionIntroduced: { motion: Motion }
+  MotionSeconded: { motionId: string; seconderId: string }
+  MotionAmended: { motion: Motion }
+  MotionWithdrawn: { motionId: string; reason?: string }
+  MotionTabled: { motionId: string; reason: string }
+  MotionDisposed: { motionId: string; disposition: string }
 }
 
 export type MeetingEventOf<T extends MeetingEventType> = T extends MeetingEventType ? {

@@ -10,7 +10,8 @@ export function createInitialState(profile: RulesProfile): MeetingState {
     attendance: {},
     quorum: { present: 0, required: profile.quorum.minimum, met: profile.quorum.minimum === 0 },
     motions: {},
-    recognitionQueues: {},
+    motionStack: [],
+    recognitionQueues: { pro: [], con: [] },
     debate: null,
     pointsOfOrder: {},
     votes: {},
@@ -93,9 +94,92 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
           met: event.payload.met,
         },
       }
+    case 'AgendaAdopted':
+      return { ...state, agenda: event.payload.items.map((item) => ({ ...item })) }
+    case 'AgendaAdvanced':
+      return {
+        ...state,
+        agenda: state.agenda.map((item) => {
+          if (item.id === event.payload.completedItemId) return { ...item, status: 'completed' }
+          if (item.id === event.payload.currentItemId) return { ...item, status: 'current' }
+          return item
+        }),
+      }
+    case 'RecognitionQueueJoined':
+      return {
+        ...state,
+        recognitionQueues: {
+          ...state.recognitionQueues,
+          [event.payload.side]: [...state.recognitionQueues[event.payload.side], event.payload.participantId],
+        },
+      }
+    case 'RecognitionQueueWithdrawn':
+      return {
+        ...state,
+        recognitionQueues: {
+          ...state.recognitionQueues,
+          [event.payload.side]: state.recognitionQueues[event.payload.side]
+            .filter((id) => id !== event.payload.participantId),
+        },
+      }
+    case 'RecognitionQueueReordered':
+      return {
+        ...state,
+        recognitionQueues: {
+          ...state.recognitionQueues,
+          [event.payload.side]: [...event.payload.participantIds],
+        },
+      }
+    case 'MotionIntroduced':
+    case 'MotionAmended':
+      return {
+        ...state,
+        motions: { ...state.motions, [event.payload.motion.id]: { ...event.payload.motion } },
+        motionStack: [...state.motionStack, event.payload.motion.id],
+        recognitionQueues: emptyRecognitionQueues(),
+      }
+    case 'MotionSeconded':
+      return {
+        ...state,
+        motions: {
+          ...state.motions,
+          [event.payload.motionId]: {
+            ...state.motions[event.payload.motionId]!,
+            status: 'active',
+            seconderId: event.payload.seconderId,
+          },
+        },
+      }
+    case 'MotionWithdrawn':
+      return completeMotion(state, event.payload.motionId, 'withdrawn', event.payload.reason)
+    case 'MotionTabled':
+      return completeMotion(state, event.payload.motionId, 'tabled', event.payload.reason)
+    case 'MotionDisposed':
+      return completeMotion(state, event.payload.motionId, 'disposed', undefined, event.payload.disposition)
     default:
       return assertNever(event)
   }
+}
+
+function completeMotion(state: MeetingState, motionId: string, status: 'withdrawn' | 'tabled' | 'disposed', reason?: string, disposition?: string): MeetingState {
+  return {
+    ...state,
+    motions: {
+      ...state.motions,
+      [motionId]: {
+        ...state.motions[motionId]!,
+        status,
+        ...(reason === undefined ? {} : { completionReason: reason }),
+        ...(disposition === undefined ? {} : { disposition }),
+      },
+    },
+    motionStack: state.motionStack.filter((id) => id !== motionId),
+    recognitionQueues: emptyRecognitionQueues(),
+  }
+}
+
+function emptyRecognitionQueues(): MeetingState['recognitionQueues'] {
+  return { pro: [], con: [] }
 }
 
 function deactivateParticipants(
