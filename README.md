@@ -4,7 +4,7 @@ Roberts Rules is an early-stage platform for chair-led parliamentary meetings. I
 
 The project models original procedural behavior and organization-specific rules. It does not bundle or reproduce prose from *Robert's Rules of Order*.
 
-Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes may eventually be published through AT Protocol. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. The current simulator is not production-ready and must not be treated as a binding or secure voting system.
+Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes have experimental AT Protocol schemas and a fail-closed publication boundary. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. No production PDS integration or secure voting system exists yet, and the simulator must not be treated as binding or production-ready.
 
 ## Quick start
 

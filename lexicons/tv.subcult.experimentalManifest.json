@@ -1,0 +1,22 @@
+{
+  "lexicon": 1,
+  "id": "tv.subcult.experimentalManifest",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["publicMeetingId", "organizationDid", "title", "scheduledStart", "ruleProfile", "createdAt"],
+        "properties": {
+          "publicMeetingId": { "type": "string", "minLength": 36, "maxLength": 36 },
+          "organizationDid": { "type": "string", "format": "did" },
+          "title": { "type": "string", "maxGraphemes": 160, "maxLength": 640 },
+          "scheduledStart": { "type": "string", "format": "datetime" },
+          "ruleProfile": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+          "createdAt": { "type": "string", "format": "datetime" }
+        }
+      }
+    }
+  }
+}

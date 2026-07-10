@@ -2,14 +2,18 @@
   "name": "@subculture/roberts-rules",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": ">=22" },
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
-    "format": "pnpm -r --if-present run format"
+    "format": "pnpm -r --if-present run format",
+    "lexicons:build": "lex build --lexicons lexicons --out packages/meeting-publication/src/generated --clear --index-file --no-pretty",
+    "lexicons:check": "scripts/check-lexicons.sh"
   },
   "devDependencies": {
+    "@atproto/lex": "0.2.2",
     "eslint": "^9.39.4"
   }
 }

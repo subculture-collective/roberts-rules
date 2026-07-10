@@ -114,14 +114,20 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 **Outcome:** Organization identity and approved meeting artifacts have clear AT Protocol records without exposing private meeting data.
 
-- [ ] Define and validate versioned lexicons for a public rule profile, meeting manifest, and approved outcome artifact.
-- [ ] Add an explicit publication boundary: only an approved, aggregate outcome selected by the secretary or chair is eligible for organization-PDS publication.
-- [ ] Design DID preregistration and device-bound meeting credentials as private infrastructure. Do not place credential material, attendee rosters, participation logs, or ballot records in public records.
-- [ ] Add integration tests using local fixtures before contacting a production PDS.
+The executable task sequence, file map, contracts, tests, and production-release gate are in [the Milestone 2 implementation plan](plans/2026-07-10-milestone-2-public-artifacts.md).
+
+- [x] Define and locally validate experimental Lexicons for a public rule profile, meeting manifest, approved outcome, and shared strong references.
+- [x] Add a pure allowlist-based projection package and prove private meeting sentinels cannot enter serialized public artifacts.
+- [x] Require chair or secretary approval of the exact immutable projection before creating an idempotent publication job.
+- [x] Add an AT Protocol repository adapter with collection-specific permissions, required validation, fake-transport integration tests, and an opt-in local-PDS smoke harness.
+- [x] Record the production namespace/release gate and the private credential handoff; do not contact a production PDS in this milestone.
+- [x] Run `make verify` after every slice and mark the milestone complete only when the linked acceptance gate passes.
 
 ## Milestone 3: Live Floor
 
 **Outcome:** A private real-time PWA and API submit domain commands and project the authoritative event stream.
+
+Milestone 3 is intentionally split into independently verified vertical slices. Begin with [Milestone 3A: Durable Private Command API](plans/2026-07-10-milestone-3a-durable-command-api.md); plan resumable delivery and the role-specific PWA only after that journal boundary is merged.
 
 - [ ] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision.
 - [ ] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.

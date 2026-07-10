@@ -6,6 +6,7 @@ Use ADRs for decisions that affect structure, dependencies, operations, security
 
 - [ADR 0001: Public AT Protocol, Private Meeting Authority](0001-public-atproto-private-meeting-authority.md)
 - [ADR 0002: Event-Sourced, Chair-Controlled Procedure](0002-event-sourced-chair-controlled-procedure.md)
+- [ADR 0003: Public Artifact Schema and Approval](0003-public-artifact-schema-and-approval.md)
 
 Suggested format:
 

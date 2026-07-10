@@ -1,0 +1,23 @@
+{
+  "name": "@subculture/roberts-rules-atproto-publication",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./dist/index.js" },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "format": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "pnpm --filter @subculture/roberts-rules-meeting-publication build && vitest run",
+    "smoke:local": "tsx src/local-smoke.ts"
+  },
+  "dependencies": {
+    "@atproto/api": "0.20.28",
+    "@subculture/roberts-rules-meeting-publication": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1", "@types/node": "^24.10.1", "eslint": "^9.39.4",
+    "tsx": "^4.20.6", "typescript": "^5.9.3", "typescript-eslint": "^8.46.3", "vitest": "^4.0.8"
+  }
+}

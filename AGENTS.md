@@ -2,6 +2,8 @@
 
 This repository is a TypeScript full-stack project with a Vite React frontend, Node backend, PostgreSQL, and Docker Compose. `docs/PLAN.md` is the canonical implementation roadmap.
 
+Use Node.js 22 or newer. AT Protocol Lexicons live in `lexicons/`; regenerate committed types with `pnpm lexicons:build`. Never run the local PDS smoke command against a public host or with a non-disposable identity.
+
 ## Priorities
 
 1. Execute one milestone at a time and keep every slice runnable and minimal.

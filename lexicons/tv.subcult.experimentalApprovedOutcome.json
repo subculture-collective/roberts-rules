@@ -1,0 +1,36 @@
+{
+  "lexicon": 1,
+  "id": "tv.subcult.experimentalApprovedOutcome",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["publicOutcomeId", "organizationDid", "meeting", "publicMotionId", "motionText", "disposition", "approvedByRole", "approvedAt", "createdAt"],
+        "properties": {
+          "publicOutcomeId": { "type": "string", "minLength": 36, "maxLength": 36 },
+          "organizationDid": { "type": "string", "format": "did" },
+          "meeting": { "type": "ref", "ref": "com.atproto.repo.strongRef" },
+          "publicMotionId": { "type": "string", "minLength": 36, "maxLength": 36 },
+          "motionText": { "type": "string", "maxGraphemes": 2000, "maxLength": 8000 },
+          "disposition": { "type": "string", "knownValues": ["passed", "failed", "withdrawn", "tabled", "disposed"] },
+          "tally": { "type": "ref", "ref": "tv.subcult.experimentalApprovedOutcome#tally" },
+          "approvedByRole": { "type": "string", "knownValues": ["chair", "secretary"] },
+          "approvedAt": { "type": "string", "format": "datetime" },
+          "createdAt": { "type": "string", "format": "datetime" },
+          "supersedes": { "type": "ref", "ref": "com.atproto.repo.strongRef" }
+        }
+      }
+    },
+    "tally": {
+      "type": "object",
+      "required": ["yes", "no", "abstain"],
+      "properties": {
+        "yes": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "no": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "abstain": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+      }
+    }
+  }
+}
