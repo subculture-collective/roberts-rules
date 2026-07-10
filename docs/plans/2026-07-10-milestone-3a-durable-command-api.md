@@ -130,7 +130,7 @@ export interface MeetingStore {
 - Create: `backend/src/meeting-service.test.ts`
 - Modify: `backend/package.json`
 
-- [ ] **Write a failing tracer test** that creates a meeting, submits `InitializeMeeting`, and reads the resulting canonical snapshot.
+- [x] **Write a failing tracer test** that creates a meeting, submits `InitializeMeeting`, and reads the resulting canonical snapshot.
 
 ```ts
 export interface MeetingPrincipal { actorId: string; role: MeetingRole }
@@ -146,11 +146,11 @@ export interface SubmitCommandInput {
 submitCommand(principal: MeetingPrincipal, input: SubmitCommandInput): Promise<Decision>;
 ```
 
-- [ ] **Run the test and confirm RED.** Expected: missing service.
-- [ ] **Implement the service transaction.** Hash canonical `{meetingId, principal, input}` with SHA-256; return a byte-equivalent stored decision for the same ID/hash; return `COMMAND_ID_CONFLICT` for the same ID with a different hash; otherwise replay events, call `decide`, append accepted events, and store either outcome.
-- [ ] **Add rejection tests** for nonexistent meeting, stale version, forbidden role, and duplicate rejected commands. Assert rejected commands never add journal events.
-- [ ] **Add a two-client concurrency test.** Submit two commands at the same expected version and assert exactly one can advance the journal while the other receives `STALE_VERSION` after acquiring the row lock.
-- [ ] **Run focused tests and `make verify`.** Expected: all checks pass.
+- [x] **Run the test and confirm RED.** Expected: missing service.
+- [x] **Implement the service transaction.** Hash canonical `{meetingId, principal, input}` with SHA-256; return a byte-equivalent stored decision for the same ID/hash; return `COMMAND_ID_CONFLICT` for the same ID with a different hash; otherwise replay events, call `decide`, append accepted events, and store either outcome.
+- [x] **Add rejection tests** for nonexistent meeting, stale version, forbidden role, and duplicate rejected commands. Assert rejected commands never add journal events.
+- [x] **Add a two-client concurrency test.** Submit two commands at the same expected version and assert exactly one can advance the journal while the other receives `STALE_VERSION` after acquiring the row lock.
+- [x] **Run focused tests and `make verify`.** Expected: all checks pass.
 
 ## Task 3A.4: Expose the private HTTP boundary
 
