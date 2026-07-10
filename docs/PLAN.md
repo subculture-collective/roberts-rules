@@ -129,7 +129,7 @@ The executable task sequence, file map, contracts, tests, and production-release
 
 Milestone 3 is intentionally split into independently verified vertical slices. Begin with [Milestone 3A: Durable Private Command API](plans/2026-07-10-milestone-3a-durable-command-api.md); plan resumable delivery and the role-specific PWA only after that journal boundary is merged.
 
-- [ ] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision.
+- [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [ ] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [ ] Add chair, secretary, parliamentarian, delegate, alternate, observer, and operator views that render projected state only.
 - [ ] Implement presence, quorum display, recognition queues, motions, timers, and non-secret votes as clients of the event journal.

@@ -6,6 +6,8 @@ The project models original procedural behavior and organization-specific rules.
 
 Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes have experimental AT Protocol schemas and a fail-closed publication boundary. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. No production PDS integration or secure voting system exists yet, and the simulator must not be treated as binding or production-ready.
 
+The private API now has a transactional PostgreSQL journal, durable command idempotency, strict command validation, and an authentication boundary that denies access by default. Realtime delivery, production credentials, and meeting UI controls remain unimplemented.
+
 ## Quick start
 
 ```bash

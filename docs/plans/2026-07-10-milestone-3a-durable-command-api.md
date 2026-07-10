@@ -179,9 +179,9 @@ export interface PrincipalProvider {
 }
 ```
 
-- [ ] **Implement bounded JSON parsing.** Reject bodies above 64 KiB, malformed JSON, unknown command variants, invalid UUIDs/datetimes, and unknown keys with stable JSON error codes.
+- [x] **Implement bounded JSON parsing.** Reject bodies above 64 KiB, malformed JSON, unknown command variants, invalid UUIDs/datetimes, and unknown keys with stable JSON error codes.
 - [x] **Map service outcomes without leaking SQL or private journal rows.** Return `404` for missing meetings, `409` for command-ID conflict, and `200` for domain rejections such as `STALE_VERSION`.
-- [ ] **Run focused tests and `make verify`.** Expected: all checks pass.
+- [x] **Run focused tests and `make verify`.** Expected: all checks pass.
 
 ## Task 3A.5: Document and close the slice
 
@@ -193,16 +193,16 @@ export interface PrincipalProvider {
 - Modify: `README.md`
 - Modify: `docs/PLAN.md`
 
-- [ ] **Record the authority decision:** PostgreSQL journal and stored decisions are authoritative; HTTP, WebSocket, and browser projections are replaceable delivery layers.
-- [ ] **Document local migration and test commands** without including credentials or private meeting fixtures.
-- [ ] **Leave WebSockets and PWA controls unchecked** in Milestone 3. Link their future plans from `docs/PLAN.md` only when written.
-- [ ] **Run final gates.** Expected: `make verify`, `git diff --check`, and all PostgreSQL integration tests pass.
+- [x] **Record the authority decision:** PostgreSQL journal and stored decisions are authoritative; HTTP, WebSocket, and browser projections are replaceable delivery layers.
+- [x] **Document local migration and test commands** without including credentials or private meeting fixtures.
+- [x] **Leave WebSockets and PWA controls unchecked** in Milestone 3. Link their future plans from `docs/PLAN.md` only when written.
+- [x] **Run final gates.** Expected: `make verify`, `git diff --check`, and all PostgreSQL integration tests pass.
 
 ## Milestone 3A acceptance gate
 
-- [ ] Journal append, meeting version update, and decision storage are atomic.
-- [ ] Accepted and rejected command IDs are idempotent; mismatched reuse conflicts.
-- [ ] Concurrent same-version commands serialize and produce one stale decision.
-- [ ] HTTP cannot supply actor identity or role.
-- [ ] Snapshots are reconstructed from the authoritative journal.
-- [ ] `make verify` passes without adding WebSockets or browser command controls.
+- [x] Journal append, meeting version update, and decision storage are atomic.
+- [x] Accepted and rejected command IDs are idempotent; mismatched reuse conflicts.
+- [x] Concurrent same-version commands serialize and produce one stale decision.
+- [x] HTTP cannot supply actor identity or role.
+- [x] Snapshots are reconstructed from the authoritative journal.
+- [x] `make verify` passes without adding WebSockets or browser command controls.
