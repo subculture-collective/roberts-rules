@@ -26,6 +26,13 @@ export class PostgresMeetingStore {
     return result.rows.map((row) => row.event);
   }
 
+  async loadEventsAfter(id: string, version: number): Promise<MeetingEvent[]> {
+    const result = await this.client.query<{ event: MeetingEvent }>(
+      'SELECT event FROM meeting_events WHERE meeting_id = $1 AND aggregate_version > $2 ORDER BY aggregate_version', [id, version],
+    );
+    return result.rows.map((row) => row.event);
+  }
+
   async findDecision(id: string, commandId: string): Promise<StoredCommandDecision | null> {
     const result = await this.client.query<{ request_hash: string; decision: Decision }>(
       'SELECT request_hash, decision FROM command_decisions WHERE meeting_id = $1 AND command_id = $2', [id, commandId],
@@ -48,6 +55,7 @@ export class PostgresMeetingStore {
       'UPDATE meetings SET aggregate_version = $3 WHERE id = $1 AND aggregate_version = $2', [id, expectedVersion, version],
     );
     if (result.rowCount !== 1) throw new Error('MEETING_VERSION_CONFLICT');
+    if (events.length > 0) await this.client.query("SELECT pg_notify('meeting_events', $1)", [id]);
   }
 
   async storeDecision(id: string, commandId: string, requestHash: string, decision: Decision): Promise<void> {

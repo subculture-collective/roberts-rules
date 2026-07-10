@@ -29,6 +29,8 @@ integration('PostgresMeetingStore', () => {
       const store = new PostgresMeetingStore(client);
       expect((await store.lockMeeting(meetingId))?.aggregateVersion).toBe(1);
       expect(await store.loadEvents(meetingId)).toEqual([event]);
+      expect(await store.loadEventsAfter(meetingId, 0)).toEqual([event]);
+      expect(await store.loadEventsAfter(meetingId, 1)).toEqual([]);
       expect(await store.findDecision(meetingId, 'command-1')).toEqual({ requestHash: 'hash-1', decision });
     });
   });

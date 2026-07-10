@@ -32,12 +32,12 @@ server -> {"type":"heartbeat","at":"2026-07-10T20:00:00.000Z"}
 
 ## Task 3B.1: Durable wake-ups and replay queries
 
-**Files:** `backend/migrations/002_event_notifications.sql`, `backend/src/meeting-store.ts`, `backend/src/event-source.ts`, and tests.
+**Files:** `backend/src/meeting-store.ts`, `backend/src/event-source.ts`, and tests. PostgreSQL channels require no schema migration.
 
-- [ ] Write a failing PostgreSQL test proving `loadEventsAfter(meetingId, version)` returns ordered later events only.
-- [ ] Add `pg_notify('meeting_events', meeting_id)` to the accepted append transaction; notifications contain no private event payload.
-- [ ] Implement a dedicated LISTEN connection that reconnects with bounded exponential backoff and invokes subscribers only as a wake-up hint.
-- [ ] Run the real PostgreSQL suite, `make verify`, and commit `feat: add durable meeting event source`.
+- [x] Write a failing PostgreSQL test proving `loadEventsAfter(meetingId, version)` returns ordered later events only.
+- [x] Add `pg_notify('meeting_events', meeting_id)` to the accepted append transaction; notifications contain no private event payload.
+- [x] Implement a dedicated LISTEN connection that reconnects with bounded exponential backoff and invokes subscribers only as a wake-up hint.
+- [x] Run the real PostgreSQL suite, `make verify`, and commit `feat: add durable meeting event source`.
 
 ## Task 3B.2: Authenticated resumable WebSocket hub
 
@@ -65,4 +65,3 @@ server -> {"type":"heartbeat","at":"2026-07-10T20:00:00.000Z"}
 - [ ] Slow and dead clients are closed and cleaned up.
 - [ ] Meeting events remain private; notifications carry meeting IDs only.
 - [ ] WebSocket availability never affects command acceptance or meeting authority.
-
