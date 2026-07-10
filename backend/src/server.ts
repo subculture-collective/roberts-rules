@@ -1,5 +1,8 @@
 import { createServer } from 'node:http';
 import { z } from 'zod';
+import type { MeetingApplication } from './http.js';
+import { createHttpHandler } from './http.js';
+import { denyAllPrincipals, type PrincipalProvider } from './principal.js';
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8080),
@@ -14,13 +17,15 @@ export function getConfig(env: NodeJS.ProcessEnv = process.env) {
   return envSchema.parse(env);
 }
 
-export function createApp() {
+export function createApp(dependencies?: { application: MeetingApplication; principals?: PrincipalProvider }) {
+  const api = dependencies ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals) : undefined;
   return createServer((req, res) => {
     if (req.url === '/health') {
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ status: 'ok' }));
       return;
     }
+    if (api) { void api(req, res); return; }
     res.writeHead(404, { 'content-type': 'application/json' });
     res.end(JSON.stringify({ error: 'not_found' }));
   });

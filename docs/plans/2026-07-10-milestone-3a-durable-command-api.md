@@ -162,7 +162,7 @@ submitCommand(principal: MeetingPrincipal, input: SubmitCommandInput): Promise<D
 - Modify: `backend/src/server.ts`
 - Modify: `backend/src/index.ts`
 
-- [ ] **Write failing HTTP tests** for:
+- [x] **Write failing HTTP tests** for:
 
 ```text
 POST /api/meetings                 -> 201 meeting metadata
@@ -170,8 +170,8 @@ POST /api/meetings/:id/commands    -> 200 accepted or rejected Decision
 GET  /api/meetings/:id/snapshot    -> 200 canonical state and latest version
 ```
 
-- [ ] **Test the authority boundary.** A request containing `actorId` or `role` must return `400 ENVELOPE_AUTHORITY_FORBIDDEN`; missing principal returns `401 AUTHENTICATION_REQUIRED`.
-- [ ] **Implement `PrincipalProvider`.** The default provider returns no principal. Tests inject a fixed principal; do not add header-based actor or role impersonation.
+- [x] **Test the authority boundary.** A request containing `actorId` or `role` must return `400 ENVELOPE_AUTHORITY_FORBIDDEN`; missing principal returns `401 AUTHENTICATION_REQUIRED`.
+- [x] **Implement `PrincipalProvider`.** The default provider returns no principal. Tests inject a fixed principal; do not add header-based actor or role impersonation.
 
 ```ts
 export interface PrincipalProvider {
@@ -180,7 +180,7 @@ export interface PrincipalProvider {
 ```
 
 - [ ] **Implement bounded JSON parsing.** Reject bodies above 64 KiB, malformed JSON, unknown command variants, invalid UUIDs/datetimes, and unknown keys with stable JSON error codes.
-- [ ] **Map service outcomes without leaking SQL or private journal rows.** Return `404` for missing meetings, `409` for command-ID conflict, and `200` for domain rejections such as `STALE_VERSION`.
+- [x] **Map service outcomes without leaking SQL or private journal rows.** Return `404` for missing meetings, `409` for command-ID conflict, and `200` for domain rejections such as `STALE_VERSION`.
 - [ ] **Run focused tests and `make verify`.** Expected: all checks pass.
 
 ## Task 3A.5: Document and close the slice
