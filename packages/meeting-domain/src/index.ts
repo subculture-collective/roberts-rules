@@ -1,5 +1,8 @@
+export { canonicalStringify } from './canonical.js'
 export { decide } from './decide.js'
+export { replay } from './replay.js'
 export { createInitialState, reduce } from './reduce.js'
+export type { ReplayResult } from './replay.js'
 export type {
   AcceptedDecision,
   AgendaItem,

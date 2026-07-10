@@ -1,0 +1,11 @@
+{"format":"roberts-rules-transcript-v1","profile":{"id":"fixture-rules","version":1,"quorum":{"type":"fixed","minimum":2},"debate":{"defaultDurationSeconds":600},"voteMethods":["counted"],"motionThreshold":{"numerator":1,"denominator":2,"basis":"votesCast"},"tiePolicy":"motionFails","overrides":{"quorumIndependentActions":[]}}}
+{"id":"init","expectedVersion":0,"actorId":"admin","role":"administrator","occurredAt":"2026-07-10T15:00:00.000Z","command":{"type":"InitializeMeeting","meetingId":"point-appeal"}}
+{"id":"in-1","expectedVersion":1,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:01:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-1","participantRole":"delegate"}}
+{"id":"in-2","expectedVersion":2,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:02:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-2","participantRole":"delegate"}}
+{"id":"open","expectedVersion":4,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:03:00.000Z","command":{"type":"OpenMeeting"}}
+{"id":"main","expectedVersion":5,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:04:00.000Z","command":{"type":"IntroduceMotion","motionId":"main-1","text":"Fund the garden"}}
+{"id":"second","expectedVersion":6,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:05:00.000Z","command":{"type":"SecondMotion","motionId":"main-1"}}
+{"id":"point","expectedVersion":7,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:06:00.000Z","command":{"type":"RaisePointOfOrder","pointId":"point-1","text":"The proposal exceeds scope"}}
+{"id":"ruling","expectedVersion":8,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:07:00.000Z","command":{"type":"RuleOnPointOfOrder","pointId":"point-1","ruling":"denied","reason":"The proposal is germane"}}
+{"id":"appeal","expectedVersion":9,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:08:00.000Z","command":{"type":"AppealRuling","pointId":"point-1","appealId":"appeal-1","grounds":"Scope remains unclear"}}
+{"id":"appeal-outcome","expectedVersion":10,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:09:00.000Z","command":{"type":"RecordAppealOutcome","pointId":"point-1","appealId":"appeal-1","outcome":"overturned","reason":"Assembly disagreed"}}

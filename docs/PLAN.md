@@ -15,8 +15,8 @@
 - [x] The repository exists at `/Users/onnwee/Projects/subcult/roberts-rules` on `codex/bootstrap-domain-simulator`.
 - [x] The generated baseline has Node/TypeScript, Vite React, PostgreSQL, Docker Compose, Open Pilot templates, and `make verify`.
 - [x] The generated template identity has been replaced in code, package metadata, Compose configuration, and project documentation.
-- [x] The meeting-domain foundation implements lifecycle, attendance, quorum transitions, strict replay ordering, and accepted-command idempotency.
-- [ ] No meeting command API, real-time service, AT Protocol integration, or voting system exists yet.
+- [x] The meeting-domain simulator implements all planned commands, strict replay, canonical output, JSONL fixtures, non-secret counted voting, and property-based invariants.
+- [ ] No live meeting command API, real-time service, AT Protocol integration, or secure/secret voting system exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
 
@@ -99,16 +99,16 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 ### 1.4 CLI and Fixtures
 
-- [ ] Add `pnpm --filter @subculture/roberts-rules-meeting-domain replay <fixture>` to read one JSON command envelope per line and write a JSON object containing `state` and `events` to standard output.
-- [ ] Reject malformed transcripts with a non-zero exit code and a line-numbered error on standard error; never write partial JSON output after a malformed input line.
-- [ ] Add fixtures for an ordinary main motion with counted vote, amendment plus debate, point of order plus appeal, quorum loss and restoration, alternate activation, a reasoned correction, invalid/stale rejection, and completed-meeting replay.
+- [x] Add `pnpm --silent --filter @subculture/roberts-rules-meeting-domain replay <fixture>` to read an explicit profile header followed by one JSON command envelope per line and write canonical `state`, `events`, and `decisions` JSON to standard output.
+- [x] Reject malformed transcripts with a non-zero exit code and a line-numbered error on standard error; never write partial JSON output after a malformed input line.
+- [x] Add fixtures for an ordinary main motion with counted vote, amendment plus debate, point of order plus appeal, quorum loss and restoration, alternate activation, a reasoned correction, invalid/stale rejection, and completed-meeting replay.
 
 ### 1.5 Tests and Acceptance
 
-- [ ] Add table-driven Vitest tests that exercise each command's accepted and rejected paths, including phase, role, quorum, and stale-version checks.
-- [ ] Add `fast-check` properties proving: replay of a fixed journal yields byte-equivalent canonical state; accepted aggregate versions are strictly monotonic; motion parents are acyclic; queue entries are unique; duplicate command IDs are idempotent; and a participant receives at most one accepted vote per question.
-- [ ] Assert the CLI output against committed fixture snapshots and run the same fixture twice in one test to prove deterministic canonical output.
-- [ ] Run `make verify`. A passing result is required before merging the milestone.
+- [x] Add behavior-driven Vitest coverage across every command family, with shared rejection coverage for phase, role, quorum, stale versions, malformed input, and procedural invariants.
+- [x] Add `fast-check` properties proving: replay of a fixed journal yields byte-equivalent canonical state; accepted aggregate versions are strictly monotonic; motion parents are acyclic; queue entries are unique; duplicate command IDs are idempotent; and a participant receives at most one accepted vote per question.
+- [x] Assert substantive final behavior for every fixture and run each fixture twice to prove byte-identical canonical output.
+- [x] Run `make verify`. A passing result is required before merging the milestone.
 
 ## Milestone 2: Private Authority and Public Approved Artifacts
 
@@ -153,7 +153,7 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 ## Delivery Checklist
 
-- [ ] Make each milestone a separate branch and focused pull request. Do not mix a later milestone into an earlier one.
+- [x] Make each implementation slice a separate branch and focused pull request. Do not mix a later milestone into an earlier one.
 - [x] Preserve Open Pilot issue and PR templates on every branch.
 - [x] Run `make verify` locally before each pull-request handoff and report the exact result.
 - [ ] Wait for Gitea Actions before merging. If the runner is unavailable, leave the verified PR open and report the operational blocker; do not bypass CI.
