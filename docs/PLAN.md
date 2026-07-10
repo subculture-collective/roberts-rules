@@ -144,7 +144,7 @@ The remaining live-floor command families are [Milestone 3F: Complete Live Floor
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.
-- [ ] Implement presence, quorum display, recognition queues, motions, timers, and non-secret votes as clients of the event journal.
+- [x] Implement journal-backed attendance presence, quorum display, recognition queues, agenda, motions, debate deadlines, parliamentary procedure, and non-secret simulator votes as clients of the event journal.
 - [x] Add optimistic-concurrency and reconnect tests. The client refreshes from the authoritative journal after a stale-version response and does not mutate projection state optimistically.
 
 ## Milestone 4: Voting and Cryptographic Ballots

@@ -25,3 +25,5 @@ The React client applies only consecutive meeting events with the shared meeting
 Meeting authentication uses PostgreSQL-backed, revocable sessions. Operators issue single-use enrollments with `pnpm --filter @subculture/roberts-rules-api enrollment:issue`; redemption sets an HttpOnly SameSite=Strict cookie scoped to the meeting API path. `APP_ORIGIN` controls HTTP/WebSocket origin checks.
 
 The React action client submits fresh command IDs with the current projected version and never updates meeting state optimistically. Accepted changes arrive through the event stream; `STALE_VERSION` forces an authoritative snapshot refresh. Current controls cover chair lifecycle, recognition queues, and explicitly non-secret simulator ballots.
+
+Milestone 3 controls cover the existing domain command families: journal-backed attendance, agenda, motions, recognition, debate, points and appeals, and counted non-secret simulator voting. PostgreSQL events remain authoritative for every displayed change.

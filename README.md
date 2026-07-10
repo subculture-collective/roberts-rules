@@ -21,6 +21,8 @@ Redeeming that token creates a 30-minute, revocable, meeting-scoped HttpOnly coo
 
 Authenticated live-floor controls now cover chair lifecycle actions, recognition queues, and non-secret simulator ballot choices. Commands wait for authoritative event delivery; stale-version responses trigger a full snapshot refresh rather than optimistic reconciliation.
 
+The live-floor control set now also covers attendance, agenda, motions, debate deadlines, points of order, appeals, and counted-vote administration. Voting remains explicitly non-secret, simulation-only, and not production-ready.
+
 ## Quick start
 
 ```bash

@@ -29,5 +29,5 @@
 
 ## Task 3F.4: Close Milestone 3
 
-- [ ] Update README, stack reference, and `docs/PLAN.md`; do not claim secure or binding voting.
-- [ ] Run real PostgreSQL tests, `make verify`, `git diff --check`, and commit `docs: complete live floor milestone`.
+- [x] Update README, stack reference, and `docs/PLAN.md`; do not claim secure or binding voting.
+- [x] Run real PostgreSQL tests, `make verify`, `git diff --check`, and commit `docs: complete live floor milestone`.
