@@ -7,6 +7,7 @@ import type {
   MeetingEventOf,
   MeetingEventPayloadMap,
   MeetingEventType,
+  MeetingCommand,
   MeetingState,
   RulesProfile,
 } from './types.js'
@@ -17,6 +18,10 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
 
   if (envelope.expectedVersion !== state.version) {
     return reject('STALE_VERSION', `Expected aggregate version ${envelope.expectedVersion}, received ${state.version}`)
+  }
+
+  if (isNewProceduralCommand(envelope.command.type) && parseIso(envelope.occurredAt) === undefined) {
+    return reject('INVALID_COMMAND', 'Command time must be a valid timezone-qualified ISO timestamp')
   }
 
   switch (envelope.command.type) {
@@ -202,6 +207,9 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (!parent || parent.id !== state.motionStack.at(-1) || parent.status !== 'active') {
         return reject('INVALID_PARENT', 'Parent must be the current active motion')
       }
+      if (hasUnresolvedProcedure(state, parent.id)) {
+        return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
+      }
       const motionId = envelope.command.motionId.trim()
       const text = envelope.command.text.trim()
       if (!validNewMotion(state, motionId, text)) return reject('INVALID_COMMAND', 'Motion ID must be unique and motion text must not be empty')
@@ -212,6 +220,9 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (invalid) return invalid
       const motion = currentMotion(state, envelope.command.motionId.trim())
       if (!motion) return reject('NO_ACTIVE_QUESTION', 'Named motion is not current')
+      if (hasUnresolvedProcedure(state, motion.id)) {
+        return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
+      }
       if (envelope.role !== 'chair' && (motion.status !== 'pendingSecond' || motion.moverId !== envelope.actorId)) {
         return reject('ROLE_FORBIDDEN', 'Only the mover may withdraw a pending-second motion')
       }
@@ -225,11 +236,96 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (invalid) return invalid
       const motion = currentMotion(state, envelope.command.motionId.trim())
       if (!motion) return reject('NO_ACTIVE_QUESTION', 'Named motion is not current')
+      if (hasUnresolvedProcedure(state, motion.id)) {
+        return reject('INVALID_COMMAND', 'Current motion has unresolved parliamentary procedure')
+      }
       const value = (envelope.command.type === 'TableMotion' ? envelope.command.reason : envelope.command.disposition).trim()
       if (value === '') return reject('INVALID_COMMAND', 'A reason or disposition is required')
       return envelope.command.type === 'TableMotion'
         ? accept([event(envelope, state.version + 1, 0, 'MotionTabled', { motionId: motion.id, reason: value })])
         : accept([event(envelope, state.version + 1, 0, 'MotionDisposed', { motionId: motion.id, disposition: value })])
+    }
+    case 'OpenDebate': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const motion = currentMotion(state, envelope.command.motionId.trim())
+      if (!motion || motion.status !== 'active') return reject('NO_ACTIVE_QUESTION', 'Debate requires the current active motion')
+      if (state.debate !== null) return reject('INVALID_COMMAND', 'Debate has already occurred for the current question')
+      const openedAt = parseIso(envelope.occurredAt)
+      const closesAt = parseIso(envelope.command.closesAt)
+      if (openedAt === undefined || closesAt === undefined || closesAt <= openedAt) {
+        return reject('INVALID_COMMAND', 'Debate deadline must be a valid ISO timestamp after the command time')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'DebateOpened', {
+        debate: { motionId: motion.id, openedAt: envelope.occurredAt, closesAt: envelope.command.closesAt, status: 'open' },
+      })])
+    }
+    case 'CloseDebate': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const debate = state.debate
+      if (!debate || debate.status !== 'open' || debate.motionId !== envelope.command.motionId.trim()) {
+        return reject('INVALID_COMMAND', 'Named motion has no open debate')
+      }
+      const closedAt = parseIso(envelope.occurredAt)
+      if (closedAt === undefined) return reject('INVALID_COMMAND', 'Close time must be a valid ISO timestamp')
+      if (closedAt < Date.parse(debate.openedAt)) {
+        return reject('INVALID_COMMAND', 'Debate cannot close before it opened')
+      }
+      const reason = envelope.command.reason?.trim()
+      if (closedAt < Date.parse(debate.closesAt) && !reason) {
+        return reject('INVALID_COMMAND', 'Closing debate before its deadline requires a reason')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'DebateClosed', {
+        motionId: debate.motionId, closedAt: envelope.occurredAt, ...(reason ? { reason } : {}),
+      })])
+    }
+    case 'RaisePointOfOrder': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      if (Object.values(state.pointsOfOrder).some((point) => point.status === 'pending')) {
+        return reject('INVALID_COMMAND', 'Only one point of order may be pending')
+      }
+      const pointId = envelope.command.pointId.trim()
+      const text = envelope.command.text.trim()
+      if (!pointId || !text || state.pointsOfOrder[pointId]) return reject('INVALID_COMMAND', 'Point ID must be unique and text non-empty')
+      const motion = activeMotion(state)!
+      return accept([event(envelope, state.version + 1, 0, 'PointOfOrderRaised', {
+        point: { id: pointId, text, raiserId: envelope.actorId, motionId: motion.id, raisedAt: envelope.occurredAt, status: 'pending' },
+      })])
+    }
+    case 'RuleOnPointOfOrder': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const point = state.pointsOfOrder[envelope.command.pointId.trim()]
+      const reason = envelope.command.reason.trim()
+      if (!point || point.status !== 'pending') return reject('INVALID_COMMAND', 'Named point is not pending')
+      if (point.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Point does not belong to the current question')
+      if (!reason) return reject('INVALID_COMMAND', 'A ruling reason is required')
+      return accept([event(envelope, state.version + 1, 0, 'PointOfOrderRuled', { pointId: point.id, ruling: envelope.command.ruling, reason, ruledAt: envelope.occurredAt, rulerId: envelope.actorId })])
+    }
+    case 'AppealRuling': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      const point = state.pointsOfOrder[envelope.command.pointId.trim()]
+      const appealId = envelope.command.appealId.trim()
+      if (!point || point.status !== 'ruled') return reject('INVALID_COMMAND', 'Named point has no appealable ruling')
+      if (point.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Ruling does not belong to the current question')
+      if (point.appeal) return reject('INVALID_COMMAND', 'The ruling already has an appeal')
+      if (!appealId || Object.values(state.pointsOfOrder).some((entry) => entry.appeal?.id === appealId)) return reject('INVALID_COMMAND', 'Appeal ID must be unique and non-empty')
+      const grounds = envelope.command.grounds?.trim()
+      return accept([event(envelope, state.version + 1, 0, 'RulingAppealed', { pointId: point.id, appeal: { id: appealId, appellantId: envelope.actorId, appealedAt: envelope.occurredAt, status: 'pending', ...(grounds ? { grounds } : {}) } })])
+    }
+    case 'RecordAppealOutcome': {
+      const invalid = validateFloorOperation(state, envelope, ['chair', 'secretary'])
+      if (invalid) return invalid
+      const point = state.pointsOfOrder[envelope.command.pointId.trim()]
+      const appeal = point?.appeal
+      const reason = envelope.command.reason.trim()
+      if (!appeal || appeal.id !== envelope.command.appealId.trim() || appeal.status !== 'pending') return reject('INVALID_COMMAND', 'Named appeal is not pending')
+      if (point.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Appeal does not belong to the current question')
+      if (!reason) return reject('INVALID_COMMAND', 'An appeal outcome reason is required')
+      return accept([event(envelope, state.version + 1, 0, 'AppealOutcomeRecorded', { pointId: point.id, appealId: appeal.id, outcome: envelope.command.outcome, reason, decidedAt: envelope.occurredAt, deciderId: envelope.actorId })])
     }
     default:
       return reject('INVALID_COMMAND', 'Command is not implemented')
@@ -266,6 +362,38 @@ function currentMotion(state: MeetingState, id: string) {
 
 function validNewMotion(state: MeetingState, id: string, text: string) {
   return id !== '' && text !== '' && state.motions[id] === undefined
+}
+
+function parseIso(value: string): number | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?(Z|[+-]\d{2}:\d{2})$/.exec(value)
+  if (!match) return undefined
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText, , zone] = match
+  const year = Number(yearText)
+  const month = Number(monthText)
+  const day = Number(dayText)
+  const hour = Number(hourText)
+  const minute = Number(minuteText)
+  const second = Number(secondText)
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0)
+  const monthLengths = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  const daysInMonth = monthLengths[month - 1] ?? 0
+  if (day < 1 || day > daysInMonth || hour > 23 || minute > 59 || second > 59) return undefined
+  if (zone !== 'Z') {
+    const offsetHour = Number(zone.slice(1, 3))
+    const offsetMinute = Number(zone.slice(4, 6))
+    if (offsetHour > 14 || offsetMinute > 59 || (offsetHour === 14 && offsetMinute !== 0)) return undefined
+  }
+  const timestamp = Date.parse(value)
+  return Number.isFinite(timestamp) ? timestamp : undefined
+}
+
+function isNewProceduralCommand(type: MeetingCommand['type']): boolean {
+  return ['OpenDebate', 'CloseDebate', 'RaisePointOfOrder', 'RuleOnPointOfOrder', 'AppealRuling', 'RecordAppealOutcome'].includes(type)
+}
+
+function hasUnresolvedProcedure(state: MeetingState, motionId: string): boolean {
+  return Object.values(state.pointsOfOrder).some((point) => point.motionId === motionId
+    && (point.status === 'pending' || point.appeal?.status === 'pending'))
 }
 
 function validateAttendanceCommand(state: MeetingState, envelope: CommandEnvelope): Decision | undefined {
