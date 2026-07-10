@@ -14,7 +14,7 @@
 
 - [x] The repository exists at `/Users/onnwee/Projects/subcult/roberts-rules` on `codex/bootstrap-domain-simulator`.
 - [x] The generated baseline has Node/TypeScript, Vite React, PostgreSQL, Docker Compose, Open Pilot templates, and `make verify`.
-- [ ] The generated template identity has not yet been replaced in code, package metadata, Compose configuration, or project documentation.
+- [x] The generated template identity has been replaced in code, package metadata, Compose configuration, and project documentation.
 - [ ] No meeting-domain package, command API, real-time service, AT Protocol integration, or voting system exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
@@ -52,14 +52,14 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 **Outcome:** The repository is visibly and mechanically a Roberts Rules project while retaining the generated stack and Open Pilot templates.
 
-- [ ] Replace generated package names with `@subculture/roberts-rules`, `@subculture/roberts-rules-api`, and `@subculture/roberts-rules-web` in the root, backend, and web manifests.
-- [ ] Change PostgreSQL database defaults, Compose service labels, container names, and `.env.example` values from generic `app` names to `roberts_rules` names.
-- [ ] Rename `.gitea/workflows/template-check.yml` to `.gitea/workflows/verify.yml`; preserve its `make verify` job and update its displayed name to `verify`.
-- [ ] Replace the generated landing-page copy with an honest project overview, the simulator-first status, the public/private boundary, and `make verify`.
-- [ ] Update `README.md`, `AGENTS.md`, `SECURITY.md`, `CONTRIBUTING.md`, `docs/README.md`, and `docs/reference/stack.md`; remove template-maintenance and template-creation guidance that no longer applies.
-- [ ] Replace the repository license and all license references with AGPL-3.0-only after confirming the desired license text is present.
-- [ ] Preserve `.gitea/ISSUE_TEMPLATE/open-pilot-task.yaml` and `.gitea/PULL_REQUEST_TEMPLATE.md` unchanged except for project-specific examples where useful.
-- [ ] Run `make verify` and commit only this adaptation plus the roadmap and ADRs.
+- [x] Replace generated package names with `@subculture/roberts-rules`, `@subculture/roberts-rules-api`, and `@subculture/roberts-rules-web` in the root, backend, and web manifests.
+- [x] Change PostgreSQL database defaults, Compose service labels, container names, and `.env.example` values from generic `app` names to `roberts_rules` names.
+- [x] Rename `.gitea/workflows/template-check.yml` to `.gitea/workflows/verify.yml`; preserve its `make verify` job and update its displayed name to `verify`.
+- [x] Replace the generated landing-page copy with an honest project overview, the simulator-first status, the public/private boundary, and `make verify`.
+- [x] Update `README.md`, `AGENTS.md`, `SECURITY.md`, `CONTRIBUTING.md`, `docs/README.md`, and `docs/reference/stack.md`; remove template-maintenance and template-creation guidance that no longer applies.
+- [x] Replace the repository license and all license references with AGPL-3.0-only after confirming the desired license text is present.
+- [x] Preserve `.gitea/ISSUE_TEMPLATE/open-pilot-task.yaml` and `.gitea/PULL_REQUEST_TEMPLATE.md` unchanged except for project-specific examples where useful.
+- [x] Run `make verify` and commit only this adaptation plus the roadmap and ADRs.
 
 ## Milestone 1: Deterministic Meeting Domain
 
@@ -145,14 +145,14 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 
 ## Architecture Decision Records
 
-- [ ] Add `docs/adr/0001-public-atproto-private-meeting-authority.md` with status `Accepted`. Record that public organization identity, rule profiles, manifests, and approved aggregate outcomes may use AT Protocol; rosters, participation, credentials, deliberation, and ballots remain private.
-- [ ] Add `docs/adr/0002-event-sourced-chair-controlled-procedure.md` with status `Accepted`. Record one deterministic meeting aggregate, append-only events, chair authority, reasoned compensating corrections, and replayable state.
-- [ ] Update `docs/adr/README.md` with links to both accepted records.
+- [x] Add `docs/adr/0001-public-atproto-private-meeting-authority.md` with status `Accepted`. Record that public organization identity, rule profiles, manifests, and approved aggregate outcomes may use AT Protocol; rosters, participation, credentials, deliberation, and ballots remain private.
+- [x] Add `docs/adr/0002-event-sourced-chair-controlled-procedure.md` with status `Accepted`. Record one deterministic meeting aggregate, append-only events, chair authority, reasoned compensating corrections, and replayable state.
+- [x] Update `docs/adr/README.md` with links to both accepted records.
 
 ## Delivery Checklist
 
 - [ ] Make each milestone a separate branch and focused pull request. Do not mix a later milestone into an earlier one.
-- [ ] Preserve Open Pilot issue and PR templates on every branch.
-- [ ] Run `make verify` locally before each pull-request handoff and report the exact result.
+- [x] Preserve Open Pilot issue and PR templates on every branch.
+- [x] Run `make verify` locally before each pull-request handoff and report the exact result.
 - [ ] Wait for Gitea Actions before merging. If the runner is unavailable, leave the verified PR open and report the operational blocker; do not bypass CI.
 - [ ] After merge, confirm the remote default branch, repository metadata, visibility, labels, workflow, and non-force-push protection on `main`.

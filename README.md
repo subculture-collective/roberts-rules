@@ -1,8 +1,10 @@
-# TypeScript Backend + Vite React TypeScript + Postgres + Docker Template
+# Roberts Rules
 
-Full-stack TypeScript template with Node backend, Vite React TypeScript Tailwind frontend, Postgres, Docker Compose, and Open Pilot conventions.
+Roberts Rules is an early-stage platform for chair-led parliamentary meetings. Its first deliverable is a deterministic TypeScript simulator: versioned commands produce an append-only, replayable meeting journal.
 
-Created from `subculture-collective/project-template`.
+The project models original procedural behavior and organization-specific rules. It does not bundle or reproduce prose from *Robert's Rules of Order*.
+
+Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes may eventually be published through AT Protocol. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. The current simulator is not production-ready and must not be treated as a binding or secure voting system.
 
 ## Quick start
 
@@ -10,15 +12,12 @@ Created from `subculture-collective/project-template`.
 make verify
 ```
 
+See the [implementation plan](docs/PLAN.md), [documentation index](docs/README.md), and [architecture decisions](docs/adr/README.md).
+
 ## Open Pilot
 
-This repository keeps the base Open Pilot issue template and PR template.
-Bootstrap labels after creating a repo from this template:
-
-```bash
-open-pilot labels bootstrap subculture-collective/project-template-ts-vite-react-ts-postgres-docker
-```
+This repository preserves the Open Pilot issue and pull-request templates for focused, verifiable work.
 
 ## License
 
-GPL-3.0-only. See `LICENSE`.
+AGPL-3.0-only. See `LICENSE`.

@@ -2,9 +2,7 @@
 
 ## Supported scope
 
-This repository is a public base template. Security work here focuses on safe defaults, secret hygiene, and guidance for derived projects.
-
-Derived repositories should add stack-specific security policy details before production use.
+Roberts Rules is an early-stage simulator and is not production-ready. Its current voting behavior is not a binding, secret, or independently reviewed election system.
 
 ## Reporting a vulnerability
 
@@ -33,9 +31,13 @@ Never commit:
 
 Use placeholders in docs and examples. Report only secret key names and presence, never secret values.
 
+## Privacy boundary
+
+Public records may eventually contain organization identity, versioned rule profiles, meeting manifests, and explicitly approved aggregate outcomes. Do not publish attendee rosters, attendance, credentials, deliberation, participation records, individual ballots, or secret-ballot material.
+
 ## Dependency and supply-chain hygiene
 
-Derived templates should:
+Contributors should:
 
 - commit lockfiles for application projects when the stack expects them
 - pin container base images deliberately

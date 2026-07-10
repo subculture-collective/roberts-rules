@@ -1,24 +1,32 @@
 services:
   postgres:
     image: postgres:17
+    container_name: roberts-rules-postgres
+    labels:
+      com.subculture.project: roberts-rules
+      com.subculture.service: postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      POSTGRES_DB: ${POSTGRES_DB:-roberts_rules}
+      POSTGRES_USER: ${POSTGRES_USER:-roberts_rules}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - roberts-rules-postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-app} -d $${POSTGRES_DB:-app}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-roberts_rules} -d $${POSTGRES_DB:-roberts_rules}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   api:
     build: ./backend
+    container_name: roberts-rules-api
+    labels:
+      com.subculture.project: roberts-rules
+      com.subculture.service: api
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-app}?sslmode=disable
+      DATABASE_URL: postgres://${POSTGRES_USER:-roberts_rules}:${POSTGRES_PASSWORD:-change-me}@postgres:5432/${POSTGRES_DB:-roberts_rules}?sslmode=disable
     depends_on:
       postgres:
         condition: service_healthy
@@ -27,8 +35,13 @@ services:
 
   web:
     build: ./web
+    container_name: roberts-rules-web
+    labels:
+      com.subculture.project: roberts-rules
+      com.subculture.service: web
     ports:
       - "${WEB_PORT:-5173}:80"
 
 volumes:
-  postgres-data:
+  roberts-rules-postgres-data:
+    name: roberts-rules-postgres-data
