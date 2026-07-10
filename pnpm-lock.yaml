@@ -17,6 +17,9 @@ importers:
 
   backend:
     dependencies:
+      '@subculture/roberts-rules-meeting-domain':
+        specifier: workspace:*
+        version: link:../packages/meeting-domain
       pg:
         specifier: ^8.16.3
         version: 8.21.0

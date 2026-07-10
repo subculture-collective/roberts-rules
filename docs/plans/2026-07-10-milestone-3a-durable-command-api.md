@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS command_decisions (
 - Create: `backend/src/meeting-store.test.ts`
 - Modify: `backend/package.json`
 
-- [ ] **Write a failing integration test** proving `lockMeeting` blocks concurrent mutation, events return in aggregate-version order, and a stored decision can be fetched by command ID.
+- [x] **Write a failing integration test** proving `lockMeeting` blocks concurrent mutation, events return in aggregate-version order, and a stored decision can be fetched by command ID.
 
 ```ts
 export interface MeetingStore {
@@ -117,10 +117,10 @@ export interface MeetingStore {
 }
 ```
 
-- [ ] **Run the focused test and confirm RED.** Expected: missing `PostgresMeetingStore`.
-- [ ] **Implement parameterized SQL only.** `lockMeeting` must use `SELECT ... FOR UPDATE`; `appendEvents` must reject non-consecutive versions and update `meetings.aggregate_version` with the locked expected version.
-- [ ] **Add rollback coverage.** Force a duplicate event version and assert neither the meeting version nor decision row changes.
-- [ ] **Run the focused tests and `make verify`.** Expected: all checks pass.
+- [x] **Run the focused test and confirm RED.** Expected: missing `PostgresMeetingStore`.
+- [x] **Implement parameterized SQL only.** `lockMeeting` must use `SELECT ... FOR UPDATE`; `appendEvents` must reject non-consecutive versions and update `meetings.aggregate_version` with the locked expected version.
+- [x] **Add rollback coverage.** Force a duplicate event version and assert neither the meeting version nor decision row changes.
+- [x] **Run the focused tests and `make verify`.** Expected: all checks pass.
 
 ## Task 3A.3: Add the transactional application service
 
