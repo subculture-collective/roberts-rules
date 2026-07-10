@@ -10,6 +10,8 @@ export type {
   BallotRecord,
   AttendanceRecord,
   CommandEnvelope,
+  CorrectionPatch,
+  CorrectionRecord,
   Decision,
   DebateState,
   MeetingCommand,

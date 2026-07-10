@@ -383,6 +383,26 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
         : yes * vote.rule.threshold.denominator >= (yes + no) * vote.rule.threshold.numerator ? 'adopted' : 'rejected'
       return accept([event(envelope, state.version + 1, 0, 'VoteOutcomeRecorded', { outcome: { voteId: vote.id, motionId: vote.motionId, method: vote.method, visibility: vote.visibility, rule: { ...vote.rule, threshold: { ...vote.rule.threshold } }, yes, no, abstain, result, recordedAt: envelope.occurredAt, recorderId: envelope.actorId } })])
     }
+    case 'ApplyChairCorrection': {
+      if (!hasRole(envelope, ['chair', 'parliamentarian'])) return reject('ROLE_FORBIDDEN', 'Only chair or parliamentarian may apply corrections')
+      if (state.phase === 'uninitialized') return reject('INVALID_PHASE', 'Meeting must be initialized before correction')
+      const correctionId = envelope.command.correctionId.trim()
+      const affectedEventId = envelope.command.affectedEventId.trim()
+      const reason = envelope.command.reason.trim()
+      if (!correctionId || state.corrections.some((record) => record.correctionId === correctionId)) return reject('INVALID_COMMAND', 'Correction ID must be unique and non-empty')
+      if (!reason) return reject('INVALID_COMMAND', 'Correction reason must be non-empty')
+      const patch = normalizeCorrectionPatch(envelope.command.patch)
+      if (!patch) return reject('INVALID_COMMAND', 'Correction target and value must be valid')
+      const affectedEvent = findProcessedEvent(state, affectedEventId)
+      if (!affectedEvent || !eventSupportsCorrection(affectedEvent, patch)) {
+        return reject('INVALID_COMMAND', 'Affected event must directly support the correction target')
+      }
+      if (patch.type === 'agendaTitle' && !state.agenda.some((item) => item.id === patch.itemId)) return reject('INVALID_COMMAND', 'Agenda target does not exist')
+      if (patch.type === 'motionText' && !state.motions[patch.motionId]) return reject('INVALID_COMMAND', 'Motion target does not exist')
+      if (patch.type === 'motionDisposition' && state.motions[patch.motionId]?.status !== 'disposed') return reject('INVALID_COMMAND', 'Disposition correction requires a disposed motion')
+      const actorRole = envelope.role as 'chair' | 'parliamentarian'
+      return accept([event(envelope, state.version + 1, 0, 'ChairCorrectionApplied', { correctionId, affectedEventId, reason, actorId: envelope.actorId, actorRole, correctedAt: envelope.occurredAt, patch })])
+    }
     default:
       return reject('INVALID_COMMAND', 'Command is not implemented')
   }
@@ -444,7 +464,61 @@ function parseIso(value: string): number | undefined {
 }
 
 function isNewProceduralCommand(type: MeetingCommand['type']): boolean {
-  return ['OpenDebate', 'CloseDebate', 'RaisePointOfOrder', 'RuleOnPointOfOrder', 'AppealRuling', 'RecordAppealOutcome', 'OpenVote', 'CastVote', 'CloseVote', 'RecordVoteOutcome'].includes(type)
+  return ['OpenDebate', 'CloseDebate', 'RaisePointOfOrder', 'RuleOnPointOfOrder', 'AppealRuling', 'RecordAppealOutcome', 'OpenVote', 'CastVote', 'CloseVote', 'RecordVoteOutcome', 'ApplyChairCorrection'].includes(type)
+}
+
+function findProcessedEvent(state: MeetingState, eventId: string): MeetingEvent | undefined {
+  for (const decision of Object.values(state.processedCommands)) {
+    const found = decision.events.find((meetingEvent) => meetingEvent.id === eventId)
+    if (found) return found
+  }
+  return undefined
+}
+
+function eventSupportsCorrection(
+  affectedEvent: MeetingEvent,
+  patch: NonNullable<ReturnType<typeof normalizeCorrectionPatch>>,
+): boolean {
+  if (affectedEvent.type === 'ChairCorrectionApplied') {
+    const priorPatch = affectedEvent.payload.patch
+    if (patch.type === 'motionText') {
+      return priorPatch.type === 'motionText' && priorPatch.motionId === patch.motionId
+    }
+    if (patch.type === 'agendaTitle') {
+      return priorPatch.type === 'agendaTitle' && priorPatch.itemId === patch.itemId
+    }
+    return priorPatch.type === 'motionDisposition' && priorPatch.motionId === patch.motionId
+  }
+  if (patch.type === 'motionText') {
+    return (affectedEvent.type === 'MotionIntroduced' || affectedEvent.type === 'MotionAmended')
+      && affectedEvent.payload.motion.id === patch.motionId
+  }
+  if (patch.type === 'agendaTitle') {
+    return affectedEvent.type === 'AgendaAdopted'
+      && affectedEvent.payload.items.some((item) => item.id === patch.itemId)
+  }
+  return affectedEvent.type === 'MotionDisposed'
+    && affectedEvent.payload.motionId === patch.motionId
+}
+
+function normalizeCorrectionPatch(patch: Extract<MeetingCommand, { type: 'ApplyChairCorrection' }>['patch']) {
+  switch (patch.type) {
+    case 'motionText': {
+      const motionId = patch.motionId.trim()
+      const correctedText = patch.correctedText.trim()
+      return motionId && correctedText ? { type: 'motionText' as const, motionId, correctedText } : undefined
+    }
+    case 'agendaTitle': {
+      const itemId = patch.itemId.trim()
+      const correctedTitle = patch.correctedTitle.trim()
+      return itemId && correctedTitle ? { type: 'agendaTitle' as const, itemId, correctedTitle } : undefined
+    }
+    case 'motionDisposition': {
+      const motionId = patch.motionId.trim()
+      const correctedDisposition = patch.correctedDisposition.trim()
+      return motionId && correctedDisposition ? { type: 'motionDisposition' as const, motionId, correctedDisposition } : undefined
+    }
+  }
 }
 
 function hasUnresolvedVote(state: MeetingState, motionId: string): boolean {

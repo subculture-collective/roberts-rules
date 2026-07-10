@@ -84,18 +84,18 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 - [x] Support floor commands: `JoinRecognitionQueue`, `WithdrawRecognitionQueue`, `ReorderRecognitionQueue`, `IntroduceMotion`, `SecondMotion`, `AmendMotion`, `WithdrawMotion`, `TableMotion`, and `DisposeMotion`.
 - [x] Support debate and parliamentary commands: `OpenDebate`, `CloseDebate`, `RaisePointOfOrder`, `RuleOnPointOfOrder`, `AppealRuling`, and `RecordAppealOutcome`.
 - [x] Support non-secret simulator vote commands: `OpenVote`, `CastVote`, `CloseVote`, and `RecordVoteOutcome`.
-- [ ] Support `ApplyChairCorrection` only for a chair or parliamentarian and require a non-empty reason in the command payload.
+- [x] Support `ApplyChairCorrection` only for a chair or parliamentarian and require a non-empty reason plus a semantically matching affected-event reference in the command payload.
 - [x] For every currently supported accepted command, emit one or more immutable events with strictly consecutive aggregate versions. Include a `QuorumChanged` event when attendance changes whether quorum is met.
 
 ### 1.3 Reducer and Decision Rules
 
 - [x] Implement `createInitialState(profile)` and `reduce(state, event)` without database access, HTTP calls, random IDs, or `Date.now()`.
 - [x] Implement `decide(profile, state, envelope)` to first return the previously stored accepted decision for an already processed command ID, then reject a mismatched expected version before applying command-specific checks. Durable rejected-attempt deduplication belongs to the future command store because rejections do not enter the meeting journal.
-- [ ] Require the appropriate role and phase for every command. Require an in-quorum state for agenda adoption, floor recognition, motion handling, debate, and voting unless the profile explicitly marks that action quorum-independent. Complete through non-secret simulator voting; chair corrections remain.
+- [x] Require the appropriate role and phase for every command. Require an in-quorum state for agenda adoption, floor recognition, motion handling, debate, and voting; allow reasoned compensating corrections after initialization without quorum.
 - [x] Allow only one active floor question, debate session, and vote at a time. An amendment must refer to an active motion and must not create a parent cycle.
 - [x] Allow one active recognition-queue entry per participant per queue and one accepted ballot per participant per vote question.
 - [x] Store debate timing as timezone-qualified ISO-8601 deadlines from the command payload. Clients calculate display countdowns only; decisions compare recorded timestamps without ambient time or timezone state.
-- [ ] Implement chair corrections as new compensating events. A correction must name the affected event or entity and preserve the original event journal unchanged.
+- [x] Implement chair corrections as new compensating events. A correction must name a semantically matching affected event or prior same-target correction and preserve the original event journal unchanged.
 
 ### 1.4 CLI and Fixtures
 
