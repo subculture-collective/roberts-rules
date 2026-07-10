@@ -16,9 +16,9 @@
 
 ## Task 3F.2: Agenda and motion controls
 
-- [ ] Add secretary/chair agenda adoption and advance controls with bounded item forms.
-- [ ] Add introduce, second, amend, withdraw, table, and dispose motion forms gated by domain-relevant projected state.
-- [ ] Test command payloads, disabled states, and commit `feat: add agenda and motion controls`.
+- [x] Add chair agenda adoption and advance controls with bounded item forms, matching domain authority.
+- [x] Add introduce, second, amend, withdraw, table, and dispose motion forms gated by domain-relevant projected state.
+- [x] Test role visibility and disabled states, then commit `feat: add agenda and motion controls`.
 
 ## Task 3F.3: Debate and vote administration
 
