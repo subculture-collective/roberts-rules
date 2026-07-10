@@ -156,5 +156,5 @@ The bootstrap milestone changes the generated baseline. The simulator milestone 
 - [x] Make each implementation slice a separate branch and focused pull request. Do not mix a later milestone into an earlier one.
 - [x] Preserve Open Pilot issue and PR templates on every branch.
 - [x] Run `make verify` locally before each pull-request handoff and report the exact result.
-- [ ] Wait for Gitea Actions before merging. If the runner is unavailable, leave the verified PR open and report the operational blocker; do not bypass CI.
-- [ ] After merge, confirm the remote default branch, repository metadata, visibility, labels, workflow, and non-force-push protection on `main`.
+- [x] Wait for Gitea Actions before merging. If the runner is unavailable, leave the verified PR open and report the operational blocker; do not bypass CI.
+- [x] After merge, confirm the remote default branch, repository metadata, public visibility, labels, active verification workflow, and non-force-push protection on `main`.
