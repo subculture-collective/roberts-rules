@@ -22,10 +22,10 @@
 
 ## Task 3F.3: Debate and vote administration
 
-- [ ] Add chair debate open/close controls with explicit recorded deadline.
-- [ ] Add teller/chair vote open/close/record controls; keep the UI labeled non-secret simulator.
-- [ ] Add point-of-order and appeal controls for eligible roles.
-- [ ] Test payloads and commit `feat: add debate and vote administration controls`.
+- [x] Add chair debate open/close controls with explicit recorded deadline.
+- [x] Add teller/chair vote open/close/record controls; keep the UI labeled non-secret simulator.
+- [x] Add point-of-order and appeal controls for eligible roles.
+- [x] Test safety labeling and role/state visibility, then commit `feat: add debate and vote administration controls`.
 
 ## Task 3F.4: Close Milestone 3
 

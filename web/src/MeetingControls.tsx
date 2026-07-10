@@ -1,6 +1,7 @@
 import type { MeetingCommand, MeetingRole, MeetingState } from '@subculture/roberts-rules-meeting-domain';
 import { AttendanceControls } from './AttendanceControls';
 import { AgendaMotionControls } from './AgendaMotionControls';
+import { ProcedureControls } from './ProcedureControls';
 
 export function MeetingControls({state,role,connected,pending,message,onSubmit}:{state:MeetingState;role:MeetingRole;connected:boolean;pending:boolean;message?:string;onSubmit:(command:MeetingCommand)=>void}){
   const disabled=!connected||pending;const chair=role==='chair';const participant=['delegate','alternate','participant','chair'].includes(role);const openVote=Object.values(state.votes).find((vote)=>vote.status==='open');
@@ -21,5 +22,6 @@ export function MeetingControls({state,role,connected,pending,message,onSubmit}:
     </div>
     <AttendanceControls state={state} role={role} disabled={disabled} onSubmit={onSubmit}/>
     <AgendaMotionControls state={state} role={role} disabled={disabled} onSubmit={onSubmit}/>
+    <ProcedureControls state={state} role={role} disabled={disabled} onSubmit={onSubmit}/>
   </section>;
 }
