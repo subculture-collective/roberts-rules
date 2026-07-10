@@ -34,10 +34,10 @@
 
 **Files:** `backend/src/enrollment-cli.ts`, `backend/src/enrollment-cli.test.ts`, `backend/package.json`, `README.md`.
 
-- [ ] Accept meeting UUID, participant ID, closed role, and optional 1–15 minute TTL; reject observer-to-chair escalation inputs outside the explicit role value.
-- [ ] Generate 32 random bytes, print the raw enrollment token once, and persist only its hash.
-- [ ] Test that stdout never includes database rows or hashes and stderr never includes the raw token.
-- [ ] Run `make verify` and commit `feat: add private meeting enrollment CLI`.
+- [x] Accept meeting UUID, participant ID, closed role, and optional 1–15 minute TTL; reject observer-to-chair escalation inputs outside the explicit role value.
+- [x] Generate 32 random bytes, print the raw enrollment token once, and persist only its hash.
+- [x] Test that stdout never includes database rows or hashes and stderr never includes the raw token.
+- [x] Run `make verify` and commit `feat: add private meeting enrollment CLI`.
 
 ## Task 3D.3: Cookie principal provider and redemption
 

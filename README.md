@@ -11,6 +11,12 @@ The private API also provides an authenticated, resumable WebSocket event stream
 
 The web application includes a read-only live-floor projection client and role-aware dashboard. It refreshes from the authoritative snapshot after event gaps, resumes from the last applied version, and shows an authentication-required boundary until meeting-scoped sessions exist.
 
+Operators can issue a short-lived, single-use enrollment token directly against the private database. The raw token is printed once; only its hash is stored:
+
+```bash
+DATABASE_URL='postgres://…' pnpm --filter @subculture/roberts-rules-api enrollment:issue -- --meeting <uuid> --participant <private-id> --role delegate --ttl 10
+```
+
 ## Quick start
 
 ```bash

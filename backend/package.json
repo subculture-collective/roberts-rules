@@ -10,6 +10,7 @@
     "test": "vitest run",
     "format": "pnpm --filter @subculture/roberts-rules-meeting-domain build && tsc -p tsconfig.json --noEmit",
     "start": "node dist/index.js"
+    ,"enrollment:issue": "tsx src/enrollment-cli.ts"
   },
   "dependencies": {
     "@subculture/roberts-rules-meeting-domain": "workspace:*",
