@@ -1,6 +1,8 @@
 import type { MeetingRole, MeetingState } from '@subculture/roberts-rules-meeting-domain';
+import type { MeetingCommand } from '@subculture/roberts-rules-meeting-domain';
+import { MeetingControls } from './MeetingControls';
 
-export function LiveFloor({ state, role, connection }: { state: MeetingState; role: MeetingRole; connection: string }) {
+export function LiveFloor({ state, role, connection, actions }: { state: MeetingState; role: MeetingRole; connection: string; actions?:{pending:boolean;message?:string;submit:(command:MeetingCommand)=>void} }) {
   const activeMotion = state.motionStack.length ? state.motions[state.motionStack[state.motionStack.length - 1]!] : undefined;
   const currentAgenda = state.agenda.find((item) => item.status === 'current');
   const operational = role === 'chair' || role === 'secretary' || role === 'parliamentarian' || role === 'technicalOperator';
@@ -24,6 +26,7 @@ export function LiveFloor({ state, role, connection }: { state: MeetingState; ro
     <section className="mx-auto grid max-w-7xl gap-8 py-8 md:grid-cols-2" aria-label="Recognition queues">
       {(['pro','con'] as const).map((side) => <div key={side}><h2 className="border-b border-[#1d201c] pb-2 font-mono text-xs font-bold uppercase tracking-[0.18em]">{side === 'pro' ? 'For' : 'Against'} recognition</h2><ol className="mt-3 space-y-2">{state.recognitionQueues[side].map((id, index) => <li key={id} className="flex gap-3"><span className="font-mono text-xs">{String(index + 1).padStart(2, '0')}</span><span>{id}</span></li>)}</ol></div>)}
     </section>
+    {actions&&<MeetingControls state={state} role={role} connected={connection==='live'} pending={actions.pending} message={actions.message} onSubmit={actions.submit}/>}
     {operational && <aside className="mx-auto max-w-7xl border-2 border-[#1d201c] bg-[#1d201c] p-5 text-[#ece8dc]"><p className="font-mono text-xs uppercase tracking-[0.18em]">Operational context / {role}</p><p className="mt-2">Read-only projection. Procedural actions remain unavailable until meeting-scoped credentials are implemented.</p></aside>}
   </main>;
 }

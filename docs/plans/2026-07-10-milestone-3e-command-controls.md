@@ -23,11 +23,11 @@
 
 **Files:** `web/src/MeetingControls.tsx`, `web/src/MeetingControls.test.tsx`, `web/src/LiveFloor.tsx`.
 
-- [ ] Chair controls: open, recess, resume, and adjourn according to projected phase.
-- [ ] Delegate/participant controls: join or withdraw pro/con recognition queues.
-- [ ] Eligible participants can cast yes/no/abstain only when a non-secret simulator vote is open.
-- [ ] Disable controls while disconnected or pending; announce rejection/error text accessibly.
-- [ ] Run `make verify` and commit `feat: add minimal live floor command controls`.
+- [x] Chair controls: open, recess, resume, and adjourn according to projected phase.
+- [x] Delegate/participant controls: join or withdraw pro/con recognition queues.
+- [x] Eligible participants can cast yes/no/abstain only when a non-secret simulator vote is open.
+- [x] Disable controls while disconnected or pending; announce rejection/error text accessibly.
+- [x] Run `make verify` and commit `feat: add minimal live floor command controls`.
 
 ## Task 3E.3: Close the slice
 
