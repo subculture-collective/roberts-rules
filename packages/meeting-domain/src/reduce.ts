@@ -16,6 +16,7 @@ export function createInitialState(profile: RulesProfile): MeetingState {
     pointsOfOrder: {},
     votes: {},
     outcomes: [],
+    corrections: [],
     processedCommands: {},
   }
 }
@@ -278,8 +279,50 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
         outcomes: [...state.outcomes, { ...outcome }],
       }
     }
+    case 'ChairCorrectionApplied':
+      return applyCorrection(state, event.payload)
     default:
       return assertNever(event)
+  }
+}
+
+function applyCorrection(state: MeetingState, correction: MeetingState['corrections'][number]): MeetingState {
+  const record = { ...correction, patch: { ...correction.patch } }
+  switch (record.patch.type) {
+    case 'motionText':
+      return {
+        ...state,
+        motions: {
+          ...state.motions,
+          [record.patch.motionId]: {
+            ...state.motions[record.patch.motionId]!,
+            text: record.patch.correctedText,
+          },
+        },
+        corrections: [...state.corrections, record],
+      }
+    case 'agendaTitle': {
+      const patch = record.patch
+      return {
+        ...state,
+        agenda: state.agenda.map((item) => item.id === patch.itemId
+          ? { ...item, title: patch.correctedTitle }
+          : item),
+        corrections: [...state.corrections, record],
+      }
+    }
+    case 'motionDisposition':
+      return {
+        ...state,
+        motions: {
+          ...state.motions,
+          [record.patch.motionId]: {
+            ...state.motions[record.patch.motionId]!,
+            disposition: record.patch.correctedDisposition,
+          },
+        },
+        corrections: [...state.corrections, record],
+      }
   }
 }
 

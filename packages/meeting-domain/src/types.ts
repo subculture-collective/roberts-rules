@@ -56,6 +56,11 @@ export interface BallotRecord { choice: BallotChoice; castAt: string }
 export interface VoteRuleSnapshot { rulesProfileId: string; rulesProfileVersion: number; threshold: RulesProfile['motionThreshold']; tiePolicy: RulesProfile['tiePolicy'] }
 export interface VoteState { id: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord>>; yes?: number; no?: number; abstain?: number; result?: VoteResult; recordedAt?: string; recorderId?: string }
 export interface VoteOutcome { voteId: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; yes: number; no: number; abstain: number; result: VoteResult; recordedAt: string; recorderId: string }
+export type CorrectionPatch =
+  | { type: 'motionText'; motionId: string; correctedText: string }
+  | { type: 'agendaTitle'; itemId: string; correctedTitle: string }
+  | { type: 'motionDisposition'; motionId: string; correctedDisposition: string }
+export interface CorrectionRecord { correctionId: string; affectedEventId: string; reason: string; actorId: string; actorRole: 'chair' | 'parliamentarian'; correctedAt: string; patch: CorrectionPatch }
 
 export interface MeetingState {
   meetingId?: string
@@ -73,6 +78,7 @@ export interface MeetingState {
   pointsOfOrder: Readonly<Record<string, PointOfOrder>>
   votes: Readonly<Record<string, VoteState>>
   outcomes: readonly VoteOutcome[]
+  corrections: readonly CorrectionRecord[]
   // Accepted decisions are journal-derived. Rejected attempts require durable
   // deduplication at the future command-store boundary because they emit no events.
   processedCommands: Readonly<Record<string, AcceptedDecision>>
@@ -108,6 +114,7 @@ export type MeetingCommand =
   | { type: 'CastVote'; voteId: string; choice: BallotChoice }
   | { type: 'CloseVote'; voteId: string }
   | { type: 'RecordVoteOutcome'; voteId: string }
+  | { type: 'ApplyChairCorrection'; correctionId: string; affectedEventId: string; reason: string; patch: CorrectionPatch }
 
 export interface CommandEnvelope {
   id: string
@@ -134,6 +141,7 @@ export type MeetingEventType =
   | 'DebateOpened' | 'DebateClosed'
   | 'PointOfOrderRaised' | 'PointOfOrderRuled' | 'RulingAppealed' | 'AppealOutcomeRecorded'
   | 'VoteOpened' | 'VoteCast' | 'VoteClosed' | 'VoteOutcomeRecorded'
+  | 'ChairCorrectionApplied'
 
 export interface MeetingEventPayloadMap {
   MeetingInitialized: { meetingId: string; rulesProfileId: string; rulesProfileVersion: number }
@@ -166,6 +174,7 @@ export interface MeetingEventPayloadMap {
   VoteCast: { voteId: string; voterId: string; ballot: BallotRecord }
   VoteClosed: { voteId: string; closedAt: string }
   VoteOutcomeRecorded: { outcome: VoteOutcome }
+  ChairCorrectionApplied: CorrectionRecord
 }
 
 export type MeetingEventOf<T extends MeetingEventType> = T extends MeetingEventType ? {
