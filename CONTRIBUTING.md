@@ -1,6 +1,6 @@
 # Contributing
 
-This repository is a base template for derived SUBCULT projects. Keep changes small, reviewable, and useful across stacks.
+Keep changes small, reviewable, and aligned with the current milestone in `docs/PLAN.md`.
 
 ## Development flow
 
@@ -21,10 +21,10 @@ This repository is a base template for derived SUBCULT projects. Keep changes sm
 Prefer concise conventional-style subjects:
 
 ```text
-feat: add stack recipe
+feat: add meeting lifecycle commands
 docs: update Open Pilot guidance
-fix: correct make target detection
-chore: refresh template metadata
+fix: preserve quorum transition events
+chore: update workspace metadata
 ```
 
 ## Open Pilot issues
@@ -56,18 +56,10 @@ Default full check:
 make verify
 ```
 
-Examples for derived templates:
+Use narrower workspace commands only when they fully prove the focused change; run `make verify` before pull-request handoff.
 
-```bash
-go test ./...
-pnpm --dir web run test
-uv run pytest
-cargo test --all
-docker compose config --quiet
-```
+## Project boundaries
 
-## Template boundaries
+The meeting journal is the procedural source of truth. Keep browser state, clocks, and network delivery outside the authoritative domain model. Public AT Protocol records must never contain private rosters, attendance, credentials, deliberation, participation records, or ballots.
 
-This base template should stay stack-neutral. Do not add application scaffolding here unless the issue explicitly changes the role of this repository.
-
-Stack-specific scaffolds should live in derived template repositories.
+Contributions must model original procedural behavior and must not copy or bundle prose from *Robert's Rules of Order*. Treat simulator votes as non-secret and non-production until later assurance milestones are complete.

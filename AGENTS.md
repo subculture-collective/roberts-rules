@@ -1,13 +1,16 @@
 # Agent Instructions
 
-This repository is a TypeScript full-stack with Vite React TypeScript, Postgres, and Docker template derived from `subculture-collective/project-template`.
+This repository is a TypeScript full-stack project with a Vite React frontend, Node backend, PostgreSQL, and Docker Compose. `docs/PLAN.md` is the canonical implementation roadmap.
 
 ## Priorities
 
-1. Keep the template runnable and minimal.
+1. Execute one milestone at a time and keep every slice runnable and minimal.
 2. Preserve Open Pilot issue and PR templates.
 3. Keep generated caches, secrets, and local data out of git.
 4. Update this file and `README.md` when stack conventions change.
+5. Preserve the public/private authority boundary documented in the ADRs.
+
+The simulator models original procedural behavior; do not copy or bundle prose from *Robert's Rules of Order*. Do not describe simulation-only voting as binding, secure, or production-ready.
 
 ## Verification
 

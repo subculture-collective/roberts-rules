@@ -11,6 +11,7 @@ id_rsa
 id_ed25519
 
 # Open Pilot / agent state
+.codex/
 .open-pilot/
 .opencode/
 opencode-data/
