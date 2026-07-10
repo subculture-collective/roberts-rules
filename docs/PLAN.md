@@ -132,7 +132,7 @@ Milestone 3 is intentionally split into independently verified vertical slices. 
 The next slice is [Milestone 3B: Resumable Meeting Event Stream](plans/2026-07-10-milestone-3b-resumable-event-stream.md).
 
 - [x] Add a meeting command API that loads the latest journal, calls `decide`, appends accepted events atomically, and returns the decision through a deny-by-default principal boundary.
-- [ ] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
+- [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [ ] Add chair, secretary, parliamentarian, delegate, alternate, observer, and operator views that render projected state only.
 - [ ] Implement presence, quorum display, recognition queues, motions, timers, and non-secret votes as clients of the event journal.
 - [ ] Add optimistic-concurrency and reconnect tests. The client must refresh from the authoritative journal after a stale-version response.

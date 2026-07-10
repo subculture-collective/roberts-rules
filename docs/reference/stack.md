@@ -17,3 +17,5 @@ The canonical verification command is:
 ```bash
 make verify
 ```
+
+Private realtime clients use `ws` on the API server's explicit HTTP upgrade path. They reconnect with their last applied aggregate version; PostgreSQL LISTEN/NOTIFY wakes the server, while journal queries provide the actual ordered event data.

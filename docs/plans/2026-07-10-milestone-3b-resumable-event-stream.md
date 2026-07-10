@@ -54,14 +54,14 @@ server -> {"type":"heartbeat","at":"2026-07-10T20:00:00.000Z"}
 
 **Files:** `docs/adr/0005-resumable-at-least-once-event-delivery.md`, `docs/adr/README.md`, `docs/reference/stack.md`, `README.md`, `docs/PLAN.md`.
 
-- [ ] Record durable replay, at-least-once semantics, heartbeat/backpressure behavior, and the future sticky-session/Redis boundary.
-- [ ] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete resumable event stream milestone`.
+- [x] Record durable replay, at-least-once semantics, heartbeat/backpressure behavior, and the future sticky-session/Redis boundary.
+- [ ] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete resumable event stream milestone`. Verification passed; the commit is pending because the current managed filesystem exposes `.git` read-only.
 
 ## Acceptance gate
 
-- [ ] Reconnect from version N yields every durable event after N in order.
-- [ ] Duplicate wake-ups never change ordering and may only cause harmless duplicate delivery.
-- [ ] Unauthorized clients never complete the WebSocket upgrade.
-- [ ] Slow and dead clients are closed and cleaned up.
-- [ ] Meeting events remain private; notifications carry meeting IDs only.
-- [ ] WebSocket availability never affects command acceptance or meeting authority.
+- [x] Reconnect from version N yields every durable event after N in order.
+- [x] Duplicate wake-ups never change ordering and may only cause harmless duplicate delivery.
+- [x] Unauthorized clients never complete the WebSocket upgrade.
+- [x] Slow and dead clients are closed and cleaned up.
+- [x] Meeting events remain private; notifications carry meeting IDs only.
+- [x] WebSocket availability never affects command acceptance or meeting authority.

@@ -72,6 +72,9 @@ Cargo.lock
 *.sqlite3
 postgres-data/
 
+# Local pnpm cache (CI may materialize this inside the workspace)
+.pnpm-store/
+
 # Terraform / infra
 .terraform/
 *.tfstate
