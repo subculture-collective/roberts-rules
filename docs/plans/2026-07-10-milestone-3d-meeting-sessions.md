@@ -43,11 +43,11 @@
 
 **Files:** `backend/src/session-principal.ts`, `backend/src/session-principal.test.ts`, `backend/src/http.ts`, `backend/src/index.ts`.
 
-- [ ] Add `POST /api/meetings/:id/session` redemption with a bounded JSON body and uniform invalid/expired/used response.
-- [ ] Set the scoped secure cookie and return only actor ID, role, meeting ID, and expiry.
-- [ ] Resolve HTTP and WebSocket principals from the cookie; reject missing, expired, revoked, or wrong-meeting sessions.
-- [ ] Add origin checks, logout/revocation, cookie clearing, and tests for replayed enrollment and cross-meeting use.
-- [ ] Run `make verify` and commit `feat: authenticate meeting-scoped sessions`.
+- [x] Add `POST /api/meetings/:id/session` redemption with a bounded JSON body and uniform invalid/expired/used response.
+- [x] Set the scoped secure cookie and return only actor ID, role, meeting ID, and expiry.
+- [x] Resolve HTTP and WebSocket principals from the cookie; reject missing, expired, revoked, or wrong-meeting sessions.
+- [x] Add origin checks, logout/revocation, cookie clearing, and tests for replayed enrollment and cross-meeting use.
+- [x] Run `make verify` and commit `feat: authenticate meeting-scoped sessions`.
 
 ## Task 3D.4: Close the slice
 

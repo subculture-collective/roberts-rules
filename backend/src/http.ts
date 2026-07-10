@@ -3,6 +3,7 @@ import { validateMeetingCommand, type Decision, type MeetingState, type RulesPro
 import { z } from 'zod';
 import type { PrincipalProvider } from './principal.js';
 import { MeetingServiceError, type MeetingPrincipal, type SubmitCommandInput } from './meeting-service.js';
+import { clearSessionCookie, sessionCookie, type SessionPrincipalProvider } from './session-principal.js';
 
 export interface MeetingApplication {
   createMeeting(id: string, profile: RulesProfile): Promise<void>;
@@ -23,10 +24,22 @@ async function body(request: IncomingMessage): Promise<unknown> {
 class HttpError extends Error { constructor(readonly status: number, readonly code: string) { super(code); } }
 function send(response: ServerResponse, status: number, value: unknown) { response.writeHead(status, { 'content-type': 'application/json' }); response.end(JSON.stringify(value)); }
 
-export function createHttpHandler(application: MeetingApplication, principals: PrincipalProvider) {
+export function createHttpHandler(application: MeetingApplication, principals: PrincipalProvider, sessions?: SessionPrincipalProvider, allowedOrigin='http://localhost:5173', secureCookies=true) {
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
+      const sessionMatch=url.pathname.match(/^\/api\/meetings\/([^/]+)\/session$/);
+      if(sessionMatch&&request.method==='POST'){
+        if(request.headers.origin!==allowedOrigin)throw new HttpError(403,'ORIGIN_FORBIDDEN');
+        if(!sessions)throw new HttpError(503,'AUTHENTICATION_UNAVAILABLE');
+        const meetingId=uuid.parse(sessionMatch[1]); const parsed=z.object({enrollmentToken:z.string().min(20).max(200)}).strict().parse(await body(request));
+        const redeemed=await sessions.redeem(meetingId,parsed.enrollmentToken);if(!redeemed)throw new HttpError(401,'ENROLLMENT_INVALID');
+        response.setHeader('set-cookie',sessionCookie(meetingId,redeemed.token,secureCookies));send(response,201,{meetingId,actorId:redeemed.principal.actorId,role:redeemed.principal.role,expiresAt:redeemed.expiresAt});return;
+      }
+      if(sessionMatch&&request.method==='DELETE'){
+        if(request.headers.origin!==allowedOrigin)throw new HttpError(403,'ORIGIN_FORBIDDEN');if(!sessions)throw new HttpError(503,'AUTHENTICATION_UNAVAILABLE');
+        const meetingId=uuid.parse(sessionMatch[1]);await sessions.revoke(request);response.setHeader('set-cookie',clearSessionCookie(meetingId,secureCookies));send(response,204,undefined);return;
+      }
       if (request.method === 'POST' && url.pathname === '/api/meetings') {
         const principal = await principals.authenticate(request); if (!principal) throw new HttpError(401, 'AUTHENTICATION_REQUIRED');
         if (principal.role !== 'administrator') throw new HttpError(403, 'ROLE_FORBIDDEN');
@@ -38,6 +51,7 @@ export function createHttpHandler(application: MeetingApplication, principals: P
       const meetingId = uuid.parse(commandMatch?.[1] ?? snapshotMatch?.[1]);
       const principal = await principals.authenticate(request, meetingId); if (!principal) throw new HttpError(401, 'AUTHENTICATION_REQUIRED');
       if (request.method === 'POST' && commandMatch) {
+        if(request.headers.origin!==allowedOrigin)throw new HttpError(403,'ORIGIN_FORBIDDEN');
         const raw = await body(request) as Record<string, unknown>;
         if ('actorId' in raw || 'role' in raw) throw new HttpError(400, 'ENVELOPE_AUTHORITY_FORBIDDEN');
         const parsed = commandRequestSchema.parse(raw);

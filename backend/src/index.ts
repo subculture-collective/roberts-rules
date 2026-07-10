@@ -2,19 +2,21 @@ import { createApp, getConfig } from './server.js';
 import { Pool } from 'pg';
 import { migrate } from './db.js';
 import { MeetingService } from './meeting-service.js';
-import { denyAllPrincipals } from './principal.js';
 import { PostgresMeetingEventSource } from './event-source.js';
 import { MeetingEventStream } from './event-stream.js';
 import { withTransaction } from './db.js';
 import { PostgresMeetingStore } from './meeting-store.js';
+import { SessionPrincipalProvider } from './session-principal.js';
 
 const config = getConfig();
 const pool = new Pool({ connectionString: config.DATABASE_URL });
 await migrate(pool);
 const service = new MeetingService(pool);
+const allowedOrigin=process.env.APP_ORIGIN??'http://localhost:5173';
+const principals=new SessionPrincipalProvider(pool,allowedOrigin);
 const source = new PostgresMeetingEventSource(pool); await source.start();
-const app = createApp({ application: service, principals: denyAllPrincipals });
-new MeetingEventStream(app, denyAllPrincipals, {
+const app = createApp({ application: service, principals, sessions:principals, allowedOrigin, secureCookies:process.env.NODE_ENV==='production' });
+new MeetingEventStream(app, principals, {
   exists: async (id) => { try { await service.snapshot(id); return true; } catch { return false; } },
   loadAfter: (id, version) => withTransaction(pool, (client) => new PostgresMeetingStore(client).loadEventsAfter(id, version)),
 }, source);

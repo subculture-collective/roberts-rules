@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { MeetingApplication } from './http.js';
 import { createHttpHandler } from './http.js';
 import { denyAllPrincipals, type PrincipalProvider } from './principal.js';
+import type { SessionPrincipalProvider } from './session-principal.js';
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8080),
@@ -17,8 +18,8 @@ export function getConfig(env: NodeJS.ProcessEnv = process.env) {
   return envSchema.parse(env);
 }
 
-export function createApp(dependencies?: { application: MeetingApplication; principals?: PrincipalProvider }) {
-  const api = dependencies ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals) : undefined;
+export function createApp(dependencies?: { application: MeetingApplication; principals?: PrincipalProvider; sessions?: SessionPrincipalProvider; allowedOrigin?:string; secureCookies?:boolean }) {
+  const api = dependencies ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals,dependencies.sessions,dependencies.allowedOrigin,dependencies.secureCookies) : undefined;
   return createServer((req, res) => {
     if (req.url === '/health') {
       res.writeHead(200, { 'content-type': 'application/json' });
