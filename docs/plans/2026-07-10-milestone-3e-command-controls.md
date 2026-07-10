@@ -33,5 +33,5 @@
 
 **Files:** `README.md`, `docs/PLAN.md`, `docs/reference/stack.md`.
 
-- [ ] Document non-optimistic command behavior and stale refresh.
-- [ ] Run `make verify`, `git diff --check`, and commit `docs: complete command control milestone`.
+- [x] Document non-optimistic command behavior and stale refresh.
+- [x] Run `make verify`, `git diff --check`, and commit `docs: complete command control milestone`.

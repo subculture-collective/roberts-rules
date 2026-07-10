@@ -23,3 +23,5 @@ Private realtime clients use `ws` on the API server's explicit HTTP upgrade path
 The React client applies only consecutive meeting events with the shared meeting-domain reducer. Duplicate versions are ignored, gaps force a snapshot refresh, and reconnect attempts use capped exponential backoff with jitter. The live-floor dashboard is read-only until production authentication and command authorization are implemented.
 
 Meeting authentication uses PostgreSQL-backed, revocable sessions. Operators issue single-use enrollments with `pnpm --filter @subculture/roberts-rules-api enrollment:issue`; redemption sets an HttpOnly SameSite=Strict cookie scoped to the meeting API path. `APP_ORIGIN` controls HTTP/WebSocket origin checks.
+
+The React action client submits fresh command IDs with the current projected version and never updates meeting state optimistically. Accepted changes arrive through the event stream; `STALE_VERSION` forces an authoritative snapshot refresh. Current controls cover chair lifecycle, recognition queues, and explicitly non-secret simulator ballots.

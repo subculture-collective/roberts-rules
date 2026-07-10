@@ -19,6 +19,8 @@ DATABASE_URL='postgres://…' pnpm --filter @subculture/roberts-rules-api enroll
 
 Redeeming that token creates a 30-minute, revocable, meeting-scoped HttpOnly cookie used by both HTTP commands and WebSocket upgrades. This is not yet hardware-backed device authentication, and initial meeting creation remains an out-of-band operator bootstrap.
 
+Authenticated live-floor controls now cover chair lifecycle actions, recognition queues, and non-secret simulator ballot choices. Commands wait for authoritative event delivery; stale-version responses trigger a full snapshot refresh rather than optimistic reconciliation.
+
 ## Quick start
 
 ```bash

@@ -143,7 +143,7 @@ The first authenticated command controls are [Milestone 3E: Credential-Backed Co
 - [x] Add a WebSocket event stream that is resumable from aggregate version and treats reconnect delivery as at-least-once.
 - [x] Add role-aware chair, secretary, parliamentarian, delegate, alternate, observer, and operator presentation that renders projected state only; command controls remain gated.
 - [ ] Implement presence, quorum display, recognition queues, motions, timers, and non-secret votes as clients of the event journal.
-- [ ] Add optimistic-concurrency and reconnect tests. The client must refresh from the authoritative journal after a stale-version response.
+- [x] Add optimistic-concurrency and reconnect tests. The client refreshes from the authoritative journal after a stale-version response and does not mutate projection state optimistically.
 
 ## Milestone 4: Voting and Cryptographic Ballots
 
