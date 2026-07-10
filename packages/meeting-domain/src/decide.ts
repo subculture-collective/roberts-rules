@@ -119,9 +119,153 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
         deactivatedAlternateIds,
       }, attendance)
     }
+    case 'AdoptAgenda': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const items = envelope.command.items.map((item, index) => ({
+        id: item.id.trim(),
+        title: item.title.trim(),
+        status: index === 0 ? 'current' as const : 'pending' as const,
+      }))
+      const ids = items.map((item) => item.id)
+      if (ids.length === 0 || ids.some((id) => id === '') || items.some((item) => item.title === '')
+        || new Set(ids).size !== ids.length) {
+        return reject('INVALID_COMMAND', 'Agenda item IDs and titles must be non-empty, and IDs must be unique')
+      }
+      if (state.agenda.length > 0) return reject('INVALID_COMMAND', 'The agenda has already been adopted')
+      return accept([event(envelope, state.version + 1, 0, 'AgendaAdopted', { items })])
+    }
+    case 'AdvanceAgenda': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const currentIndex = state.agenda.findIndex((item) => item.status === 'current')
+      if (currentIndex < 0) return reject('INVALID_COMMAND', 'There is no current agenda item')
+      const currentItemId = state.agenda[currentIndex + 1]?.id
+      return accept([event(envelope, state.version + 1, 0, 'AgendaAdvanced', { completedItemId: state.agenda[currentIndex]!.id, ...(currentItemId ? { currentItemId } : {}) })])
+    }
+    case 'JoinRecognitionQueue': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      if (state.recognitionQueues[envelope.command.side].includes(envelope.actorId)) {
+        return reject('ALREADY_QUEUED', 'Participant is already in that recognition queue')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'RecognitionQueueJoined', { side: envelope.command.side, participantId: envelope.actorId })])
+    }
+    case 'WithdrawRecognitionQueue': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      if (!state.recognitionQueues[envelope.command.side].includes(envelope.actorId)) {
+        return reject('INVALID_COMMAND', 'Participant is not in that recognition queue')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'RecognitionQueueWithdrawn', { side: envelope.command.side, participantId: envelope.actorId })])
+    }
+    case 'ReorderRecognitionQueue': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      if (!activeMotion(state)) return reject('NO_ACTIVE_QUESTION', 'Recognition requires an active floor question')
+      const current = state.recognitionQueues[envelope.command.side]
+      const proposed = envelope.command.participantIds
+      const proposedSet = new Set(proposed)
+      const hasExactMembership = proposedSet.size === proposed.length
+        && proposed.length === current.length
+        && current.every((participantId) => proposedSet.has(participantId))
+      if (!hasExactMembership) {
+        return reject('INVALID_COMMAND', 'Reordered queue must contain exactly the existing participants')
+      }
+      return accept([event(envelope, state.version + 1, 0, 'RecognitionQueueReordered', { side: envelope.command.side, participantIds: proposed })])
+    }
+    case 'IntroduceMotion': {
+      const invalid = validateParticipantFloorOperation(state, envelope, false)
+      if (invalid) return invalid
+      if (state.motionStack.length > 0) {
+        return reject('ACTIVE_QUESTION_EXISTS', 'Only one authoritative floor question is allowed')
+      }
+      const motionId = envelope.command.motionId.trim()
+      const text = envelope.command.text.trim()
+      if (!validNewMotion(state, motionId, text)) return reject('INVALID_COMMAND', 'Motion ID must be unique and motion text must not be empty')
+      return accept([event(envelope, state.version + 1, 0, 'MotionIntroduced', { motion: { id: motionId, text, moverId: envelope.actorId, status: 'pendingSecond' } })])
+    }
+    case 'SecondMotion': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      const motion = state.motions[envelope.command.motionId.trim()]
+      if (!motion || motion.id !== state.motionStack.at(-1) || motion.status !== 'pendingSecond') {
+        return reject('NO_ACTIVE_QUESTION', 'Named motion is not awaiting a second')
+      }
+      if (motion.moverId === envelope.actorId) return reject('INVALID_COMMAND', 'A motion requires a different seconder')
+      return accept([event(envelope, state.version + 1, 0, 'MotionSeconded', { motionId: motion.id, seconderId: envelope.actorId })])
+    }
+    case 'AmendMotion': {
+      const invalid = validateParticipantFloorOperation(state, envelope)
+      if (invalid) return invalid
+      const parent = state.motions[envelope.command.parentId.trim()]
+      if (!parent || parent.id !== state.motionStack.at(-1) || parent.status !== 'active') {
+        return reject('INVALID_PARENT', 'Parent must be the current active motion')
+      }
+      const motionId = envelope.command.motionId.trim()
+      const text = envelope.command.text.trim()
+      if (!validNewMotion(state, motionId, text)) return reject('INVALID_COMMAND', 'Motion ID must be unique and motion text must not be empty')
+      return accept([event(envelope, state.version + 1, 0, 'MotionAmended', { motion: { id: motionId, text, moverId: envelope.actorId, parentId: parent.id, status: 'pendingSecond' } })])
+    }
+    case 'WithdrawMotion': {
+      const invalid = validateFloorOperation(state, envelope, ['chair', 'delegate', 'alternate'])
+      if (invalid) return invalid
+      const motion = currentMotion(state, envelope.command.motionId.trim())
+      if (!motion) return reject('NO_ACTIVE_QUESTION', 'Named motion is not current')
+      if (envelope.role !== 'chair' && (motion.status !== 'pendingSecond' || motion.moverId !== envelope.actorId)) {
+        return reject('ROLE_FORBIDDEN', 'Only the mover may withdraw a pending-second motion')
+      }
+      const reason = envelope.command.reason?.trim()
+      if (envelope.role === 'chair' && !reason) return reject('INVALID_COMMAND', 'Chair withdrawal requires a non-empty reason')
+      return accept([event(envelope, state.version + 1, 0, 'MotionWithdrawn', { motionId: motion.id, ...(reason ? { reason } : {}) })])
+    }
+    case 'TableMotion':
+    case 'DisposeMotion': {
+      const invalid = validateFloorOperation(state, envelope, ['chair'])
+      if (invalid) return invalid
+      const motion = currentMotion(state, envelope.command.motionId.trim())
+      if (!motion) return reject('NO_ACTIVE_QUESTION', 'Named motion is not current')
+      const value = (envelope.command.type === 'TableMotion' ? envelope.command.reason : envelope.command.disposition).trim()
+      if (value === '') return reject('INVALID_COMMAND', 'A reason or disposition is required')
+      return envelope.command.type === 'TableMotion'
+        ? accept([event(envelope, state.version + 1, 0, 'MotionTabled', { motionId: motion.id, reason: value })])
+        : accept([event(envelope, state.version + 1, 0, 'MotionDisposed', { motionId: motion.id, disposition: value })])
+    }
     default:
       return reject('INVALID_COMMAND', 'Command is not implemented')
   }
+}
+
+function validateFloorOperation(state: MeetingState, envelope: CommandEnvelope, roles: readonly CommandEnvelope['role'][]): Decision | undefined {
+  if (!hasRole(envelope, roles)) return reject('ROLE_FORBIDDEN', 'Actor role is not permitted for this floor operation')
+  if (state.phase !== 'open') return reject('INVALID_PHASE', 'Meeting must be open')
+  if (!state.quorum.met) return reject('QUORUM_REQUIRED', 'Quorum is required')
+  return undefined
+}
+
+function validateParticipantFloorOperation(state: MeetingState, envelope: CommandEnvelope, requireQuestion = true): Decision | undefined {
+  const invalid = validateFloorOperation(state, envelope, ['delegate', 'alternate'])
+  if (invalid) return invalid
+  const record = state.attendance[envelope.actorId]
+  if (!record?.checkedIn || !record.active || record.role !== envelope.role) {
+    return reject('ROLE_FORBIDDEN', 'Actor must occupy an active checked-in representative seat')
+  }
+  if (requireQuestion && !activeMotion(state)) return reject('NO_ACTIVE_QUESTION', 'An active floor question is required')
+  return undefined
+}
+
+function activeMotion(state: MeetingState) {
+  const id = state.motionStack.at(-1)
+  return id ? state.motions[id] : undefined
+}
+
+function currentMotion(state: MeetingState, id: string) {
+  const motion = activeMotion(state)
+  return motion?.id === id ? motion : undefined
+}
+
+function validNewMotion(state: MeetingState, id: string, text: string) {
+  return id !== '' && text !== '' && state.motions[id] === undefined
 }
 
 function validateAttendanceCommand(state: MeetingState, envelope: CommandEnvelope): Decision | undefined {
