@@ -43,12 +43,12 @@ server -> {"type":"heartbeat","at":"2026-07-10T20:00:00.000Z"}
 
 **Files:** `backend/src/event-stream.ts`, `backend/src/event-stream.test.ts`, `backend/src/server.ts`, `backend/src/index.ts`, `backend/package.json`.
 
-- [ ] Write a failing test connecting after version 1 and asserting ready plus ordered versions 2 and 3.
-- [ ] Add explicit `upgrade` handling and authenticate with `PrincipalProvider` before `handleUpgrade`.
-- [ ] On connect and every wake-up, query durable events after the socket cursor; advance the cursor only after enqueueing each frame.
-- [ ] Add tests for invalid cursors, anonymous upgrades, duplicate wake-ups, reconnect replay, and client command-frame rejection.
-- [ ] Add heartbeat, cleanup, and buffered-output limits; no Redis or horizontal scaling in this slice.
-- [ ] Run `make verify` and commit `feat: add resumable meeting event stream`.
+- [x] Write a failing test connecting after version 1 and asserting ready plus ordered versions 2 and 3.
+- [x] Add explicit `upgrade` handling and authenticate with `PrincipalProvider` before `handleUpgrade`.
+- [x] On connect and every wake-up, query durable events after the socket cursor; advance the cursor only after enqueueing each frame.
+- [x] Add tests for invalid cursors, anonymous upgrades, duplicate wake-ups, reconnect replay, and client command-frame rejection.
+- [x] Add heartbeat, cleanup, and buffered-output limits; no Redis or horizontal scaling in this slice.
+- [x] Run `make verify` and commit `feat: add resumable meeting event stream`.
 
 ## Task 3B.3: Close the slice
 
