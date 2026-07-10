@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import type { Decision, MeetingCommand, MeetingState, RulesProfile } from '@subculture/roberts-rules-meeting-domain';
+import { validateMeetingCommand, type Decision, type MeetingState, type RulesProfile } from '@subculture/roberts-rules-meeting-domain';
 import { z } from 'zod';
 import type { PrincipalProvider } from './principal.js';
 import { MeetingServiceError, type MeetingPrincipal, type SubmitCommandInput } from './meeting-service.js';
@@ -13,7 +13,6 @@ export interface MeetingApplication {
 const uuid = z.string().uuid();
 const datetime = z.iso.datetime({ offset: true });
 const profileSchema = z.object({ id: z.string().min(1), version: z.number().int().positive(), quorum: z.object({ type: z.literal('fixed'), minimum: z.number().int().nonnegative() }).strict(), debate: z.object({ defaultDurationSeconds: z.number().nonnegative() }).strict(), voteMethods: z.array(z.string()), motionThreshold: z.object({ numerator: z.number().int().positive(), denominator: z.number().int().positive(), basis: z.literal('votesCast') }).strict(), tiePolicy: z.enum(['motionFails', 'chairDecides']), overrides: z.object({ quorumIndependentActions: z.array(z.string()) }).strict() }).strict();
-const commandTypes = new Set(['InitializeMeeting','OpenMeeting','RecessMeeting','ResumeMeeting','AdjournMeeting','CheckInParticipant','CheckOutParticipant','ActivateAlternate','AdoptAgenda','AdvanceAgenda','JoinRecognitionQueue','WithdrawRecognitionQueue','ReorderRecognitionQueue','IntroduceMotion','SecondMotion','AmendMotion','WithdrawMotion','TableMotion','DisposeMotion','OpenDebate','CloseDebate','RaisePointOfOrder','RuleOnPointOfOrder','AppealRuling','RecordAppealOutcome','OpenVote','CastVote','CloseVote','RecordVoteOutcome','ApplyChairCorrection']);
 const commandRequestSchema = z.object({ commandId: z.string().min(1), expectedVersion: z.number().int().nonnegative(), occurredAt: datetime, command: z.record(z.string(), z.unknown()) }).strict();
 
 async function body(request: IncomingMessage): Promise<unknown> {
@@ -42,8 +41,8 @@ export function createHttpHandler(application: MeetingApplication, principals: P
         const raw = await body(request) as Record<string, unknown>;
         if ('actorId' in raw || 'role' in raw) throw new HttpError(400, 'ENVELOPE_AUTHORITY_FORBIDDEN');
         const parsed = commandRequestSchema.parse(raw);
-        if (!commandTypes.has(String(parsed.command.type))) throw new HttpError(400, 'COMMAND_INVALID');
-        const decision = await application.submitCommand(principal, { meetingId, commandId: parsed.commandId, expectedVersion: parsed.expectedVersion, occurredAt: parsed.occurredAt, command: parsed.command as unknown as MeetingCommand });
+        let command; try { command = validateMeetingCommand(parsed.command) } catch { throw new HttpError(400, 'COMMAND_INVALID') }
+        const decision = await application.submitCommand(principal, { meetingId, commandId: parsed.commandId, expectedVersion: parsed.expectedVersion, occurredAt: parsed.occurredAt, command });
         send(response, 200, decision); return;
       }
       if (request.method === 'GET' && snapshotMatch) { send(response, 200, await application.snapshot(meetingId)); return; }

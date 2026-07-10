@@ -4,6 +4,7 @@ import { isAbsolute, resolve } from 'node:path'
 
 import { canonicalStringify } from './canonical.js'
 import { replay } from './replay.js'
+import { validateMeetingCommand } from './validation.js'
 import type { CommandEnvelope, MeetingCommand, MeetingRole, RulesProfile } from './types.js'
 
 const FORMAT = 'roberts-rules-transcript-v1'
@@ -108,64 +109,8 @@ function validateEnvelope(value: unknown): CommandEnvelope {
   if (typeof command.type !== 'string' || !commandTypes.has(command.type as MeetingCommand['type'])) {
     throw new Error('command.type is invalid')
   }
-  validateCommand(command)
+  validateMeetingCommand(command)
   return value as CommandEnvelope
-}
-
-function validateCommand(command: Record<string, unknown>): void {
-  const type = command.type as MeetingCommand['type']
-  const requiredStrings: Partial<Record<MeetingCommand['type'], readonly string[]>> = {
-    InitializeMeeting: ['meetingId'], CheckOutParticipant: ['participantId'],
-    ActivateAlternate: ['alternateId', 'delegateId'], IntroduceMotion: ['motionId', 'text'],
-    SecondMotion: ['motionId'], AmendMotion: ['motionId', 'text', 'parentId'],
-    TableMotion: ['motionId', 'reason'], DisposeMotion: ['motionId', 'disposition'],
-    OpenDebate: ['motionId', 'closesAt'], RaisePointOfOrder: ['pointId', 'text'],
-    RuleOnPointOfOrder: ['pointId', 'ruling', 'reason'], AppealRuling: ['pointId', 'appealId'],
-    RecordAppealOutcome: ['pointId', 'appealId', 'outcome', 'reason'],
-    OpenVote: ['voteId', 'motionId', 'method'], CastVote: ['voteId', 'choice'],
-    CloseVote: ['voteId'], RecordVoteOutcome: ['voteId'],
-    ApplyChairCorrection: ['correctionId', 'affectedEventId', 'reason'],
-    WithdrawMotion: ['motionId'], CloseDebate: ['motionId'],
-  }
-  for (const field of requiredStrings[type] ?? []) string(command[field], `command.${field}`)
-
-  if (type === 'CheckInParticipant') {
-    string(command.participantId, 'command.participantId')
-    if (typeof command.participantRole !== 'string' || !roles.has(command.participantRole as MeetingRole)) {
-      throw new Error('command.participantRole is invalid')
-    }
-    optionalString(command.alternateFor, 'command.alternateFor')
-  } else if (type === 'AdoptAgenda') {
-    if (!Array.isArray(command.items)) throw new Error('command.items must be an array')
-    for (const [index, item] of command.items.entries()) {
-      const record = object(item, `command.items[${index}]`)
-      string(record.id, `command.items[${index}].id`)
-      string(record.title, `command.items[${index}].title`)
-    }
-  } else if (type === 'JoinRecognitionQueue' || type === 'WithdrawRecognitionQueue') {
-    side(command.side)
-  } else if (type === 'ReorderRecognitionQueue') {
-    side(command.side)
-    stringArray(command.participantIds, 'command.participantIds')
-  } else if (type === 'CastVote' && !['yes', 'no', 'abstain'].includes(command.choice as string)) {
-    throw new Error('command.choice is invalid')
-  } else if (type === 'RuleOnPointOfOrder' && !['upheld', 'denied'].includes(command.ruling as string)) {
-    throw new Error('command.ruling is invalid')
-  } else if (type === 'RecordAppealOutcome' && !['sustained', 'overturned'].includes(command.outcome as string)) {
-    throw new Error('command.outcome is invalid')
-  } else if (type === 'ApplyChairCorrection') {
-    const patch = object(command.patch, 'command.patch')
-    string(patch.type, 'command.patch.type')
-    if (patch.type === 'motionText') {
-      string(patch.motionId, 'command.patch.motionId'); string(patch.correctedText, 'command.patch.correctedText')
-    } else if (patch.type === 'agendaTitle') {
-      string(patch.itemId, 'command.patch.itemId'); string(patch.correctedTitle, 'command.patch.correctedTitle')
-    } else if (patch.type === 'motionDisposition') {
-      string(patch.motionId, 'command.patch.motionId'); string(patch.correctedDisposition, 'command.patch.correctedDisposition')
-    } else throw new Error('command.patch.type is invalid')
-  }
-  optionalString(command.reason, 'command.reason')
-  optionalString(command.grounds, 'command.grounds')
 }
 
 function object(value: unknown, name: string): Record<string, unknown> {
@@ -174,9 +119,6 @@ function object(value: unknown, name: string): Record<string, unknown> {
 }
 function string(value: unknown, name: string): asserts value is string {
   if (typeof value !== 'string') throw new Error(`${name} must be a string`)
-}
-function optionalString(value: unknown, name: string): void {
-  if (value !== undefined && typeof value !== 'string') throw new Error(`${name} must be a string when present`)
 }
 function stringArray(value: unknown, name: string): asserts value is string[] {
   if (!Array.isArray(value) || value.some((item: unknown) => typeof item !== 'string')) throw new Error(`${name} must be a string array`)
@@ -189,9 +131,6 @@ function positiveInteger(value: unknown, name: string): void {
 }
 function nonnegativeNumber(value: unknown, name: string): void {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) throw new Error(`${name} must be nonnegative`)
-}
-function side(value: unknown): void {
-  if (value !== 'pro' && value !== 'con') throw new Error('command.side is invalid')
 }
 function fail(fixture: string, line: number, message: string): never {
   throw new Error(`${fixture}:${line}: ${message}`)
