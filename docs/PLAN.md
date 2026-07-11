@@ -151,6 +151,8 @@ The remaining live-floor command families are [Milestone 3F: Complete Live Floor
 
 **Outcome:** Voting methods are introduced in increasing assurance order; secret ballots are not represented as secure until independently reviewed.
 
+The non-secret simulator strategy work is [Milestone 4A: Auditable Voting](plans/2026-07-10-milestone-4a-auditable-voting.md). Threshold remains a snapshotted binary decision rule; counted, weighted, and roll-call are binary accounting modes, while plurality and ranked-choice are candidate-selection modes.
+
 - [ ] Add counted, weighted, roll-call, threshold, plurality, and ranked-choice vote strategies behind the domain's `voteMethods` profile field.
 - [ ] Keep tally inputs and outcome computation auditable through private event records and deterministic test vectors.
 - [ ] Design an ElectionGuard-compatible secret-ballot boundary, threat model, ceremony, recovery process, and independent security-review gate before implementing secret ballots.
