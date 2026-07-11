@@ -43,12 +43,12 @@
 **Files:**
 - Create: `docs/security/secret-ballot-ceremonies.md`
 
-- [ ] Define pre-election manifest approval, pinned specification/serialization versions, guardian selection, threshold key ceremony, independent transcript verification, device provisioning, and signed readiness approval.
-- [ ] Define voting operations: one-time unlinkable eligibility authorization, cast-or-challenge finalization, confirmation-code delivery, encrypted-ballot append, close procedure, tally ceremony, and election-record publication.
-- [ ] Define recovery: guardian quorum recovery only, no administrator master key, no recovery from ordinary meeting-database backups, fail-closed behavior, documented revote contingency, and destruction/retention evidence.
-- [ ] Define the independent-review gate: cryptographer review, independent verifier interoperability, published deterministic vectors, privacy review, penetration test, ceremony rehearsal, disaster-recovery rehearsal, dependency/SBOM review, and signed remediation closure.
-- [ ] State that no `secret` method may enter `RulesProfile.voteMethods`, `MeetingCommand`, HTTP validation, UI claims, or publication schemas until every mandatory gate has evidence and the ADR is superseded by an implementation ADR.
-- [ ] Commit as `docs: define ballot ceremonies and review gate`.
+- [x] Define pre-election manifest approval, pinned specification/serialization versions, guardian selection, threshold key ceremony, independent transcript verification, device provisioning, and signed readiness approval.
+- [x] Define voting operations: one-time unlinkable eligibility authorization, cast-or-challenge finalization, confirmation-code delivery, encrypted-ballot append, close procedure, tally ceremony, and election-record publication.
+- [x] Define recovery: guardian quorum recovery only, no administrator master key, no recovery from ordinary meeting-database backups, fail-closed behavior, documented revote contingency, and destruction/retention evidence.
+- [x] Define the independent-review gate: cryptographer review, independent verifier interoperability, published deterministic vectors, privacy review, penetration test, ceremony rehearsal, disaster-recovery rehearsal, dependency/SBOM review, and signed remediation closure.
+- [x] State that no `secret` method may enter `RulesProfile.voteMethods`, `MeetingCommand`, HTTP validation, UI claims, or publication schemas until every mandatory gate has evidence and the ADR is superseded by an implementation ADR.
+- [x] Commit as `docs: define ballot ceremonies and review gate`.
 
 ### Task 4: Complete Milestone 4B documentation
 
