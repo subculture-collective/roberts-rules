@@ -31,12 +31,12 @@
 
 ### Task 1: Extract the existing binary threshold tally
 
-- [ ] Add a failing deterministic vector in `packages/meeting-domain/test/vote-strategies.test.ts` that supplies yes/no/abstain ballot records plus the snapshotted two-thirds threshold and expects `{ yes: 2, no: 1, abstain: 1, result: 'adopted' }`.
-- [ ] Run `pnpm --filter @subculture/roberts-rules-meeting-domain test -- vote-strategies.test.ts`; expect failure because `tallyBinaryVote` does not exist.
-- [ ] Create `packages/meeting-domain/src/vote-strategies.ts` with `tallyBinaryVote(ballots, rule)`. Use integer multiplication for the threshold, exclude abstentions from `votesCast`, and preserve `motionFails` versus `chairDecides` tie behavior.
-- [ ] Export the function from `packages/meeting-domain/src/index.ts`, replace inline counted tallying in `decide.ts`, and keep existing event payloads byte-for-byte compatible.
-- [ ] Run the focused strategy and voting tests; expect all tests to pass.
-- [ ] Commit as `refactor: isolate deterministic binary vote tally`.
+- [x] Add a failing deterministic vector in `packages/meeting-domain/test/vote-strategies.test.ts` that supplies yes/no/abstain ballot records plus the snapshotted two-thirds threshold and expects `{ yes: 2, no: 1, abstain: 1, result: 'adopted' }`.
+- [x] Run `pnpm --filter @subculture/roberts-rules-meeting-domain test -- vote-strategies.test.ts`; expect failure because `tallyBinaryVote` does not exist.
+- [x] Create `packages/meeting-domain/src/vote-strategies.ts` with `tallyBinaryVote(ballots, rule)`. Use integer multiplication for the threshold, exclude abstentions from `votesCast`, and preserve `motionFails` versus `chairDecides` tie behavior.
+- [x] Export the function from `packages/meeting-domain/src/index.ts`, replace inline counted tallying in `decide.ts`, and keep existing event payloads byte-for-byte compatible.
+- [x] Run the focused strategy and voting tests; expect all tests to pass.
+- [x] Commit as `refactor: isolate deterministic binary vote tally`.
 
 ### Task 2: Add typed counted and roll-call modes
 

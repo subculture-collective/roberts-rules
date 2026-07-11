@@ -11,6 +11,7 @@ import type {
   MeetingState,
   RulesProfile,
 } from './types.js'
+import { tallyBinaryVote } from './vote-strategies.js'
 
 export function decide(profile: RulesProfile, state: MeetingState, envelope: CommandEnvelope): Decision {
   const prior = state.processedCommands[envelope.id]
@@ -377,13 +378,7 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       const vote = state.votes[envelope.command.voteId.trim()]
       if (!vote || vote.status !== 'closed' || vote.motionId !== activeMotion(state)?.id) return reject('INVALID_COMMAND', 'Named vote is not closed for the current question')
       if (parseIso(envelope.occurredAt)! < parseIso(vote.closedAt!)!) return reject('INVALID_COMMAND', 'Outcome cannot precede vote closing')
-      const choices = Object.values(vote.ballots).map((ballot) => ballot.choice)
-      const yes = choices.filter((choice) => choice === 'yes').length
-      const no = choices.filter((choice) => choice === 'no').length
-      const abstain = choices.filter((choice) => choice === 'abstain').length
-      const tied = yes === no
-      const result = tied ? (vote.rule.tiePolicy === 'chairDecides' ? 'tied' : 'rejected')
-        : yes * vote.rule.threshold.denominator >= (yes + no) * vote.rule.threshold.numerator ? 'adopted' : 'rejected'
+      const { yes, no, abstain, result } = tallyBinaryVote(vote.ballots, vote.rule)
       return accept([event(envelope, state.version + 1, 0, 'VoteOutcomeRecorded', { outcome: { voteId: vote.id, motionId: vote.motionId, method: vote.method, visibility: vote.visibility, rule: { ...vote.rule, threshold: { ...vote.rule.threshold } }, yes, no, abstain, result, recordedAt: envelope.occurredAt, recorderId: envelope.actorId } })])
     }
     case 'ApplyChairCorrection': {
