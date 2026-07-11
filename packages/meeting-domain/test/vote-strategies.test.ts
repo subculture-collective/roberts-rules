@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { tallyBinaryVote, tallyWeightedVote, type BallotRecord, type VoteRuleSnapshot } from '../src/index.js'
+import { tallyBinaryVote, tallyPluralityVote, tallyWeightedVote, type BallotRecord, type CandidateBallotRecord, type VoteRuleSnapshot } from '../src/index.js'
 
 describe('binary vote tally', () => {
   it('applies a snapshotted threshold with deterministic integer math', () => {
@@ -44,6 +44,25 @@ describe('binary vote tally', () => {
       abstain: 1,
       ballotCount: 3,
       result: 'adopted',
+    })
+  })
+})
+
+describe('plurality vote tally', () => {
+  it('reports tied candidates in configured option order', () => {
+    const ballots: Record<string, CandidateBallotRecord> = {
+      'delegate-1': { optionId: 'north', castAt: '2026-07-10T15:00:00.000Z' },
+      'delegate-2': { optionId: 'south', castAt: '2026-07-10T15:00:01.000Z' },
+      'delegate-3': { optionId: 'east', castAt: '2026-07-10T15:00:02.000Z' },
+      'delegate-4': { optionId: 'south', castAt: '2026-07-10T15:00:03.000Z' },
+      'delegate-5': { optionId: 'north', castAt: '2026-07-10T15:00:04.000Z' },
+    }
+
+    expect(tallyPluralityVote(ballots, ['east', 'north', 'south'])).toEqual({
+      totals: { east: 1, north: 2, south: 2 },
+      ballotCount: 5,
+      result: 'tied',
+      tiedOptionIds: ['north', 'south'],
     })
   })
 })

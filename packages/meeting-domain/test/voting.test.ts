@@ -5,6 +5,37 @@ const profile: RulesProfile = { id: 'standard', version: 1, quorum: { type: 'fix
 const NOW = '2026-07-10T15:00:00.000Z'
 
 describe('non-secret simulator voting', () => {
+  it('records a plurality winner without treating selection as motion adoption', () => {
+    const pluralityProfile = { ...profile, voteMethods: ['plurality'] } as unknown as RulesProfile
+    let state = activeMainStateFor(pluralityProfile)
+    const openPlurality = { type: 'OpenVote', voteId: 'vote-plurality', motionId: 'main-1', method: 'plurality', optionIds: ['north', 'south', 'east'] } as unknown as MeetingCommand
+    ;({ state } = runP(pluralityProfile, state, 'open-plurality', 'chair-1', 'chair', openPlurality))
+    ;({ state } = runP(pluralityProfile, state, 'plurality-north-1', 'delegate-1', 'delegate', { type: 'CastVote', voteId: 'vote-plurality', optionId: 'north' } as unknown as MeetingCommand))
+    ;({ state } = runP(pluralityProfile, state, 'plurality-south', 'delegate-2', 'delegate', { type: 'CastVote', voteId: 'vote-plurality', optionId: 'south' } as unknown as MeetingCommand))
+    ;({ state } = runP(pluralityProfile, state, 'plurality-north-2', 'delegate-3', 'delegate', { type: 'CastVote', voteId: 'vote-plurality', optionId: 'north' } as unknown as MeetingCommand))
+    ;({ state } = runP(pluralityProfile, state, 'close-plurality', 'chair-1', 'chair', { type: 'CloseVote', voteId: 'vote-plurality' }))
+    ;({ state } = runP(pluralityProfile, state, 'outcome-plurality', 'teller-1', 'teller', { type: 'RecordVoteOutcome', voteId: 'vote-plurality' }))
+
+    expect(state.votes['vote-plurality']).toMatchObject({
+      method: 'plurality',
+      optionIds: ['north', 'south', 'east'],
+      totals: { north: 2, south: 1, east: 0 },
+      ballotCount: 3,
+      result: 'selected',
+      winnerOptionId: 'north',
+    })
+    expect(state.motionStack).toEqual(['main-1'])
+    expect(state.motions['main-1']?.status).toBe('active')
+  })
+
+  it('rejects a plurality ballot outside the snapshotted option set', () => {
+    const pluralityProfile = { ...profile, voteMethods: ['plurality'] } as RulesProfile
+    let state = activeMainStateFor(pluralityProfile)
+    ;({ state } = runP(pluralityProfile, state, 'open-plurality', 'chair-1', 'chair', { type: 'OpenVote', voteId: 'vote-plurality', motionId: 'main-1', method: 'plurality', optionIds: ['north', 'south'] }))
+    const decision = decide(pluralityProfile, state, { id: 'unknown-option', expectedVersion: state.version, actorId: 'delegate-1', role: 'delegate', occurredAt: NOW, command: { type: 'CastVote', voteId: 'vote-plurality', optionId: 'east' } })
+    expect(decision).toMatchObject({ accepted: false, code: 'INVALID_COMMAND' })
+  })
+
   it('snapshots disclosed weights and records weighted totals', () => {
     const weightedProfile = { ...profile, voteMethods: ['weighted'] } as unknown as RulesProfile
     let state = activeMainStateFor(weightedProfile)

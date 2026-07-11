@@ -58,12 +58,12 @@
 
 ### Task 4: Add plurality candidate selection
 
-- [ ] Add a failing pure vector for three non-empty unique candidate IDs, including a deterministic tied result that lists tied candidates in configured option order.
-- [ ] Add a failing command-validation test for duplicate/blank options and ballots naming an option outside the snapshotted set.
-- [ ] Add a plurality configuration with two or more option IDs, a single-choice candidate ballot, and an outcome containing per-option totals plus either one winner or an ordered tie.
-- [ ] Keep plurality outcomes distinct from motion `adopted`/`rejected`; do not auto-dispose a motion based on a candidate-selection result.
-- [ ] Run meeting-domain tests; expect validation, replay, and deterministic vectors to pass.
-- [ ] Commit as `feat: add auditable plurality voting`.
+- [x] Add a failing pure vector for three non-empty unique candidate IDs, including a deterministic tied result that lists tied candidates in configured option order.
+- [x] Add a failing command-validation test for duplicate/blank options and ballots naming an option outside the snapshotted set.
+- [x] Add a plurality configuration with two or more option IDs, a single-choice candidate ballot, and an outcome containing per-option totals plus either one winner or an ordered tie.
+- [x] Keep plurality outcomes distinct from motion `adopted`/`rejected`; do not auto-dispose a motion based on a candidate-selection result.
+- [x] Run meeting-domain tests; expect validation, replay, and deterministic vectors to pass.
+- [x] Commit as `feat: add auditable plurality voting`.
 
 ### Task 5: Add deterministic ranked-choice selection
 

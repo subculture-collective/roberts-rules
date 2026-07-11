@@ -1,4 +1,4 @@
-import type { BallotRecord, VoteResult, VoteRuleSnapshot } from './types.js'
+import type { BallotRecord, CandidateBallotRecord, VoteResult, VoteRuleSnapshot } from './types.js'
 
 export interface BinaryVoteTally {
   yes: number
@@ -10,6 +10,10 @@ export interface BinaryVoteTally {
 export interface WeightedVoteTally extends BinaryVoteTally {
   ballotCount: number
 }
+
+export type PluralityVoteTally =
+  | { totals: Readonly<Record<string, number>>; ballotCount: number; result: 'selected'; winnerOptionId: string }
+  | { totals: Readonly<Record<string, number>>; ballotCount: number; result: 'tied'; tiedOptionIds: readonly string[] }
 
 export function tallyBinaryVote(
   ballots: Readonly<Record<string, BallotRecord>>,
@@ -54,4 +58,21 @@ export function tallyWeightedVote(
       : 'rejected'
 
   return { yes, no, abstain, ballotCount: Object.keys(ballots).length, result }
+}
+
+export function tallyPluralityVote(
+  ballots: Readonly<Record<string, CandidateBallotRecord>>,
+  optionIds: readonly string[],
+): PluralityVoteTally {
+  const totals: Record<string, number> = Object.fromEntries(optionIds.map((optionId) => [optionId, 0]))
+  for (const ballot of Object.values(ballots)) {
+    if (totals[ballot.optionId] === undefined) throw new Error(`Unknown plurality option ${ballot.optionId}`)
+    totals[ballot.optionId] += 1
+  }
+  const highest = Math.max(...Object.values(totals))
+  const leaders = optionIds.filter((optionId) => totals[optionId] === highest)
+  const common = { totals, ballotCount: Object.keys(ballots).length }
+  return leaders.length === 1
+    ? { ...common, result: 'selected', winnerOptionId: leaders[0]! }
+    : { ...common, result: 'tied', tiedOptionIds: leaders }
 }

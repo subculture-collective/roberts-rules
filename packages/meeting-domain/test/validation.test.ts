@@ -12,4 +12,12 @@ describe('validateMeetingCommand', () => {
     expect(() => validateMeetingCommand({ ...command, weights: { d1: 0 } })).toThrow('command.weights is invalid')
     expect(() => validateMeetingCommand({ ...command, method: 'counted' })).toThrow('command.weights is not allowed')
   })
+  it('validates plurality options and candidate ballots at the command boundary', () => {
+    const open = { type: 'OpenVote', voteId: 'v1', motionId: 'm1', method: 'plurality', optionIds: ['north', 'south'] }
+    expect(validateMeetingCommand(open)).toEqual(open)
+    expect(validateMeetingCommand({ type: 'CastVote', voteId: 'v1', optionId: 'north' })).toEqual({ type: 'CastVote', voteId: 'v1', optionId: 'north' })
+    expect(() => validateMeetingCommand({ ...open, optionIds: ['north', ' north '] })).toThrow('command.optionIds is invalid')
+    expect(() => validateMeetingCommand({ ...open, optionIds: ['north', ' '] })).toThrow('command.optionIds is invalid')
+    expect(() => validateMeetingCommand({ type: 'CastVote', voteId: 'v1', choice: 'yes', optionId: 'north' })).toThrow('command ballot is invalid')
+  })
 });

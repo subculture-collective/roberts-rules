@@ -268,9 +268,13 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
           [vote.id]: {
             ...vote,
             status: 'recorded',
-            yes: outcome.yes,
-            no: outcome.no,
-            abstain: outcome.abstain,
+            ...(outcome.method === 'plurality'
+              ? {
+                  totals: { ...outcome.totals },
+                  ...(outcome.winnerOptionId ? { winnerOptionId: outcome.winnerOptionId } : {}),
+                  ...(outcome.tiedOptionIds ? { tiedOptionIds: [...outcome.tiedOptionIds] } : {}),
+                }
+              : { yes: outcome.yes, no: outcome.no, abstain: outcome.abstain }),
             ...(outcome.ballotCount === undefined ? {} : { ballotCount: outcome.ballotCount }),
             result: outcome.result,
             recordedAt: outcome.recordedAt,
