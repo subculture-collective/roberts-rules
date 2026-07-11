@@ -8,7 +8,7 @@ const fields: Record<MeetingCommand['type'], readonly string[]> = {
   IntroduceMotion:['motionId','text'], SecondMotion:['motionId'], AmendMotion:['motionId','text','parentId'], WithdrawMotion:['motionId','reason'],
   TableMotion:['motionId','reason'], DisposeMotion:['motionId','disposition'], OpenDebate:['motionId','closesAt'], CloseDebate:['motionId','reason'],
   RaisePointOfOrder:['pointId','text'], RuleOnPointOfOrder:['pointId','ruling','reason'], AppealRuling:['pointId','appealId','grounds'],
-  RecordAppealOutcome:['pointId','appealId','outcome','reason'], OpenVote:['voteId','motionId','method'], CastVote:['voteId','choice'],
+  RecordAppealOutcome:['pointId','appealId','outcome','reason'], OpenVote:['voteId','motionId','method','weights'], CastVote:['voteId','choice'],
   CloseVote:['voteId'], RecordVoteOutcome:['voteId'], ApplyChairCorrection:['correctionId','affectedEventId','reason','patch'],
 }
 const requiredStrings: Partial<Record<MeetingCommand['type'], readonly string[]>> = {
@@ -36,7 +36,7 @@ export function validateMeetingCommand(value: unknown): MeetingCommand {
     for (const item of command.items) { const entry = object(item, 'command item'); exact(entry, ['id','title'], 'command item'); string(entry.id, 'command item.id'); string(entry.title, 'command item.title') }
   } else if (type === 'JoinRecognitionQueue' || type === 'WithdrawRecognitionQueue') side(command.side)
   else if (type === 'ReorderRecognitionQueue') { side(command.side); stringArray(command.participantIds, 'command.participantIds') }
-  else if (type === 'OpenVote' && !['counted','rollCall'].includes(String(command.method))) throw new Error('command.method is invalid')
+  else if (type === 'OpenVote') validateOpenVote(command)
   else if (type === 'CastVote' && !['yes','no','abstain'].includes(String(command.choice))) throw new Error('command.choice is invalid')
   else if (type === 'RuleOnPointOfOrder' && !['upheld','denied'].includes(String(command.ruling))) throw new Error('command.ruling is invalid')
   else if (type === 'RecordAppealOutcome' && !['sustained','overturned'].includes(String(command.outcome))) throw new Error('command.outcome is invalid')
@@ -49,6 +49,17 @@ function validatePatch(value: unknown) {
   const variants: Record<string, readonly string[]> = { motionText:['motionId','correctedText'], agendaTitle:['itemId','correctedTitle'], motionDisposition:['motionId','correctedDisposition'] }
   const keys = variants[patch.type as string]; if (!keys) throw new Error('command.patch.type is invalid')
   exact(patch, ['type', ...keys], 'command.patch'); for (const key of keys) string(patch[key], `command.patch.${key}`)
+}
+function validateOpenVote(command: Record<string, unknown>) {
+  if (!['counted','rollCall','weighted'].includes(String(command.method))) throw new Error('command.method is invalid')
+  if (command.method !== 'weighted') {
+    if (command.weights !== undefined) throw new Error('command.weights is not allowed')
+    return
+  }
+  const weights = object(command.weights, 'command.weights')
+  for (const [participantId, weight] of Object.entries(weights)) {
+    if (!participantId || !Number.isSafeInteger(weight) || Number(weight) <= 0) throw new Error('command.weights is invalid')
+  }
 }
 function object(value: unknown, name: string): Record<string, unknown> { if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`); return value as Record<string, unknown> }
 function exact(value: Record<string, unknown>, keys: readonly string[], name: string) { const allowed = new Set(keys); for (const key of Object.keys(value)) if (!allowed.has(key)) throw new Error(`${name}.${key} is not allowed`) }

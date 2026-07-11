@@ -49,12 +49,12 @@
 
 ### Task 3: Add weighted binary votes with snapshotted weights
 
-- [ ] Add a failing pure vector where three disclosed ballots have weights 3, 2, and 1 and the weighted totals determine the threshold result.
-- [ ] Add a failing aggregate test where `OpenVote` receives a complete positive-integer weight map for active eligible representatives, snapshots it in the private vote event, and rejects missing, zero, negative, fractional, or unknown-participant entries.
-- [ ] Add `weighted` to the binary vote methods and a weighted configuration variant on `OpenVote`; represent tally totals as integers and preserve the unweighted ballot count for audit display.
-- [ ] Ensure the teller cannot change weights when recording the outcome because computation uses the `VoteOpened` snapshot.
-- [ ] Run meeting-domain tests; expect deterministic weighted totals after replay.
-- [ ] Commit as `feat: add snapshotted weighted voting`.
+- [x] Add a failing pure vector where three disclosed ballots have weights 3, 2, and 1 and the weighted totals determine the threshold result.
+- [x] Add a failing aggregate test where `OpenVote` receives a complete positive-integer weight map for active eligible representatives, snapshots it in the private vote event, and rejects missing, zero, negative, fractional, or unknown-participant entries.
+- [x] Add `weighted` to the binary vote methods and a weighted configuration variant on `OpenVote`; represent tally totals as integers and preserve the unweighted ballot count for audit display.
+- [x] Ensure the teller cannot change weights when recording the outcome because computation uses the `VoteOpened` snapshot.
+- [x] Run meeting-domain tests; expect deterministic weighted totals after replay.
+- [x] Commit as `feat: add snapshotted weighted voting`.
 
 ### Task 4: Add plurality candidate selection
 

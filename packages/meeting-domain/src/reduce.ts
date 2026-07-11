@@ -271,6 +271,7 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
             yes: outcome.yes,
             no: outcome.no,
             abstain: outcome.abstain,
+            ...(outcome.ballotCount === undefined ? {} : { ballotCount: outcome.ballotCount }),
             result: outcome.result,
             recordedAt: outcome.recordedAt,
             recorderId: outcome.recorderId,

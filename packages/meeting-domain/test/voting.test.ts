@@ -5,6 +5,59 @@ const profile: RulesProfile = { id: 'standard', version: 1, quorum: { type: 'fix
 const NOW = '2026-07-10T15:00:00.000Z'
 
 describe('non-secret simulator voting', () => {
+  it('snapshots disclosed weights and records weighted totals', () => {
+    const weightedProfile = { ...profile, voteMethods: ['weighted'] } as unknown as RulesProfile
+    let state = activeMainStateFor(weightedProfile)
+    const openWeighted = {
+      type: 'OpenVote',
+      voteId: 'vote-weighted',
+      motionId: 'main-1',
+      method: 'weighted',
+      weights: { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1 },
+    } as unknown as MeetingCommand
+    ;({ state } = runP(weightedProfile, state, 'open-weighted', 'chair-1', 'chair', openWeighted))
+    ;({ state } = runP(weightedProfile, state, 'weighted-yes', 'delegate-1', 'delegate', { type: 'CastVote', voteId: 'vote-weighted', choice: 'yes' }))
+    ;({ state } = runP(weightedProfile, state, 'weighted-no', 'delegate-2', 'delegate', { type: 'CastVote', voteId: 'vote-weighted', choice: 'no' }))
+    ;({ state } = runP(weightedProfile, state, 'close-weighted', 'chair-1', 'chair', { type: 'CloseVote', voteId: 'vote-weighted' }))
+    ;({ state } = runP(weightedProfile, state, 'outcome-weighted', 'teller-1', 'teller', { type: 'RecordVoteOutcome', voteId: 'vote-weighted' }))
+
+    expect(state.votes['vote-weighted']).toMatchObject({
+      method: 'weighted',
+      weights: { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1 },
+      yes: 3,
+      no: 2,
+      abstain: 0,
+      ballotCount: 2,
+      result: 'adopted',
+    })
+    expect(state.outcomes[0]).toMatchObject({
+      method: 'weighted',
+      weights: { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1 },
+      yes: 3,
+      no: 2,
+      ballotCount: 2,
+    })
+  })
+
+  it('rejects incomplete or invalid weighted-vote snapshots', () => {
+    const weightedProfile = { ...profile, voteMethods: ['weighted'] } as unknown as RulesProfile
+    const state = activeMainStateFor(weightedProfile)
+    const invalidWeights: unknown[] = [
+      undefined,
+      { 'delegate-1': 3, 'delegate-2': 2 },
+      { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 0 },
+      { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': -1 },
+      { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1.5 },
+      { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1, observer: 1 },
+    ]
+
+    for (const [index, weights] of invalidWeights.entries()) {
+      const command = { type: 'OpenVote', voteId: `invalid-weight-${index}`, motionId: 'main-1', method: 'weighted', ...(weights === undefined ? {} : { weights }) } as unknown as MeetingCommand
+      const decision = decide(weightedProfile, state, { id: `invalid-weight-${index}`, expectedVersion: state.version, actorId: 'chair-1', role: 'chair', occurredAt: NOW, command })
+      expect(decision).toMatchObject({ accepted: false, code: 'INVALID_COMMAND' })
+    }
+  })
+
   it('records a profile-enabled roll-call vote with voter-keyed ballots', () => {
     const rollCallProfile: RulesProfile = { ...profile, voteMethods: ['rollCall'] }
     let state = activeMainStateFor(rollCallProfile)

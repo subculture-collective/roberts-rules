@@ -3,9 +3,9 @@ export { decide } from './decide.js'
 export { replay } from './replay.js'
 export { createInitialState, reduce } from './reduce.js'
 export { validateMeetingCommand } from './validation.js'
-export { tallyBinaryVote } from './vote-strategies.js'
+export { tallyBinaryVote, tallyWeightedVote } from './vote-strategies.js'
 export type { ReplayResult } from './replay.js'
-export type { BinaryVoteTally } from './vote-strategies.js'
+export type { BinaryVoteTally, WeightedVoteTally } from './vote-strategies.js'
 export type {
   AcceptedDecision,
   AgendaItem,
