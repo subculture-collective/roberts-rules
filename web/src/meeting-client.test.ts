@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createInitialState, reduce } from '@subculture/roberts-rules-meeting-domain';
 import { MeetingProjectionClient, type SocketLike } from './meeting-client';
 
-const profile = { id: 'standard', version: 1, quorum: { type: 'fixed' as const, minimum: 1 }, debate: { defaultDurationSeconds: 300 }, voteMethods: ['counted'], motionThreshold: { numerator: 1, denominator: 2, basis: 'votesCast' as const }, tiePolicy: 'motionFails' as const, overrides: { quorumIndependentActions: [] } };
+const profile = { id: 'standard', version: 1, quorum: { type: 'fixed' as const, minimum: 1 }, debate: { defaultDurationSeconds: 300 }, voteMethods: ['counted'] as const, motionThreshold: { numerator: 1, denominator: 2, basis: 'votesCast' as const }, tiePolicy: 'motionFails' as const, overrides: { quorumIndependentActions: [] } };
 const state = reduce(createInitialState(profile), { id: 'e1', type: 'MeetingInitialized', aggregateVersion: 1, occurredAt: '2026-07-10T19:59:00.000Z', causationId: 'c1', payload: { meetingId: 'meeting-1', rulesProfileId: 'standard', rulesProfileVersion: 1 } });
 class FakeSocket implements SocketLike { onopen: (() => void) | null = null; onmessage: ((event: { data: string }) => void) | null = null; onclose: (() => void) | null = null; onerror: (() => void) | null = null; close = vi.fn(); }
 

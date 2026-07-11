@@ -5,6 +5,29 @@ const profile: RulesProfile = { id: 'standard', version: 1, quorum: { type: 'fix
 const NOW = '2026-07-10T15:00:00.000Z'
 
 describe('non-secret simulator voting', () => {
+  it('records a profile-enabled roll-call vote with voter-keyed ballots', () => {
+    const rollCallProfile: RulesProfile = { ...profile, voteMethods: ['rollCall'] }
+    let state = activeMainStateFor(rollCallProfile)
+    ;({ state } = runP(rollCallProfile, state, 'open-roll-call', 'chair-1', 'chair', { type: 'OpenVote', voteId: 'vote-roll-call', motionId: 'main-1', method: 'rollCall' }))
+    ;({ state } = runP(rollCallProfile, state, 'roll-call-yes', 'delegate-1', 'delegate', { type: 'CastVote', voteId: 'vote-roll-call', choice: 'yes' }))
+    ;({ state } = runP(rollCallProfile, state, 'roll-call-no', 'delegate-2', 'delegate', { type: 'CastVote', voteId: 'vote-roll-call', choice: 'no' }))
+    ;({ state } = runP(rollCallProfile, state, 'close-roll-call', 'chair-1', 'chair', { type: 'CloseVote', voteId: 'vote-roll-call' }))
+    ;({ state } = runP(rollCallProfile, state, 'outcome-roll-call', 'teller-1', 'teller', { type: 'RecordVoteOutcome', voteId: 'vote-roll-call' }))
+
+    expect(state.votes['vote-roll-call']).toMatchObject({
+      method: 'rollCall',
+      visibility: 'nonSecretSimulator',
+      ballots: {
+        'delegate-1': { choice: 'yes' },
+        'delegate-2': { choice: 'no' },
+      },
+      yes: 1,
+      no: 1,
+      result: 'rejected',
+    })
+    expect(state.outcomes[0]?.method).toBe('rollCall')
+  })
+
   it('records a counted vote and typed simulator outcome', () => {
     let state = activeMainState()
     ;({ state } = run(state, 'open-vote', 'chair-1', 'chair', { type: 'OpenVote', voteId: 'vote-1', motionId: 'main-1', method: 'counted' }))

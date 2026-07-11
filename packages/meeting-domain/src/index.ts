@@ -14,6 +14,7 @@ export type {
   AppealState,
   BallotChoice,
   BallotRecord,
+  BinaryVoteMethod,
   AttendanceRecord,
   CommandEnvelope,
   CorrectionPatch,

@@ -40,12 +40,12 @@
 
 ### Task 2: Add typed counted and roll-call modes
 
-- [ ] Add a failing aggregate test proving a profile that permits `rollCall` can open it, retain voter-keyed yes/no/abstain records, and produce the same threshold result as `counted`.
-- [ ] Run the focused voting test; expect `INVALID_COMMAND` for `rollCall`.
-- [ ] Add `BinaryVoteMethod = 'counted' | 'rollCall'`, close `RulesProfile.voteMethods` over supported methods, and carry the selected method through `VoteState` and `VoteOutcome`.
-- [ ] Permit only profile-enabled methods in `OpenVote`; keep `visibility: 'nonSecretSimulator'` for both methods and reject `secret` or unknown strings at validation.
-- [ ] Run meeting-domain tests; expect the new test and all counted compatibility tests to pass.
-- [ ] Commit as `feat: add auditable roll-call voting`.
+- [x] Add a failing aggregate test proving a profile that permits `rollCall` can open it, retain voter-keyed yes/no/abstain records, and produce the same threshold result as `counted`.
+- [x] Run the focused voting test; expect `INVALID_COMMAND` for `rollCall`.
+- [x] Add `BinaryVoteMethod = 'counted' | 'rollCall'`, close `RulesProfile.voteMethods` over supported methods, and carry the selected method through `VoteState` and `VoteOutcome`.
+- [x] Permit only profile-enabled methods in `OpenVote`; keep `visibility: 'nonSecretSimulator'` for both methods and reject `secret` or unknown strings at validation.
+- [x] Run meeting-domain tests; expect the new test and all counted compatibility tests to pass.
+- [x] Commit as `feat: add auditable roll-call voting`.
 
 ### Task 3: Add weighted binary votes with snapshotted weights
 

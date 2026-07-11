@@ -17,7 +17,7 @@ export interface RulesProfile {
   version: number
   quorum: { type: 'fixed'; minimum: number }
   debate: { defaultDurationSeconds: number }
-  voteMethods: readonly string[]
+  voteMethods: readonly BinaryVoteMethod[]
   motionThreshold: { numerator: number; denominator: number; basis: 'votesCast' }
   tiePolicy: 'motionFails' | 'chairDecides'
   overrides: { quorumIndependentActions: readonly string[] }
@@ -51,11 +51,12 @@ export type AppealOutcome = 'sustained' | 'overturned'
 export interface AppealState { id: string; appellantId: string; appealedAt: string; status: 'pending' | 'decided'; grounds?: string; outcome?: AppealOutcome; reason?: string; decidedAt?: string; deciderId?: string }
 export interface PointOfOrder { id: string; text: string; raiserId: string; motionId: string; raisedAt: string; status: 'pending' | 'ruled' | 'final'; ruling?: PointRuling; rulingReason?: string; ruledAt?: string; rulerId?: string; appeal?: AppealState }
 export type BallotChoice = 'yes' | 'no' | 'abstain'
+export type BinaryVoteMethod = 'counted' | 'rollCall'
 export type VoteResult = 'adopted' | 'rejected' | 'tied'
 export interface BallotRecord { choice: BallotChoice; castAt: string }
 export interface VoteRuleSnapshot { rulesProfileId: string; rulesProfileVersion: number; threshold: RulesProfile['motionThreshold']; tiePolicy: RulesProfile['tiePolicy'] }
-export interface VoteState { id: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord>>; yes?: number; no?: number; abstain?: number; result?: VoteResult; recordedAt?: string; recorderId?: string }
-export interface VoteOutcome { voteId: string; motionId: string; method: 'counted'; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; yes: number; no: number; abstain: number; result: VoteResult; recordedAt: string; recorderId: string }
+export interface VoteState { id: string; motionId: string; method: BinaryVoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord>>; yes?: number; no?: number; abstain?: number; result?: VoteResult; recordedAt?: string; recorderId?: string }
+export interface VoteOutcome { voteId: string; motionId: string; method: BinaryVoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; yes: number; no: number; abstain: number; result: VoteResult; recordedAt: string; recorderId: string }
 export type CorrectionPatch =
   | { type: 'motionText'; motionId: string; correctedText: string }
   | { type: 'agendaTitle'; itemId: string; correctedTitle: string }

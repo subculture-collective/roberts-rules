@@ -13,7 +13,7 @@ export interface MeetingApplication {
 
 const uuid = z.string().uuid();
 const datetime = z.iso.datetime({ offset: true });
-const profileSchema = z.object({ id: z.string().min(1), version: z.number().int().positive(), quorum: z.object({ type: z.literal('fixed'), minimum: z.number().int().nonnegative() }).strict(), debate: z.object({ defaultDurationSeconds: z.number().nonnegative() }).strict(), voteMethods: z.array(z.string()), motionThreshold: z.object({ numerator: z.number().int().positive(), denominator: z.number().int().positive(), basis: z.literal('votesCast') }).strict(), tiePolicy: z.enum(['motionFails', 'chairDecides']), overrides: z.object({ quorumIndependentActions: z.array(z.string()) }).strict() }).strict();
+const profileSchema = z.object({ id: z.string().min(1), version: z.number().int().positive(), quorum: z.object({ type: z.literal('fixed'), minimum: z.number().int().nonnegative() }).strict(), debate: z.object({ defaultDurationSeconds: z.number().nonnegative() }).strict(), voteMethods: z.array(z.enum(['counted', 'rollCall'])), motionThreshold: z.object({ numerator: z.number().int().positive(), denominator: z.number().int().positive(), basis: z.literal('votesCast') }).strict(), tiePolicy: z.enum(['motionFails', 'chairDecides']), overrides: z.object({ quorumIndependentActions: z.array(z.string()) }).strict() }).strict();
 const commandRequestSchema = z.object({ commandId: z.string().min(1), expectedVersion: z.number().int().nonnegative(), occurredAt: datetime, command: z.record(z.string(), z.unknown()) }).strict();
 
 async function body(request: IncomingMessage): Promise<unknown> {

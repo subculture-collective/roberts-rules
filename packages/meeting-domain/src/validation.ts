@@ -36,6 +36,7 @@ export function validateMeetingCommand(value: unknown): MeetingCommand {
     for (const item of command.items) { const entry = object(item, 'command item'); exact(entry, ['id','title'], 'command item'); string(entry.id, 'command item.id'); string(entry.title, 'command item.title') }
   } else if (type === 'JoinRecognitionQueue' || type === 'WithdrawRecognitionQueue') side(command.side)
   else if (type === 'ReorderRecognitionQueue') { side(command.side); stringArray(command.participantIds, 'command.participantIds') }
+  else if (type === 'OpenVote' && !['counted','rollCall'].includes(String(command.method))) throw new Error('command.method is invalid')
   else if (type === 'CastVote' && !['yes','no','abstain'].includes(String(command.choice))) throw new Error('command.choice is invalid')
   else if (type === 'RuleOnPointOfOrder' && !['upheld','denied'].includes(String(command.ruling))) throw new Error('command.ruling is invalid')
   else if (type === 'RecordAppealOutcome' && !['sustained','overturned'].includes(String(command.outcome))) throw new Error('command.outcome is invalid')

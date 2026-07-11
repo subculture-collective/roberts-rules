@@ -345,9 +345,10 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (hasUnresolvedProcedure(state, motion.id) || hasAnyVote(state, motion.id)) return reject('INVALID_COMMAND', 'Current motion has unresolved procedure or a prior vote')
       const voteId = envelope.command.voteId.trim()
       if (!voteId || state.votes[voteId]) return reject('INVALID_COMMAND', 'Vote ID must be unique and non-empty')
-      if (envelope.command.method !== 'counted' || !profile.voteMethods.includes('counted')) return reject('INVALID_COMMAND', 'Only permitted non-secret counted voting is supported')
+      const method = envelope.command.method
+      if ((method !== 'counted' && method !== 'rollCall') || !profile.voteMethods.includes(method)) return reject('INVALID_COMMAND', 'Vote method must be a permitted non-secret binary method')
       if (!validThreshold(profile.motionThreshold)) return reject('INVALID_COMMAND', 'Motion threshold must contain valid positive integers')
-      return accept([event(envelope, state.version + 1, 0, 'VoteOpened', { vote: { id: voteId, motionId: motion.id, method: 'counted', visibility: 'nonSecretSimulator', rule: { rulesProfileId: profile.id, rulesProfileVersion: profile.version, threshold: { ...profile.motionThreshold }, tiePolicy: profile.tiePolicy }, status: 'open', openedAt: envelope.occurredAt, ballots: {} } })])
+      return accept([event(envelope, state.version + 1, 0, 'VoteOpened', { vote: { id: voteId, motionId: motion.id, method, visibility: 'nonSecretSimulator', rule: { rulesProfileId: profile.id, rulesProfileVersion: profile.version, threshold: { ...profile.motionThreshold }, tiePolicy: profile.tiePolicy }, status: 'open', openedAt: envelope.occurredAt, ballots: {} } })])
     }
     case 'CastVote': {
       const invalid = validateParticipantFloorOperation(state, envelope)
