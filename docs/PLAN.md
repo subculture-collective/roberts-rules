@@ -155,6 +155,8 @@ The non-secret simulator strategy work is [Milestone 4A: Auditable Voting](plans
 
 Milestone 4A is complete. These methods are non-secret procedural simulations: voter-keyed ballots, weight snapshots, rankings, and tally inputs remain in the private meeting journal. They are auditable and deterministic, but are not cryptographically secret, secure elections, or binding production ballots.
 
+The secret-ballot design gate is [Milestone 4B: Secret-Ballot Security Architecture](plans/2026-07-10-milestone-4b-secret-ballot-security.md). This milestone produces security documentation only; it does not authorize or implement a `secret` vote method.
+
 - [x] Add counted, weighted, roll-call, threshold, plurality, and ranked-choice vote strategies behind the domain's `voteMethods` profile field.
 - [x] Keep tally inputs and outcome computation auditable through private event records and deterministic test vectors.
 - [ ] Design an ElectionGuard-compatible secret-ballot boundary, threat model, ceremony, recovery process, and independent security-review gate before implementing secret ballots.
