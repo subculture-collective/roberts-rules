@@ -11,6 +11,7 @@ Use ADRs for decisions that affect structure, dependencies, operations, security
 - [ADR 0005: Resumable At-Least-Once Event Delivery](0005-resumable-at-least-once-event-delivery.md)
 - [ADR 0006: Meeting-Scoped Stateful Sessions](0006-meeting-scoped-stateful-sessions.md)
 - [ADR 0007: ElectionGuard-Compatible Secret-Ballot Boundary](0007-electionguard-compatible-secret-ballot-boundary.md)
+- [ADR 0008: Primary/Standby LAN Authority](0008-primary-standby-lan-authority.md)
 
 Suggested format:
 

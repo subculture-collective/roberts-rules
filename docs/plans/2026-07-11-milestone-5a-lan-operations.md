@@ -22,11 +22,11 @@
 - Modify: `docs/adr/README.md`
 - Modify: `docs/PLAN.md`
 
-- [ ] Record one writable primary, one non-serving warm standby, PostgreSQL streaming replication, explicit operator promotion, and fencing of the former primary.
-- [ ] Define recovery-point and recovery-time objectives as measured targets rather than claims: zero acknowledged-command loss during healthy synchronous operation; no automatic zero-loss claim during degraded asynchronous operation; operator promotion target under five minutes after fencing.
-- [ ] Define the optional WAN gateway as a stateless relay/projection edge with no database credentials, session issuance, command authority, or private journal storage.
-- [ ] Link ADR 0008 from the ADR index and Milestone 5.
-- [ ] Commit as `docs: define primary standby LAN authority`.
+- [x] Record one writable primary, one non-serving warm standby, PostgreSQL streaming replication, explicit operator promotion, and fencing of the former primary.
+- [x] Define recovery-point and recovery-time objectives as measured targets rather than claims: zero acknowledged-command loss during healthy synchronous operation; no automatic zero-loss claim during degraded asynchronous operation; operator promotion target under five minutes after fencing.
+- [x] Define the optional WAN gateway as a stateless relay/projection edge with no database credentials, session issuance, command authority, or private journal storage.
+- [x] Link ADR 0008 from the ADR index and Milestone 5.
+- [x] Commit as `docs: define primary standby LAN authority`.
 
 ### Task 2: Separate liveness from database readiness
 
