@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { tallyBinaryVote, tallyPluralityVote, tallyWeightedVote, type BallotRecord, type CandidateBallotRecord, type VoteRuleSnapshot } from '../src/index.js'
+import { tallyBinaryVote, tallyPluralityVote, tallyRankedChoiceVote, tallyWeightedVote, type BallotRecord, type CandidateBallotRecord, type RankedBallotRecord, type VoteRuleSnapshot } from '../src/index.js'
 
 describe('binary vote tally', () => {
   it('applies a snapshotted threshold with deterministic integer math', () => {
@@ -63,6 +63,83 @@ describe('plurality vote tally', () => {
       ballotCount: 5,
       result: 'tied',
       tiedOptionIds: ['north', 'south'],
+    })
+  })
+})
+
+describe('ranked-choice vote tally', () => {
+  it('selects a candidate with a first-round majority', () => {
+    const ballots: Record<string, RankedBallotRecord> = {
+      'delegate-1': { ranking: ['north', 'south', 'east'], castAt: '2026-07-10T15:00:00.000Z' },
+      'delegate-2': { ranking: ['north', 'east', 'south'], castAt: '2026-07-10T15:00:01.000Z' },
+      'delegate-3': { ranking: ['south', 'north', 'east'], castAt: '2026-07-10T15:00:02.000Z' },
+    }
+
+    expect(tallyRankedChoiceVote(ballots, ['north', 'south', 'east'])).toEqual({
+      ballotCount: 3,
+      result: 'selected',
+      winnerOptionId: 'north',
+      rounds: [{
+        round: 1,
+        activeOptionIds: ['north', 'south', 'east'],
+        totals: { north: 2, south: 1, east: 0 },
+        exhausted: 0,
+        eliminatedOptionIds: [],
+      }],
+    })
+  })
+
+  it('eliminates the lowest option and transfers its ballot', () => {
+    const ballots: Record<string, RankedBallotRecord> = {
+      n1: { ranking: ['north'], castAt: '2026-07-10T15:00:00.000Z' },
+      n2: { ranking: ['north'], castAt: '2026-07-10T15:00:01.000Z' },
+      s1: { ranking: ['south'], castAt: '2026-07-10T15:00:02.000Z' },
+      s2: { ranking: ['south'], castAt: '2026-07-10T15:00:03.000Z' },
+      e1: { ranking: ['east', 'north'], castAt: '2026-07-10T15:00:04.000Z' },
+    }
+
+    expect(tallyRankedChoiceVote(ballots, ['north', 'south', 'east'])).toEqual({
+      ballotCount: 5,
+      result: 'selected',
+      winnerOptionId: 'north',
+      rounds: [
+        { round: 1, activeOptionIds: ['north', 'south', 'east'], totals: { north: 2, south: 2, east: 1 }, exhausted: 0, eliminatedOptionIds: ['east'] },
+        { round: 2, activeOptionIds: ['north', 'south'], totals: { north: 3, south: 2 }, exhausted: 0, eliminatedOptionIds: [] },
+      ],
+    })
+  })
+
+  it('records exhausted ballots after elimination', () => {
+    const ballots: Record<string, RankedBallotRecord> = {
+      n1: { ranking: ['north'], castAt: '2026-07-10T15:00:00.000Z' },
+      n2: { ranking: ['north'], castAt: '2026-07-10T15:00:01.000Z' },
+      s1: { ranking: ['south'], castAt: '2026-07-10T15:00:02.000Z' },
+      s2: { ranking: ['south'], castAt: '2026-07-10T15:00:03.000Z' },
+      e1: { ranking: ['east'], castAt: '2026-07-10T15:00:04.000Z' },
+    }
+
+    expect(tallyRankedChoiceVote(ballots, ['north', 'south', 'east'])).toEqual({
+      ballotCount: 5,
+      result: 'tied',
+      tiedOptionIds: ['north', 'south'],
+      rounds: [
+        { round: 1, activeOptionIds: ['north', 'south', 'east'], totals: { north: 2, south: 2, east: 1 }, exhausted: 0, eliminatedOptionIds: ['east'] },
+        { round: 2, activeOptionIds: ['north', 'south'], totals: { north: 2, south: 2 }, exhausted: 1, eliminatedOptionIds: [] },
+      ],
+    })
+  })
+
+  it('reports a final tie without inventing a tie-break winner', () => {
+    const ballots: Record<string, RankedBallotRecord> = {
+      n1: { ranking: ['north', 'south'], castAt: '2026-07-10T15:00:00.000Z' },
+      s1: { ranking: ['south', 'north'], castAt: '2026-07-10T15:00:01.000Z' },
+    }
+
+    expect(tallyRankedChoiceVote(ballots, ['north', 'south'])).toEqual({
+      ballotCount: 2,
+      result: 'tied',
+      tiedOptionIds: ['north', 'south'],
+      rounds: [{ round: 1, activeOptionIds: ['north', 'south'], totals: { north: 1, south: 1 }, exhausted: 0, eliminatedOptionIds: [] }],
     })
   })
 })

@@ -52,13 +52,15 @@ export interface AppealState { id: string; appellantId: string; appealedAt: stri
 export interface PointOfOrder { id: string; text: string; raiserId: string; motionId: string; raisedAt: string; status: 'pending' | 'ruled' | 'final'; ruling?: PointRuling; rulingReason?: string; ruledAt?: string; rulerId?: string; appeal?: AppealState }
 export type BallotChoice = 'yes' | 'no' | 'abstain'
 export type BinaryVoteMethod = 'counted' | 'rollCall' | 'weighted'
-export type VoteMethod = BinaryVoteMethod | 'plurality'
+export type VoteMethod = BinaryVoteMethod | 'plurality' | 'rankedChoice'
 export type VoteResult = 'adopted' | 'rejected' | 'tied' | 'selected'
 export interface BallotRecord { choice: BallotChoice; castAt: string }
 export interface CandidateBallotRecord { optionId: string; castAt: string }
+export interface RankedBallotRecord { ranking: readonly string[]; castAt: string }
+export interface RankedChoiceRound { round: number; activeOptionIds: readonly string[]; totals: Readonly<Record<string, number>>; exhausted: number; eliminatedOptionIds: readonly string[] }
 export interface VoteRuleSnapshot { rulesProfileId: string; rulesProfileVersion: number; threshold: RulesProfile['motionThreshold']; tiePolicy: RulesProfile['tiePolicy'] }
-export interface VoteState { id: string; motionId: string; method: VoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; weights?: Readonly<Record<string, number>>; optionIds?: readonly string[]; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord | CandidateBallotRecord>>; yes?: number; no?: number; abstain?: number; totals?: Readonly<Record<string, number>>; ballotCount?: number; result?: VoteResult; winnerOptionId?: string; tiedOptionIds?: readonly string[]; recordedAt?: string; recorderId?: string }
-export interface VoteOutcome { voteId: string; motionId: string; method: VoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; weights?: Readonly<Record<string, number>>; optionIds?: readonly string[]; yes?: number; no?: number; abstain?: number; totals?: Readonly<Record<string, number>>; ballotCount?: number; result: VoteResult; winnerOptionId?: string; tiedOptionIds?: readonly string[]; recordedAt: string; recorderId: string }
+export interface VoteState { id: string; motionId: string; method: VoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; weights?: Readonly<Record<string, number>>; optionIds?: readonly string[]; status: 'open' | 'closed' | 'recorded'; openedAt: string; closedAt?: string; ballots: Readonly<Record<string, BallotRecord | CandidateBallotRecord | RankedBallotRecord>>; yes?: number; no?: number; abstain?: number; totals?: Readonly<Record<string, number>>; rounds?: readonly RankedChoiceRound[]; ballotCount?: number; result?: VoteResult; winnerOptionId?: string; tiedOptionIds?: readonly string[]; recordedAt?: string; recorderId?: string }
+export interface VoteOutcome { voteId: string; motionId: string; method: VoteMethod; visibility: 'nonSecretSimulator'; rule: VoteRuleSnapshot; weights?: Readonly<Record<string, number>>; optionIds?: readonly string[]; yes?: number; no?: number; abstain?: number; totals?: Readonly<Record<string, number>>; rounds?: readonly RankedChoiceRound[]; ballotCount?: number; result: VoteResult; winnerOptionId?: string; tiedOptionIds?: readonly string[]; recordedAt: string; recorderId: string }
 export type CorrectionPatch =
   | { type: 'motionText'; motionId: string; correctedText: string }
   | { type: 'agendaTitle'; itemId: string; correctedTitle: string }
@@ -116,8 +118,10 @@ export type MeetingCommand =
   | { type: 'OpenVote'; voteId: string; motionId: string; method: 'counted' | 'rollCall' }
   | { type: 'OpenVote'; voteId: string; motionId: string; method: 'weighted'; weights: Readonly<Record<string, number>> }
   | { type: 'OpenVote'; voteId: string; motionId: string; method: 'plurality'; optionIds: readonly string[] }
+  | { type: 'OpenVote'; voteId: string; motionId: string; method: 'rankedChoice'; optionIds: readonly string[] }
   | { type: 'CastVote'; voteId: string; choice: BallotChoice }
   | { type: 'CastVote'; voteId: string; optionId: string }
+  | { type: 'CastVote'; voteId: string; ranking: readonly string[] }
   | { type: 'CloseVote'; voteId: string }
   | { type: 'RecordVoteOutcome'; voteId: string }
   | { type: 'ApplyChairCorrection'; correctionId: string; affectedEventId: string; reason: string; patch: CorrectionPatch }
@@ -177,7 +181,7 @@ export interface MeetingEventPayloadMap {
   RulingAppealed: { pointId: string; appeal: AppealState }
   AppealOutcomeRecorded: { pointId: string; appealId: string; outcome: AppealOutcome; reason: string; decidedAt: string; deciderId: string }
   VoteOpened: { vote: VoteState }
-  VoteCast: { voteId: string; voterId: string; ballot: BallotRecord | CandidateBallotRecord }
+  VoteCast: { voteId: string; voterId: string; ballot: BallotRecord | CandidateBallotRecord | RankedBallotRecord }
   VoteClosed: { voteId: string; closedAt: string }
   VoteOutcomeRecorded: { outcome: VoteOutcome }
   ChairCorrectionApplied: CorrectionRecord

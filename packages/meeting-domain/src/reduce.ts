@@ -268,9 +268,10 @@ function applyEvent(state: MeetingState, event: MeetingEvent): MeetingState {
           [vote.id]: {
             ...vote,
             status: 'recorded',
-            ...(outcome.method === 'plurality'
+            ...(outcome.method === 'plurality' || outcome.method === 'rankedChoice'
               ? {
-                  totals: { ...outcome.totals },
+                  ...(outcome.totals ? { totals: { ...outcome.totals } } : {}),
+                  ...(outcome.rounds ? { rounds: outcome.rounds.map((round) => ({ ...round, activeOptionIds: [...round.activeOptionIds], totals: { ...round.totals }, eliminatedOptionIds: [...round.eliminatedOptionIds] })) } : {}),
                   ...(outcome.winnerOptionId ? { winnerOptionId: outcome.winnerOptionId } : {}),
                   ...(outcome.tiedOptionIds ? { tiedOptionIds: [...outcome.tiedOptionIds] } : {}),
                 }

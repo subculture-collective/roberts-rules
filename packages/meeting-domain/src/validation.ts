@@ -8,7 +8,7 @@ const fields: Record<MeetingCommand['type'], readonly string[]> = {
   IntroduceMotion:['motionId','text'], SecondMotion:['motionId'], AmendMotion:['motionId','text','parentId'], WithdrawMotion:['motionId','reason'],
   TableMotion:['motionId','reason'], DisposeMotion:['motionId','disposition'], OpenDebate:['motionId','closesAt'], CloseDebate:['motionId','reason'],
   RaisePointOfOrder:['pointId','text'], RuleOnPointOfOrder:['pointId','ruling','reason'], AppealRuling:['pointId','appealId','grounds'],
-  RecordAppealOutcome:['pointId','appealId','outcome','reason'], OpenVote:['voteId','motionId','method','weights','optionIds'], CastVote:['voteId','choice','optionId'],
+  RecordAppealOutcome:['pointId','appealId','outcome','reason'], OpenVote:['voteId','motionId','method','weights','optionIds'], CastVote:['voteId','choice','optionId','ranking'],
   CloseVote:['voteId'], RecordVoteOutcome:['voteId'], ApplyChairCorrection:['correctionId','affectedEventId','reason','patch'],
 }
 const requiredStrings: Partial<Record<MeetingCommand['type'], readonly string[]>> = {
@@ -51,8 +51,8 @@ function validatePatch(value: unknown) {
   exact(patch, ['type', ...keys], 'command.patch'); for (const key of keys) string(patch[key], `command.patch.${key}`)
 }
 function validateOpenVote(command: Record<string, unknown>) {
-  if (!['counted','rollCall','weighted','plurality'].includes(String(command.method))) throw new Error('command.method is invalid')
-  if (command.method === 'plurality') {
+  if (!['counted','rollCall','weighted','plurality','rankedChoice'].includes(String(command.method))) throw new Error('command.method is invalid')
+  if (command.method === 'plurality' || command.method === 'rankedChoice') {
     if (command.weights !== undefined) throw new Error('command.weights is not allowed')
     if (!Array.isArray(command.optionIds) || command.optionIds.length < 2 || command.optionIds.some((optionId) => typeof optionId !== 'string' || !optionId.trim())) throw new Error('command.optionIds is invalid')
     const normalized = command.optionIds.map((optionId) => (optionId as string).trim())
@@ -72,9 +72,15 @@ function validateOpenVote(command: Record<string, unknown>) {
 function validateCastVote(command: Record<string, unknown>) {
   const hasChoice = command.choice !== undefined
   const hasOptionId = command.optionId !== undefined
-  if (hasChoice === hasOptionId) throw new Error('command ballot is invalid')
+  const hasRanking = command.ranking !== undefined
+  if ([hasChoice, hasOptionId, hasRanking].filter(Boolean).length !== 1) throw new Error('command ballot is invalid')
   if (hasChoice && !['yes','no','abstain'].includes(String(command.choice))) throw new Error('command.choice is invalid')
   if (hasOptionId && (typeof command.optionId !== 'string' || !command.optionId.trim())) throw new Error('command.optionId is invalid')
+  if (hasRanking) {
+    if (!Array.isArray(command.ranking) || command.ranking.length === 0 || command.ranking.some((optionId) => typeof optionId !== 'string' || !optionId.trim())) throw new Error('command.ranking is invalid')
+    const normalized = command.ranking.map((optionId) => (optionId as string).trim())
+    if (new Set(normalized).size !== normalized.length) throw new Error('command.ranking is invalid')
+  }
 }
 function object(value: unknown, name: string): Record<string, unknown> { if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`${name} must be an object`); return value as Record<string, unknown> }
 function exact(value: Record<string, unknown>, keys: readonly string[], name: string) { const allowed = new Set(keys); for (const key of Object.keys(value)) if (!allowed.has(key)) throw new Error(`${name}.${key} is not allowed`) }

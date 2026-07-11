@@ -1,4 +1,4 @@
-import type { BallotRecord, CandidateBallotRecord, VoteResult, VoteRuleSnapshot } from './types.js'
+import type { BallotRecord, CandidateBallotRecord, RankedBallotRecord, RankedChoiceRound, VoteResult, VoteRuleSnapshot } from './types.js'
 
 export interface BinaryVoteTally {
   yes: number
@@ -14,6 +14,10 @@ export interface WeightedVoteTally extends BinaryVoteTally {
 export type PluralityVoteTally =
   | { totals: Readonly<Record<string, number>>; ballotCount: number; result: 'selected'; winnerOptionId: string }
   | { totals: Readonly<Record<string, number>>; ballotCount: number; result: 'tied'; tiedOptionIds: readonly string[] }
+
+export type RankedChoiceVoteTally =
+  | { ballotCount: number; result: 'selected'; winnerOptionId: string; rounds: readonly RankedChoiceRound[] }
+  | { ballotCount: number; result: 'tied'; tiedOptionIds: readonly string[]; rounds: readonly RankedChoiceRound[] }
 
 export function tallyBinaryVote(
   ballots: Readonly<Record<string, BallotRecord>>,
@@ -75,4 +79,40 @@ export function tallyPluralityVote(
   return leaders.length === 1
     ? { ...common, result: 'selected', winnerOptionId: leaders[0]! }
     : { ...common, result: 'tied', tiedOptionIds: leaders }
+}
+
+export function tallyRankedChoiceVote(
+  ballots: Readonly<Record<string, RankedBallotRecord>>,
+  optionIds: readonly string[],
+): RankedChoiceVoteTally {
+  let activeOptionIds = [...optionIds]
+  const rounds: RankedChoiceRound[] = []
+
+  for (let round = 1; ; round += 1) {
+    const active = new Set(activeOptionIds)
+    const totals: Record<string, number> = Object.fromEntries(activeOptionIds.map((optionId) => [optionId, 0]))
+    let exhausted = 0
+    for (const ballot of Object.values(ballots)) {
+      const preference = ballot.ranking.find((optionId) => active.has(optionId))
+      if (preference === undefined) exhausted += 1
+      else totals[preference] += 1
+    }
+
+    const activeBallots = Object.values(totals).reduce((sum, total) => sum + total, 0)
+    const winnerOptionId = activeOptionIds.find((optionId) => totals[optionId]! * 2 > activeBallots)
+    if (winnerOptionId !== undefined) {
+      rounds.push({ round, activeOptionIds, totals, exhausted, eliminatedOptionIds: [] })
+      return { ballotCount: Object.keys(ballots).length, result: 'selected', winnerOptionId, rounds }
+    }
+
+    const lowest = Math.min(...activeOptionIds.map((optionId) => totals[optionId]!))
+    const eliminatedOptionIds = activeOptionIds.filter((optionId) => totals[optionId] === lowest)
+    if (eliminatedOptionIds.length === activeOptionIds.length) {
+      rounds.push({ round, activeOptionIds, totals, exhausted, eliminatedOptionIds: [] })
+      return { ballotCount: Object.keys(ballots).length, result: 'tied', tiedOptionIds: activeOptionIds, rounds }
+    }
+    rounds.push({ round, activeOptionIds, totals, exhausted, eliminatedOptionIds })
+    const eliminated = new Set(eliminatedOptionIds)
+    activeOptionIds = activeOptionIds.filter((optionId) => !eliminated.has(optionId))
+  }
 }

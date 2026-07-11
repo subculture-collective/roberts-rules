@@ -20,4 +20,10 @@ describe('validateMeetingCommand', () => {
     expect(() => validateMeetingCommand({ ...open, optionIds: ['north', ' '] })).toThrow('command.optionIds is invalid')
     expect(() => validateMeetingCommand({ type: 'CastVote', voteId: 'v1', choice: 'yes', optionId: 'north' })).toThrow('command ballot is invalid')
   })
+  it('validates ranked-choice ballots at the command boundary', () => {
+    const command = { type: 'CastVote', voteId: 'v1', ranking: ['north', 'south'] }
+    expect(validateMeetingCommand(command)).toEqual(command)
+    expect(() => validateMeetingCommand({ ...command, ranking: [] })).toThrow('command.ranking is invalid')
+    expect(() => validateMeetingCommand({ ...command, ranking: ['north', 'north'] })).toThrow('command.ranking is invalid')
+  })
 });

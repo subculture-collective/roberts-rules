@@ -3,9 +3,9 @@ export { decide } from './decide.js'
 export { replay } from './replay.js'
 export { createInitialState, reduce } from './reduce.js'
 export { validateMeetingCommand } from './validation.js'
-export { tallyBinaryVote, tallyPluralityVote, tallyWeightedVote } from './vote-strategies.js'
+export { tallyBinaryVote, tallyPluralityVote, tallyRankedChoiceVote, tallyWeightedVote } from './vote-strategies.js'
 export type { ReplayResult } from './replay.js'
-export type { BinaryVoteTally, PluralityVoteTally, WeightedVoteTally } from './vote-strategies.js'
+export type { BinaryVoteTally, PluralityVoteTally, RankedChoiceVoteTally, WeightedVoteTally } from './vote-strategies.js'
 export type {
   AcceptedDecision,
   AgendaItem,
@@ -34,6 +34,8 @@ export type {
   PointOfOrder,
   PointRuling,
   RecognitionSide,
+  RankedBallotRecord,
+  RankedChoiceRound,
   MeetingState,
   RejectedDecision,
   RejectionCode,

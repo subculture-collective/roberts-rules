@@ -5,6 +5,43 @@ const profile: RulesProfile = { id: 'standard', version: 1, quorum: { type: 'fix
 const NOW = '2026-07-10T15:00:00.000Z'
 
 describe('non-secret simulator voting', () => {
+  it('records every ranked-choice round for deterministic replay', () => {
+    const rankedProfile = { ...profile, voteMethods: ['rankedChoice'] } as RulesProfile
+    let state = activeMainStateFor(rankedProfile)
+    ;({ state } = runP(rankedProfile, state, 'open-ranked', 'chair-1', 'chair', { type: 'OpenVote', voteId: 'vote-ranked', motionId: 'main-1', method: 'rankedChoice', optionIds: ['north', 'south', 'east'] }))
+    ;({ state } = runP(rankedProfile, state, 'ranked-north', 'delegate-1', 'delegate', { type: 'CastVote', voteId: 'vote-ranked', ranking: ['north', 'south', 'east'] }))
+    ;({ state } = runP(rankedProfile, state, 'ranked-south', 'delegate-2', 'delegate', { type: 'CastVote', voteId: 'vote-ranked', ranking: ['south', 'north', 'east'] }))
+    ;({ state } = runP(rankedProfile, state, 'ranked-east', 'delegate-3', 'delegate', { type: 'CastVote', voteId: 'vote-ranked', ranking: ['east', 'north', 'south'] }))
+    ;({ state } = runP(rankedProfile, state, 'close-ranked', 'chair-1', 'chair', { type: 'CloseVote', voteId: 'vote-ranked' }))
+    ;({ state } = runP(rankedProfile, state, 'outcome-ranked', 'teller-1', 'teller', { type: 'RecordVoteOutcome', voteId: 'vote-ranked' }))
+
+    expect(state.votes['vote-ranked']).toMatchObject({
+      method: 'rankedChoice',
+      ballotCount: 3,
+      result: 'tied',
+      tiedOptionIds: ['north', 'south', 'east'],
+      rounds: [{
+        round: 1,
+        activeOptionIds: ['north', 'south', 'east'],
+        totals: { north: 1, south: 1, east: 1 },
+        exhausted: 0,
+        eliminatedOptionIds: [],
+      }],
+    })
+    expect(state.outcomes[0]?.rounds).toEqual(state.votes['vote-ranked']?.rounds)
+  })
+
+  it('rejects malformed or unknown ranked-choice preferences', () => {
+    const rankedProfile = { ...profile, voteMethods: ['rankedChoice'] } as RulesProfile
+    let state = activeMainStateFor(rankedProfile)
+    ;({ state } = runP(rankedProfile, state, 'open-ranked', 'chair-1', 'chair', { type: 'OpenVote', voteId: 'vote-ranked', motionId: 'main-1', method: 'rankedChoice', optionIds: ['north', 'south', 'east'] }))
+    const rankings = [[], ['north', 'north'], ['north', 'west'], ['north', 'south', 'east', 'west']]
+    for (const [index, ranking] of rankings.entries()) {
+      const decision = decide(rankedProfile, state, { id: `invalid-ranking-${index}`, expectedVersion: state.version, actorId: 'delegate-1', role: 'delegate', occurredAt: NOW, command: { type: 'CastVote', voteId: 'vote-ranked', ranking } })
+      expect(decision).toMatchObject({ accepted: false, code: 'INVALID_COMMAND' })
+    }
+  })
+
   it('records a plurality winner without treating selection as motion adoption', () => {
     const pluralityProfile = { ...profile, voteMethods: ['plurality'] } as unknown as RulesProfile
     let state = activeMainStateFor(pluralityProfile)

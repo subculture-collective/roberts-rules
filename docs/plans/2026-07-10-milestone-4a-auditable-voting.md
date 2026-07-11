@@ -67,12 +67,12 @@
 
 ### Task 5: Add deterministic ranked-choice selection
 
-- [ ] Add failing vectors covering a first-round majority, elimination and transfer, exhausted ballots, and a final tie. Each expected result includes ordered round totals and eliminated candidates.
-- [ ] Add failing validation tests rejecting duplicate candidate IDs within a ranking, unknown candidates, empty rankings, and rankings longer than the configured option list.
-- [ ] Implement instant-runoff tallying with configured-option order as the deterministic serialization order. A strict majority of active non-exhausted ballots wins; eliminate the lowest candidate each round; if all remaining candidates share the lowest total, return a tie rather than inventing a winner.
-- [ ] Store every round in `VoteOutcome` so replay and independent recomputation can compare exact inputs and outputs.
-- [ ] Run meeting-domain tests; expect all vectors and aggregate flows to pass.
-- [ ] Commit as `feat: add auditable ranked-choice voting`.
+- [x] Add failing vectors covering a first-round majority, elimination and transfer, exhausted ballots, and a final tie. Each expected result includes ordered round totals and eliminated candidates.
+- [x] Add failing validation tests rejecting duplicate candidate IDs within a ranking, unknown candidates, empty rankings, and rankings longer than the configured option list.
+- [x] Implement instant-runoff tallying with configured-option order as the deterministic serialization order. A strict majority of active non-exhausted ballots wins; eliminate the lowest candidate each round; if all remaining candidates share the lowest total, return a tie rather than inventing a winner.
+- [x] Store every round in `VoteOutcome` so replay and independent recomputation can compare exact inputs and outputs.
+- [x] Run meeting-domain tests; expect all vectors and aggregate flows to pass.
+- [x] Commit as `feat: add auditable ranked-choice voting`.
 
 ### Task 6: Complete Milestone 4A integration and documentation
 

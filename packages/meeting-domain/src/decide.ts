@@ -12,8 +12,9 @@ import type {
   MeetingCommand,
   MeetingState,
   RulesProfile,
+  RankedBallotRecord,
 } from './types.js'
-import { tallyBinaryVote, tallyPluralityVote, tallyWeightedVote } from './vote-strategies.js'
+import { tallyBinaryVote, tallyPluralityVote, tallyRankedChoiceVote, tallyWeightedVote } from './vote-strategies.js'
 
 export function decide(profile: RulesProfile, state: MeetingState, envelope: CommandEnvelope): Decision {
   const prior = state.processedCommands[envelope.id]
@@ -348,12 +349,12 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       const voteId = envelope.command.voteId.trim()
       if (!voteId || state.votes[voteId]) return reject('INVALID_COMMAND', 'Vote ID must be unique and non-empty')
       const method = envelope.command.method
-      if ((method !== 'counted' && method !== 'rollCall' && method !== 'weighted' && method !== 'plurality') || !profile.voteMethods.includes(method)) return reject('INVALID_COMMAND', 'Vote method must be permitted by the rules profile')
+      if ((method !== 'counted' && method !== 'rollCall' && method !== 'weighted' && method !== 'plurality' && method !== 'rankedChoice') || !profile.voteMethods.includes(method)) return reject('INVALID_COMMAND', 'Vote method must be permitted by the rules profile')
       if (!validThreshold(profile.motionThreshold)) return reject('INVALID_COMMAND', 'Motion threshold must contain valid positive integers')
       const weights = method === 'weighted' ? validWeightSnapshot(state, envelope.command.weights) : undefined
       if (method === 'weighted' && !weights) return reject('INVALID_COMMAND', 'Weighted voting requires one positive integer weight for every active representative')
-      const optionIds = method === 'plurality' ? validOptionIds(envelope.command.optionIds) : undefined
-      if (method === 'plurality' && !optionIds) return reject('INVALID_COMMAND', 'Plurality voting requires at least two unique non-empty options')
+      const optionIds = method === 'plurality' || method === 'rankedChoice' ? validOptionIds(envelope.command.optionIds) : undefined
+      if ((method === 'plurality' || method === 'rankedChoice') && !optionIds) return reject('INVALID_COMMAND', 'Candidate voting requires at least two unique non-empty options')
       return accept([event(envelope, state.version + 1, 0, 'VoteOpened', { vote: { id: voteId, motionId: motion.id, method, visibility: 'nonSecretSimulator', rule: { rulesProfileId: profile.id, rulesProfileVersion: profile.version, threshold: { ...profile.motionThreshold }, tiePolicy: profile.tiePolicy }, ...(weights ? { weights } : {}), ...(optionIds ? { optionIds } : {}), status: 'open', openedAt: envelope.occurredAt, ballots: {} } })])
     }
     case 'CastVote': {
@@ -369,6 +370,11 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (vote.method === 'plurality') {
         if (!('optionId' in envelope.command) || !vote.optionIds?.includes(envelope.command.optionId)) return reject('INVALID_COMMAND', 'Plurality ballot must name a configured option')
         return accept([event(envelope, state.version + 1, 0, 'VoteCast', { voteId: vote.id, voterId: envelope.actorId, ballot: { optionId: envelope.command.optionId, castAt: envelope.occurredAt } })])
+      }
+      if (vote.method === 'rankedChoice') {
+        const ranking = 'ranking' in envelope.command ? validRanking(envelope.command.ranking, vote.optionIds!) : undefined
+        if (!ranking) return reject('INVALID_COMMAND', 'Ranked-choice ballot must rank unique configured options')
+        return accept([event(envelope, state.version + 1, 0, 'VoteCast', { voteId: vote.id, voterId: envelope.actorId, ballot: { ranking, castAt: envelope.occurredAt } })])
       }
       if (!('choice' in envelope.command)) return reject('INVALID_COMMAND', 'Binary ballot must contain yes, no, or abstain')
       return accept([event(envelope, state.version + 1, 0, 'VoteCast', { voteId: vote.id, voterId: envelope.actorId, ballot: { choice: envelope.command.choice, castAt: envelope.occurredAt } })])
@@ -392,7 +398,9 @@ export function decide(profile: RulesProfile, state: MeetingState, envelope: Com
       if (parseIso(envelope.occurredAt)! < parseIso(vote.closedAt!)!) return reject('INVALID_COMMAND', 'Outcome cannot precede vote closing')
       const tally = vote.method === 'plurality'
         ? tallyPluralityVote(vote.ballots as Readonly<Record<string, CandidateBallotRecord>>, vote.optionIds!)
-        : vote.method === 'weighted'
+        : vote.method === 'rankedChoice'
+          ? tallyRankedChoiceVote(vote.ballots as Readonly<Record<string, RankedBallotRecord>>, vote.optionIds!)
+          : vote.method === 'weighted'
           ? tallyWeightedVote(vote.ballots as Readonly<Record<string, BallotRecord>>, vote.weights!, vote.rule)
           : tallyBinaryVote(vote.ballots as Readonly<Record<string, BallotRecord>>, vote.rule)
       return accept([event(envelope, state.version + 1, 0, 'VoteOutcomeRecorded', { outcome: { voteId: vote.id, motionId: vote.motionId, method: vote.method, visibility: vote.visibility, rule: { ...vote.rule, threshold: { ...vote.rule.threshold } }, ...(vote.weights ? { weights: { ...vote.weights } } : {}), ...(vote.optionIds ? { optionIds: [...vote.optionIds] } : {}), ...tally, recordedAt: envelope.occurredAt, recorderId: envelope.actorId } })])
@@ -608,6 +616,13 @@ function validOptionIds(candidate: readonly string[]): string[] | undefined {
   const optionIds = candidate.map((optionId) => typeof optionId === 'string' ? optionId.trim() : '')
   if (optionIds.some((optionId) => !optionId) || new Set(optionIds).size !== optionIds.length) return undefined
   return optionIds
+}
+
+function validRanking(candidate: readonly string[], optionIds: readonly string[]): string[] | undefined {
+  if (!Array.isArray(candidate) || candidate.length === 0 || candidate.length > optionIds.length) return undefined
+  const ranking = candidate.map((optionId) => typeof optionId === 'string' ? optionId.trim() : '')
+  if (ranking.some((optionId) => !optionId || !optionIds.includes(optionId)) || new Set(ranking).size !== ranking.length) return undefined
+  return ranking
 }
 
 function countPresent(attendance: MeetingState['attendance']): number {
