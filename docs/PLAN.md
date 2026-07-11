@@ -4,7 +4,7 @@
 
 **Goal:** Build a chair-led parliamentary-meeting platform whose first usable artifact is a deterministic, auditable procedural simulator.
 
-**Architecture:** The initial system is a pure TypeScript meeting aggregate that accepts versioned commands and emits an append-only event journal. The future API, PWA, and AT Protocol publication layer consume that aggregate; they do not encode procedure themselves. Public organization identity and approved outcomes may be published, while rosters, attendance, deliberation, credentials, and ballots stay private by default.
+**Architecture:** A pure TypeScript meeting aggregate accepts versioned commands and emits an append-only event journal. The API, PWA, and AT Protocol publication layer consume that aggregate; they do not encode procedure themselves. Public organization identity and approved outcomes may be published, while rosters, attendance, deliberation, credentials, and ballots stay private by default.
 
 **Tech Stack:** pnpm workspaces, TypeScript, Node.js, Vitest, fast-check, Vite React, PostgreSQL, Docker Compose, and Gitea Actions.
 
@@ -12,11 +12,12 @@
 
 ## Current State
 
-- [x] The repository exists at `/Users/onnwee/Projects/subcult/roberts-rules` on `codex/bootstrap-domain-simulator`.
+- [x] The repository exists at `/Users/onnwee/Projects/subcult/roberts-rules` and active work is integrated on `main`.
 - [x] The generated baseline has Node/TypeScript, Vite React, PostgreSQL, Docker Compose, Open Pilot templates, and `make verify`.
 - [x] The generated template identity has been replaced in code, package metadata, Compose configuration, and project documentation.
-- [x] The meeting-domain simulator implements all planned commands, strict replay, canonical output, JSONL fixtures, non-secret counted voting, and property-based invariants.
-- [ ] No live meeting command API, real-time service, AT Protocol integration, or secure/secret voting system exists yet.
+- [x] The meeting-domain simulator implements all planned commands, strict replay, canonical output, JSONL fixtures, non-secret voting strategies, and property-based invariants.
+- [x] The live command API, resumable event stream, meeting-scoped sessions, role-aware PWA controls, and approved AT Protocol publication boundary are implemented.
+- [ ] No cryptographically secure secret-ballot system or reviewed 1,500-client LAN appliance exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
 
@@ -27,8 +28,8 @@ The system supports organizations conducting chair-led deliberation. It models o
 - The chair controls recognition, rulings, and exceptional overrides. Overrides require a reason and are visible in the event journal.
 - The system preserves history. Corrections append compensating events; they never rewrite earlier events.
 - A deterministic meeting journal is the procedural source of truth. Browser state, clocks, and WebSocket delivery are never authoritative.
-- The first voting slice is explicitly non-secret and simulation-only. Do not describe it as binding, secure, or production-ready.
-- Live networking, AT Protocol credentials, ElectionGuard-compatible ballots, and 1,500-client LAN operations are later milestones and must not be silently pulled into the simulator scope.
+- All implemented voting methods are explicitly non-secret and simulation-only. Do not describe them as binding, secure, or production-ready.
+- ElectionGuard-compatible ballots and reviewed 1,500-client LAN operations are later implementation milestones and must not be silently inferred from completed design documents.
 
 ## Target File Structure
 
@@ -157,9 +158,11 @@ Milestone 4A is complete. These methods are non-secret procedural simulations: v
 
 The secret-ballot design gate is [Milestone 4B: Secret-Ballot Security Architecture](plans/2026-07-10-milestone-4b-secret-ballot-security.md). This milestone produces security documentation only; it does not authorize or implement a `secret` vote method.
 
+Milestone 4B's design artifacts are [ADR 0007](adr/0007-electionguard-compatible-secret-ballot-boundary.md), the [secret-ballot threat model](security/secret-ballot-threat-model.md), and the [ceremony, recovery, and independent-review gate](security/secret-ballot-ceremonies.md). The design is complete, but implementation remains prohibited until every mandatory review item has durable independent evidence and an implementation ADR supersedes the design-only gate.
+
 - [x] Add counted, weighted, roll-call, threshold, plurality, and ranked-choice vote strategies behind the domain's `voteMethods` profile field.
 - [x] Keep tally inputs and outcome computation auditable through private event records and deterministic test vectors.
-- [ ] Design an ElectionGuard-compatible secret-ballot boundary, threat model, ceremony, recovery process, and independent security-review gate before implementing secret ballots.
+- [x] Design an ElectionGuard-compatible secret-ballot boundary, threat model, ceremony, recovery process, and independent security-review gate before implementing secret ballots.
 
 ## Milestone 5: LAN Appliance and Optional WAN Gateway
 

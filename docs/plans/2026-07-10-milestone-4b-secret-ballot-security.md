@@ -56,8 +56,8 @@
 - Modify: `docs/PLAN.md`
 - Modify: `docs/plans/2026-07-10-milestone-4b-secret-ballot-security.md`
 
-- [ ] Link ADR 0007, the threat model, and ceremony document from `docs/PLAN.md`.
-- [ ] Mark the Milestone 4 security-design checklist complete while stating that secret-ballot implementation remains prohibited pending independent review.
-- [ ] Run `CI=true make verify`; expect repository formatting, lint, tests, builds, Compose validation, and documentation checks to pass.
-- [ ] Run `git diff --check`; expect no whitespace errors.
-- [ ] Commit as `docs: complete secret ballot security design`.
+- [x] Link ADR 0007, the threat model, and ceremony document from `docs/PLAN.md`.
+- [x] Mark the Milestone 4 security-design checklist complete while stating that secret-ballot implementation remains prohibited pending independent review.
+- [x] Run `CI=true make verify`; expect repository formatting, lint, tests, builds, Compose validation, and documentation checks to pass.
+- [x] Run `git diff --check`; expect no whitespace errors.
+- [x] Commit as `docs: complete secret ballot security design`.
