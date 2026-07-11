@@ -36,12 +36,12 @@
 - Modify: `backend/src/index.ts`
 - Modify: `docker-compose.yml`
 
-- [ ] Add a failing server test proving `/health` remains process liveness while `/ready` returns `503 {"status":"not_ready"}` when the injected readiness check fails.
-- [ ] Add a passing readiness path returning `200 {"status":"ready"}` only after a bounded `SELECT 1` succeeds against the configured PostgreSQL pool.
-- [ ] Keep probes unauthenticated and free of database, meeting, credential, or exception details.
-- [ ] Point the API Compose healthcheck at `/ready`; keep WebSocket and command authority unchanged.
-- [ ] Run backend tests and `CI=true make verify`.
-- [ ] Commit as `feat: add database readiness probe`.
+- [x] Add a failing server test proving `/health` remains process liveness while `/ready` returns `503 {"status":"not_ready"}` when the injected readiness check fails.
+- [x] Add a passing readiness path returning `200 {"status":"ready"}` only after a bounded `SELECT 1` succeeds against the configured PostgreSQL pool.
+- [x] Keep probes unauthenticated and free of database, meeting, credential, or exception details.
+- [x] Point the API Compose healthcheck at `/ready`; keep WebSocket and command authority unchanged.
+- [x] Run backend tests and `CI=true make verify`.
+- [x] Commit as `feat: add database readiness probe`.
 
 ### Task 3: Add deterministic backup and restore tooling
 

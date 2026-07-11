@@ -18,12 +18,24 @@ export function getConfig(env: NodeJS.ProcessEnv = process.env) {
   return envSchema.parse(env);
 }
 
-export function createApp(dependencies?: { application: MeetingApplication; principals?: PrincipalProvider; sessions?: SessionPrincipalProvider; allowedOrigin?:string; secureCookies?:boolean }) {
-  const api = dependencies ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals,dependencies.sessions,dependencies.allowedOrigin,dependencies.secureCookies) : undefined;
+export function createApp(dependencies: { application?: MeetingApplication; principals?: PrincipalProvider; sessions?: SessionPrincipalProvider; allowedOrigin?:string; secureCookies?:boolean; readiness?: () => Promise<boolean> } = {}) {
+  const api = dependencies.application ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals,dependencies.sessions,dependencies.allowedOrigin,dependencies.secureCookies) : undefined;
   return createServer((req, res) => {
     if (req.url === '/health') {
       res.writeHead(200, { 'content-type': 'application/json' });
       res.end(JSON.stringify({ status: 'ok' }));
+      return;
+    }
+    if (req.url === '/ready') {
+      void (dependencies.readiness?.() ?? Promise.resolve(false))
+        .then((ready) => {
+          res.writeHead(ready ? 200 : 503, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ status: ready ? 'ready' : 'not_ready' }));
+        })
+        .catch(() => {
+          res.writeHead(503, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ status: 'not_ready' }));
+        });
       return;
     }
     if (api) { void api(req, res); return; }
