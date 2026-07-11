@@ -1,0 +1,14 @@
+{"format":"roberts-rules-transcript-v1","profile":{"id":"weighted-rules","version":1,"quorum":{"type":"fixed","minimum":2},"debate":{"defaultDurationSeconds":600},"voteMethods":["weighted"],"motionThreshold":{"numerator":1,"denominator":2,"basis":"votesCast"},"tiePolicy":"motionFails","overrides":{"quorumIndependentActions":[]}}}
+{"id":"init","expectedVersion":0,"actorId":"admin","role":"administrator","occurredAt":"2026-07-10T15:00:00.000Z","command":{"type":"InitializeMeeting","meetingId":"weighted-meeting"}}
+{"id":"in-1","expectedVersion":1,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:01:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-1","participantRole":"delegate"}}
+{"id":"in-2","expectedVersion":2,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:02:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-2","participantRole":"delegate"}}
+{"id":"in-3","expectedVersion":4,"actorId":"secretary","role":"secretary","occurredAt":"2026-07-10T15:03:00.000Z","command":{"type":"CheckInParticipant","participantId":"delegate-3","participantRole":"delegate"}}
+{"id":"open","expectedVersion":5,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:04:00.000Z","command":{"type":"OpenMeeting"}}
+{"id":"main","expectedVersion":6,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:05:00.000Z","command":{"type":"IntroduceMotion","motionId":"main-1","text":"Select the weighted allocation"}}
+{"id":"second","expectedVersion":7,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:06:00.000Z","command":{"type":"SecondMotion","motionId":"main-1"}}
+{"id":"open-vote","expectedVersion":8,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:07:00.000Z","command":{"type":"OpenVote","voteId":"vote-weighted","motionId":"main-1","method":"weighted","weights":{"delegate-1":3,"delegate-2":2,"delegate-3":1}}}
+{"id":"yes","expectedVersion":9,"actorId":"delegate-1","role":"delegate","occurredAt":"2026-07-10T15:08:00.000Z","command":{"type":"CastVote","voteId":"vote-weighted","choice":"yes"}}
+{"id":"no","expectedVersion":10,"actorId":"delegate-2","role":"delegate","occurredAt":"2026-07-10T15:09:00.000Z","command":{"type":"CastVote","voteId":"vote-weighted","choice":"no"}}
+{"id":"abstain","expectedVersion":11,"actorId":"delegate-3","role":"delegate","occurredAt":"2026-07-10T15:10:00.000Z","command":{"type":"CastVote","voteId":"vote-weighted","choice":"abstain"}}
+{"id":"close","expectedVersion":12,"actorId":"chair-1","role":"chair","occurredAt":"2026-07-10T15:11:00.000Z","command":{"type":"CloseVote","voteId":"vote-weighted"}}
+{"id":"outcome","expectedVersion":13,"actorId":"teller-1","role":"teller","occurredAt":"2026-07-10T15:12:00.000Z","command":{"type":"RecordVoteOutcome","voteId":"vote-weighted"}}

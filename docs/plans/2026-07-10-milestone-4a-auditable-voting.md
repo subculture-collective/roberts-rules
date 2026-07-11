@@ -76,11 +76,11 @@
 
 ### Task 6: Complete Milestone 4A integration and documentation
 
-- [ ] Add or update CLI transcript fixtures to demonstrate one weighted and one ranked-choice journal replay through public commands.
-- [ ] Run `CI=true make verify`; expect formatting, lint, build, unit, integration, and fixture checks to pass.
-- [ ] Run `git diff --check`; expect no whitespace errors.
-- [ ] Mark the two non-secret voting checklist items complete in `docs/PLAN.md`, explicitly state that journal ballot records are private and non-secret, and leave the ElectionGuard-compatible security item unchecked.
-- [ ] Commit as `docs: complete auditable voting milestone`.
+- [x] Add or update CLI transcript fixtures to demonstrate one weighted and one ranked-choice journal replay through public commands.
+- [x] Run `CI=true make verify`; expect formatting, lint, build, unit, integration, and fixture checks to pass.
+- [x] Run `git diff --check`; expect no whitespace errors.
+- [x] Mark the two non-secret voting checklist items complete in `docs/PLAN.md`, explicitly state that journal ballot records are private and non-secret, and leave the ElectionGuard-compatible security item unchecked.
+- [x] Commit as `docs: complete auditable voting milestone`.
 
 ## Explicitly Separate Follow-up
 

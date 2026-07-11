@@ -153,8 +153,10 @@ The remaining live-floor command families are [Milestone 3F: Complete Live Floor
 
 The non-secret simulator strategy work is [Milestone 4A: Auditable Voting](plans/2026-07-10-milestone-4a-auditable-voting.md). Threshold remains a snapshotted binary decision rule; counted, weighted, and roll-call are binary accounting modes, while plurality and ranked-choice are candidate-selection modes.
 
-- [ ] Add counted, weighted, roll-call, threshold, plurality, and ranked-choice vote strategies behind the domain's `voteMethods` profile field.
-- [ ] Keep tally inputs and outcome computation auditable through private event records and deterministic test vectors.
+Milestone 4A is complete. These methods are non-secret procedural simulations: voter-keyed ballots, weight snapshots, rankings, and tally inputs remain in the private meeting journal. They are auditable and deterministic, but are not cryptographically secret, secure elections, or binding production ballots.
+
+- [x] Add counted, weighted, roll-call, threshold, plurality, and ranked-choice vote strategies behind the domain's `voteMethods` profile field.
+- [x] Keep tally inputs and outcome computation auditable through private event records and deterministic test vectors.
 - [ ] Design an ElectionGuard-compatible secret-ballot boundary, threat model, ceremony, recovery process, and independent security-review gate before implementing secret ballots.
 
 ## Milestone 5: LAN Appliance and Optional WAN Gateway

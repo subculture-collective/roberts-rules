@@ -10,6 +10,8 @@ const packageDirectory = fileURLToPath(new URL('..', import.meta.url))
 const repositoryRoot = resolve(packageDirectory, '../..')
 const fixtures = [
   ['ordinary-main-motion-counted-vote.jsonl', 'VoteOutcomeRecorded'],
+  ['weighted-vote.jsonl', 'VoteOutcomeRecorded'],
+  ['ranked-choice-vote.jsonl', 'VoteOutcomeRecorded'],
   ['amendment-debate-disposition.jsonl', 'MotionAmended'],
   ['point-ruling-appeal.jsonl', 'AppealOutcomeRecorded'],
   ['quorum-loss-restoration.jsonl', 'QuorumChanged'],
@@ -84,6 +86,20 @@ function expectFixtureBehavior(fixture: typeof fixtures[number][0], result: Repl
   } else if (fixture === 'ordinary-main-motion-counted-vote.jsonl') {
     expect(result.state.outcomes).toEqual([expect.objectContaining({
       yes: 1, no: 1, abstain: 0, result: 'rejected', visibility: 'nonSecretSimulator',
+    })])
+  } else if (fixture === 'weighted-vote.jsonl') {
+    expect(result.state.outcomes).toEqual([expect.objectContaining({
+      method: 'weighted', weights: { 'delegate-1': 3, 'delegate-2': 2, 'delegate-3': 1 },
+      yes: 3, no: 2, abstain: 1, ballotCount: 3, result: 'adopted', visibility: 'nonSecretSimulator',
+    })])
+  } else if (fixture === 'ranked-choice-vote.jsonl') {
+    expect(result.state.outcomes).toEqual([expect.objectContaining({
+      method: 'rankedChoice', result: 'selected', winnerOptionId: 'north', ballotCount: 5,
+      rounds: [
+        expect.objectContaining({ round: 1, totals: { north: 2, south: 2, east: 1 }, eliminatedOptionIds: ['east'] }),
+        expect.objectContaining({ round: 2, totals: { north: 3, south: 2 }, eliminatedOptionIds: [] }),
+      ],
+      visibility: 'nonSecretSimulator',
     })])
   } else if (fixture === 'alternate-activation.jsonl') {
     expect(result.state.attendance['alternate-2']).toMatchObject({ active: true, alternateFor: 'delegate-2' })
