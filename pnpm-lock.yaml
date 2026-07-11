@@ -11,6 +11,9 @@ importers:
       '@atproto/lex':
         specifier: 0.2.2
         version: 0.2.2
+      bats:
+        specifier: ^1.12.0
+        version: 1.13.0
       eslint:
         specifier: ^9.39.4
         version: 9.39.4(jiti@2.7.0)
@@ -1200,6 +1203,10 @@ packages:
   baseline-browser-mapping@2.10.31:
     resolution: {integrity: sha512-MujYO3eP72uvmSE0i4wltsodRfIpZATP3jvzRNRGGxgzId7aVocVJJV3nf01qnzzKFGxQVC9bpWxl5cjxTr/7Q==}
     engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  bats@1.13.0:
+    resolution: {integrity: sha512-giSYKGTOcPZyJDbfbTtzAedLcNWdjCLbXYU3/MwPnjyvDXzu6Dgw8d2M+8jHhZXSmsCMSQqCp+YBsJ603UO4vQ==}
     hasBin: true
 
   brace-expansion@1.1.14:
@@ -2968,6 +2975,8 @@ snapshots:
   balanced-match@4.0.4: {}
 
   baseline-browser-mapping@2.10.31: {}
+
+  bats@1.13.0: {}
 
   brace-expansion@1.1.14:
     dependencies:

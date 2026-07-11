@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := help
 
-.PHONY: help deps verify fmt lint test build compose-config open-pilot-check
+.PHONY: help deps verify fmt lint test build backup-test compose-config open-pilot-check
 
 help:
 	@awk 'BEGIN {FS = ":.*##"; printf "Commands:\n"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -9,7 +9,7 @@ help:
 deps:
 	pnpm install --frozen-lockfile
 
-verify: deps fmt lint test build compose-config open-pilot-check ## Run all checks
+verify: deps fmt lint test backup-test build compose-config open-pilot-check ## Run all checks
 
 fmt:
 	pnpm run format
@@ -19,6 +19,9 @@ lint:
 
 test:
 	pnpm run test
+
+backup-test: ## Run private journal backup and restore script tests
+	pnpm exec bats tests/backup-private-journal.bats tests/restore-private-journal.bats
 
 build:
 	pnpm run build

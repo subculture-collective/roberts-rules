@@ -51,14 +51,16 @@
 - Create: `scripts/lib/private-journal-backup.sh`
 - Create: `tests/backup-private-journal.bats`
 - Create: `docs/runbooks/private-journal-backup-restore.md`
+- Create: `backend/src/journal-digest-cli.ts`
+- Modify: `backend/package.json`
 - Modify: `Makefile`
 
-- [ ] Write failing Bats tests for required environment validation, restrictive output permissions, checksum manifest creation, refusal to overwrite, and restore database-name confirmation.
-- [ ] Implement `pg_dump --format=custom --no-owner --no-privileges`, SHA-256 manifest generation, `umask 077`, atomic temporary files, and cleanup traps.
-- [ ] Implement restore into an explicitly named empty target using `pg_restore --single-transaction --exit-on-error`; never restore over the active authority database.
-- [ ] Document encryption-at-rest as an operator prerequisite and explicitly exclude guardian secret material and secret-ballot identity linkage.
-- [ ] Add `make backup-test`; run Bats plus a disposable PostgreSQL round-trip proving canonical meeting replay after restore.
-- [ ] Commit as `ops: add private journal backup restore tooling`.
+- [x] Write failing Bats tests for required environment validation, restrictive output permissions, checksum manifest creation, refusal to overwrite, and restore database-name confirmation.
+- [x] Implement `pg_dump --format=custom --no-owner --no-privileges`, SHA-256 manifest generation, `umask 077`, atomic temporary files, and cleanup traps.
+- [x] Implement restore into an explicitly named empty target using `pg_restore --single-transaction --exit-on-error`; never restore over the active authority database.
+- [x] Document encryption-at-rest as an operator prerequisite and explicitly exclude guardian secret material and secret-ballot identity linkage.
+- [x] Add `make backup-test`; run Bats plus a disposable PostgreSQL round-trip proving canonical meeting replay after restore.
+- [x] Commit as `ops: add private journal backup restore tooling`.
 
 ### Task 4: Define failover and failback operations
 
