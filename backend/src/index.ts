@@ -7,6 +7,7 @@ import { MeetingEventStream } from './event-stream.js';
 import { withTransaction } from './db.js';
 import { PostgresMeetingStore } from './meeting-store.js';
 import { SessionPrincipalProvider } from './session-principal.js';
+import { isWritablePrimary } from './readiness.js';
 
 const config = getConfig();
 const pool = new Pool({ connectionString: config.DATABASE_URL, connectionTimeoutMillis: 2_000, query_timeout: 2_000 });
@@ -21,10 +22,7 @@ const app = createApp({
   sessions: principals,
   allowedOrigin,
   secureCookies: process.env.NODE_ENV === 'production',
-  readiness: async () => {
-    await pool.query('SELECT 1');
-    return true;
-  },
+  readiness: () => isWritablePrimary(pool),
 });
 new MeetingEventStream(app, principals, {
   exists: async (id) => { try { await service.snapshot(id); return true; } catch { return false; } },

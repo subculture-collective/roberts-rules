@@ -37,7 +37,7 @@
 - Modify: `docker-compose.yml`
 
 - [x] Add a failing server test proving `/health` remains process liveness while `/ready` returns `503 {"status":"not_ready"}` when the injected readiness check fails.
-- [x] Add a passing readiness path returning `200 {"status":"ready"}` only after a bounded `SELECT 1` succeeds against the configured PostgreSQL pool.
+- [x] Add a passing readiness path returning `200 {"status":"ready"}` only after a bounded PostgreSQL query confirms the server is neither in recovery nor read-only.
 - [x] Keep probes unauthenticated and free of database, meeting, credential, or exception details.
 - [x] Point the API Compose healthcheck at `/ready`; keep WebSocket and command authority unchanged.
 - [x] Run backend tests and `CI=true make verify`.
