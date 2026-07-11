@@ -10,6 +10,7 @@ Use ADRs for decisions that affect structure, dependencies, operations, security
 - [ADR 0004: Transactional Private Meeting Journal](0004-transactional-private-meeting-journal.md)
 - [ADR 0005: Resumable At-Least-Once Event Delivery](0005-resumable-at-least-once-event-delivery.md)
 - [ADR 0006: Meeting-Scoped Stateful Sessions](0006-meeting-scoped-stateful-sessions.md)
+- [ADR 0007: ElectionGuard-Compatible Secret-Ballot Boundary](0007-electionguard-compatible-secret-ballot-boundary.md)
 
 Suggested format:
 

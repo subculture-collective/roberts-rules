@@ -21,11 +21,11 @@
 - Create: `docs/adr/0007-electionguard-compatible-secret-ballot-boundary.md`
 - Modify: `docs/adr/README.md`
 
-- [ ] Write ADR 0007 with status `Accepted`. State that the current simulator never handles secret ballots; a future isolated ballot subsystem owns eligibility-token redemption, encryption, cast/challenge state, guardian ceremonies, tallying, and election-record production.
-- [ ] State the permitted journal references: ballot authorization ID, manifest hash, ceremony ID, immutable election-record digest/location, verifier reports, and approved aggregate outcome. Explicitly forbid plaintext selections, ballot nonces, guardian private material, and identity-to-ballot mappings.
-- [ ] State that encrypted ballot artifacts do not enter AT Protocol records by default and require a separate explicit publication decision.
-- [ ] Link ADR 0007 from `docs/adr/README.md`.
-- [ ] Commit as `docs: define secret ballot authority boundary`.
+- [x] Write ADR 0007 with status `Accepted`. State that the current simulator never handles secret ballots; a future isolated ballot subsystem owns eligibility-token redemption, encryption, cast/challenge state, guardian ceremonies, tallying, and election-record production.
+- [x] State the permitted journal references: ballot authorization ID, manifest hash, ceremony ID, immutable election-record digest/location, verifier reports, and approved aggregate outcome. Explicitly forbid plaintext selections, ballot nonces, guardian private material, and identity-to-ballot mappings.
+- [x] State that encrypted ballot artifacts do not enter AT Protocol records by default and require a separate explicit publication decision.
+- [x] Link ADR 0007 from `docs/adr/README.md`.
+- [x] Commit as `docs: define secret ballot authority boundary`.
 
 ### Task 2: Write the repository-grounded threat model
 
