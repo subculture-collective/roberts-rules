@@ -32,11 +32,11 @@
 **Files:**
 - Create: `docs/security/secret-ballot-threat-model.md`
 
-- [ ] Document scope, deployment assumptions, protected assets, attacker capabilities, non-capabilities, trust boundaries, and entry points grounded in ADRs 0001, 0002, 0004, 0006, and 0007.
-- [ ] Enumerate prioritized abuse paths for identity/ciphertext linkage, ballot stuffing, client compromise, guardian collusion, record substitution or truncation, verifier downgrade, challenge suppression, key loss, denial of service, and sensitive logging/backups.
-- [ ] Give each threat likelihood, impact, priority, existing controls, required controls, residual risk, and a concrete verification method.
-- [ ] Explicitly state that remote-browser malware, coercion, vote buying, traffic analysis, and endpoint compromise are not solved by ElectionGuard cryptography alone.
-- [ ] Commit as `docs: add secret ballot threat model`.
+- [x] Document scope, deployment assumptions, protected assets, attacker capabilities, non-capabilities, trust boundaries, and entry points grounded in ADRs 0001, 0002, 0004, 0006, and 0007.
+- [x] Enumerate prioritized abuse paths for identity/ciphertext linkage, ballot stuffing, client compromise, guardian collusion, record substitution or truncation, verifier downgrade, challenge suppression, key loss, denial of service, and sensitive logging/backups.
+- [x] Give each threat likelihood, impact, priority, existing controls, required controls, residual risk, and a concrete verification method.
+- [x] Explicitly state that remote-browser malware, coercion, vote buying, traffic analysis, and endpoint compromise are not solved by ElectionGuard cryptography alone.
+- [x] Commit as `docs: add secret ballot threat model`.
 
 ### Task 3: Define ceremonies, recovery, and the release gate
 
