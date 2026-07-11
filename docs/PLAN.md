@@ -168,6 +168,8 @@ Milestone 4B's design artifacts are [ADR 0007](adr/0007-electionguard-compatible
 
 **Outcome:** Deployment is designed and load-tested for a primary/standby local appliance serving at least 1,500 connected clients.
 
+Operational authority and recovery are [Milestone 5A: LAN Appliance Operations](plans/2026-07-11-milestone-5a-lan-operations.md). Reproducible capacity testing will follow as a separate Milestone 5B plan after the readiness and recovery contracts exist.
+
 - [ ] Define primary/standby replication, failover, backup, restore, and audit-retention runbooks.
 - [ ] Build a reproducible load test for 1,500 simultaneous event-stream clients and publish measured limits, host specification, and failure behavior.
 - [ ] Treat the WAN gateway as optional and isolate it from private LAN meeting authority.
