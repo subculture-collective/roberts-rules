@@ -31,7 +31,7 @@ sha256_verify() {
   directory=$(dirname "$manifest")
   filename=$(basename "$manifest")
   if command -v sha256sum >/dev/null 2>&1; then
-    (cd "$directory" && sha256sum --check "$filename") >/dev/null
+    (cd "$directory" && sha256sum -c "$filename") >/dev/null
   elif command -v shasum >/dev/null 2>&1; then
     (cd "$directory" && shasum -a 256 --check "$filename") >/dev/null
   else
