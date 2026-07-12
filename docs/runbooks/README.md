@@ -18,3 +18,4 @@ Add project runbooks when deployment and operations work begins in later milesto
 - [Private journal backup and restore](private-journal-backup-restore.md)
 - [Primary/standby failover](primary-standby-failover.md)
 - [Primary/standby failback](primary-standby-failback.md)
+- [Private audit retention and verified deletion](private-audit-retention.md)

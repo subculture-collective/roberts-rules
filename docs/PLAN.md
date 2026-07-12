@@ -172,7 +172,7 @@ Operational authority and recovery are [Milestone 5A: LAN Appliance Operations](
 
 The accepted authority topology is [ADR 0008: Primary/Standby LAN Authority](adr/0008-primary-standby-lan-authority.md). The current single-node Compose stack remains development-only until the production replication and fencing profile is implemented and rehearsed.
 
-- [ ] Define primary/standby replication, failover, backup, restore, and audit-retention runbooks.
+- [x] Define primary/standby replication, failover, backup, restore, and audit-retention runbooks.
 - [ ] Build a reproducible load test for 1,500 simultaneous event-stream clients and publish measured limits, host specification, and failure behavior.
 - [ ] Treat the WAN gateway as optional and isolate it from private LAN meeting authority.
 

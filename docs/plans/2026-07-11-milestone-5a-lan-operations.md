@@ -82,11 +82,11 @@
 - Modify: `docs/runbooks/README.md`
 - Modify: `docs/PLAN.md`
 
-- [ ] Classify journals, sessions, enrollments, command decisions, publication jobs, logs, backups, and future cryptographic artifacts by authority, sensitivity, retention owner, and deletion trigger.
-- [ ] Require organization-approved retention durations rather than embedding a universal policy in code.
-- [ ] Define legal/incident holds, backup expiry, deletion verification, restore sampling, and evidence records without copying private meeting content into tickets.
-- [ ] Mark Milestone 5's operations-runbook item complete only after `CI=true make verify` and `git diff --check` pass.
-- [ ] Commit as `docs: complete LAN operations foundation`.
+- [x] Classify journals, sessions, enrollments, command decisions, publication jobs, logs, backups, and future cryptographic artifacts by authority, sensitivity, retention owner, and deletion trigger.
+- [x] Require organization-approved retention durations rather than embedding a universal policy in code.
+- [x] Define legal/incident holds, backup expiry, deletion verification, restore sampling, and evidence records without copying private meeting content into tickets.
+- [x] Mark Milestone 5's operations-runbook item complete only after `CI=true make verify` and `git diff --check` pass.
+- [x] Commit as `docs: complete LAN operations foundation`.
 
 ## Separate Follow-up
 
