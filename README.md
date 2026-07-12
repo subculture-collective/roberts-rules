@@ -7,9 +7,9 @@ The project models original procedural behavior and organization-specific rules.
 Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes have experimental AT Protocol schemas and a fail-closed publication boundary. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. No production PDS integration or secure voting system exists yet, and the simulator must not be treated as binding or production-ready.
 
 The private API now has a transactional PostgreSQL journal, durable command idempotency, strict command validation, and an authentication boundary that denies access by default.
-The private API also provides an authenticated, resumable WebSocket event stream with at-least-once delivery. Production credentials and meeting UI controls remain unimplemented.
+The private API also provides an authenticated, resumable WebSocket event stream with at-least-once delivery. Meeting-scoped sessions and role-gated controls are implemented; hardware-backed device identity and production credential automation remain future security work.
 
-The web application includes a read-only live-floor projection client and role-aware dashboard. It refreshes from the authoritative snapshot after event gaps, resumes from the last applied version, and shows an authentication-required boundary until meeting-scoped sessions exist.
+The web application includes a live-floor projection client, role-aware dashboard, and authenticated command controls. It refreshes from the authoritative snapshot after event gaps, resumes from the last applied version, and shows an authentication-required boundary until a meeting-scoped session is redeemed.
 
 Operators can issue a short-lived, single-use enrollment token directly against the private database. The raw token is printed once; only its hash is stored:
 
@@ -21,7 +21,9 @@ Redeeming that token creates a 30-minute, revocable, meeting-scoped HttpOnly coo
 
 Authenticated live-floor controls now cover chair lifecycle actions, recognition queues, and non-secret simulator ballot choices. Commands wait for authoritative event delivery; stale-version responses trigger a full snapshot refresh rather than optimistic reconciliation.
 
-The live-floor control set now also covers attendance, agenda, motions, debate deadlines, points of order, appeals, and counted-vote administration. Voting remains explicitly non-secret, simulation-only, and not production-ready.
+The live-floor control set also covers attendance, agenda, motions, debate deadlines, points of order, appeals, and counted, roll-call, weighted, plurality, and ranked-choice administration. Voting remains explicitly non-secret, simulation-only, and not production-ready. Secret-ballot implementation is prohibited pending the independent security gate documented in Milestone 4B.
+
+LAN operations now have primary/standby authority, backup/restore, failover/failback, and retention runbooks. An authenticated development-host load test served 1,500 simultaneous event-stream clients, but that measurement is not a reviewed production-appliance capacity claim.
 
 ## Quick start
 

@@ -55,7 +55,7 @@ server -> {"type":"heartbeat","at":"2026-07-10T20:00:00.000Z"}
 **Files:** `docs/adr/0005-resumable-at-least-once-event-delivery.md`, `docs/adr/README.md`, `docs/reference/stack.md`, `README.md`, `docs/PLAN.md`.
 
 - [x] Record durable replay, at-least-once semantics, heartbeat/backpressure behavior, and the future sticky-session/Redis boundary.
-- [ ] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete resumable event stream milestone`. Verification passed; the commit is pending because the current managed filesystem exposes `.git` read-only.
+- [x] Run the real PostgreSQL suite, `make verify`, `git diff --check`, and commit `docs: complete resumable event stream milestone`. The milestone was committed as `5cdc63c`.
 
 ## Acceptance gate
 

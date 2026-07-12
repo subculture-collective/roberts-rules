@@ -71,8 +71,8 @@
 - Modify: `docs/PLAN.md`
 - Modify: `docs/plans/2026-07-11-milestone-5b-event-stream-load.md`
 
-- [ ] Confirm the WAN gateway remains optional and absent from all load-test authority paths.
-- [ ] Run real PostgreSQL integration tests, `CI=true make verify`, and `git diff --check`.
-- [ ] Audit every Milestone 5 statement against committed runbooks, raw results, and observed failure evidence.
-- [ ] Mark Milestone 5 complete only when all three canonical checklist items have direct evidence.
-- [ ] Commit as `docs: complete LAN appliance milestone`.
+- [x] Confirm the WAN gateway remains optional and absent from all load-test authority paths.
+- [x] Run real PostgreSQL integration tests, `CI=true make verify`, and `git diff --check`.
+- [x] Audit every Milestone 5 statement against committed runbooks, raw results, and observed failure evidence.
+- [x] Mark Milestone 5 complete only when all three canonical checklist items have direct evidence.
+- [x] Commit as `docs: complete LAN appliance milestone`.
