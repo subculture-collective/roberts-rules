@@ -31,12 +31,22 @@ LAN operations now have primary/standby authority, backup/restore, failover/fail
 make verify
 ```
 
+Start PostgreSQL, the API, and the Vite development server together, then open `http://localhost:5173`:
+
+```bash
+make dev
+```
+
+Use `make dev-db`, `make dev-api`, and `make dev-web` when separate terminals are more useful for debugging. The development database defaults to host port `55433`; override it with `make dev DEV_POSTGRES_PORT=65432`. `make dev-status`, `make dev-logs`, and `make dev-down` inspect or stop the local stack; stopping it preserves the database volume. Run `make help` for the complete command list.
+
 Install the Playwright browser runtimes once, then run the browser suite across Chromium, Firefox, WebKit, and mobile Safari emulation:
 
 ```bash
 pnpm test:e2e:install
 pnpm test:e2e
 ```
+
+The same operations are available as `make test-e2e-install`, `make test-e2e`, and `make test-e2e-ui`.
 
 Use `pnpm test:e2e:ui` for an interactive browser session. The initial suite covers the public landing page, authentication boundary, keyboard navigation, browser console errors, and responsive overflow. Authenticated multi-user live-floor coverage follows the application entry-point wiring.
 
