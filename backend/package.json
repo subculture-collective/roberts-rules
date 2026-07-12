@@ -11,7 +11,8 @@
     "format": "pnpm --filter @subculture/roberts-rules-meeting-domain build && tsc -p tsconfig.json --noEmit",
     "start": "node dist/index.js"
     ,"enrollment:issue": "tsx src/enrollment-cli.ts",
-    "journal:digest": "tsx src/journal-digest-cli.ts"
+    "journal:digest": "tsx src/journal-digest-cli.ts",
+    "load:fixture": "tsx src/load-fixture-cli.ts"
   },
   "dependencies": {
     "@subculture/roberts-rules-meeting-domain": "workspace:*",

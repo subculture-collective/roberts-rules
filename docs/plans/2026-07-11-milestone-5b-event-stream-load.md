@@ -33,10 +33,10 @@
 - Create: `backend/src/load-fixture.test.ts`
 - Modify: `backend/package.json`
 
-- [ ] Require `TEST_DATABASE_URL`, `LOAD_MEETING_ID`, `LOAD_SESSION_FILE`, `LOAD_SESSION_COUNT`, and exact `CONFIRM_LOAD_FIXTURE` equality before modifying data.
-- [ ] Migrate the disposable database, create/reset only the named fixture meeting, generate distinct random session tokens, store only SHA-256 hashes, and write raw tokens to a mode-`0600` JSONL file.
-- [ ] Reject counts outside `1..5000`, non-UUID meeting IDs, existing non-fixture journal events, unsafe output paths, and production-style confirmation mismatches.
-- [ ] Add integration coverage using disposable PostgreSQL and commit as `test: add authenticated load fixtures`.
+- [x] Require `TEST_DATABASE_URL`, `LOAD_MEETING_ID`, `LOAD_SESSION_FILE`, `LOAD_SESSION_COUNT`, and exact `CONFIRM_LOAD_FIXTURE` equality before modifying data.
+- [x] Migrate the disposable database, create/reset only the named fixture meeting, generate distinct random session tokens, store only SHA-256 hashes, and write raw tokens to a mode-`0600` JSONL file.
+- [x] Reject counts outside `1..5000`, non-UUID meeting IDs, existing non-fixture journal events, unsafe output paths, and production-style confirmation mismatches.
+- [x] Add integration coverage using disposable PostgreSQL and commit as `test: add authenticated load fixtures`.
 
 ### Task 3: Build the WebSocket load CLI
 
