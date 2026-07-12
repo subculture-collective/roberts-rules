@@ -42,6 +42,8 @@ build/
 .nuxt/
 .svelte-kit/
 coverage/
+playwright-report/
+test-results/
 *.tsbuildinfo
 vite.config.*.timestamp-*
 vite.config.*.mjs

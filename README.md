@@ -31,6 +31,15 @@ LAN operations now have primary/standby authority, backup/restore, failover/fail
 make verify
 ```
 
+Install the Playwright browser runtimes once, then run the browser suite across Chromium, Firefox, WebKit, and mobile Safari emulation:
+
+```bash
+pnpm test:e2e:install
+pnpm test:e2e
+```
+
+Use `pnpm test:e2e:ui` for an interactive browser session. The initial suite covers the public landing page, authentication boundary, keyboard navigation, browser console errors, and responsive overflow. Authenticated multi-user live-floor coverage follows the application entry-point wiring.
+
 See the [implementation plan](docs/PLAN.md), [documentation index](docs/README.md), and [architecture decisions](docs/adr/README.md).
 
 ## Open Pilot
