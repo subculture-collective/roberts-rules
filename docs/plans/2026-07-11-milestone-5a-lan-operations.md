@@ -69,11 +69,11 @@
 - Create: `docs/runbooks/primary-standby-failback.md`
 - Modify: `docs/runbooks/README.md`
 
-- [ ] Document detection, traffic drain, client command freeze, old-primary fencing, replication-position capture, data-loss assessment, standby promotion, DNS/virtual-IP switch, readiness verification, WebSocket reconnect expectations, and incident logging.
-- [ ] Require a journal integrity check and explicit comparison of the last acknowledged aggregate version before reopening commands.
-- [ ] Document failback as rebuild-from-current-primary, never dual-primary resynchronization or reverse writes.
-- [ ] Include rehearsable success criteria, rollback/abort conditions, and expected commands/output for PostgreSQL 17.
-- [ ] Commit as `docs: add LAN failover runbooks`.
+- [x] Document detection, traffic drain, client command freeze, old-primary fencing, replication-position capture, data-loss assessment, standby promotion, DNS/virtual-IP switch, readiness verification, WebSocket reconnect expectations, and incident logging.
+- [x] Require a journal integrity check and explicit comparison of the last acknowledged aggregate version before reopening commands.
+- [x] Document failback as rebuild-from-current-primary, never dual-primary resynchronization or reverse writes.
+- [x] Include rehearsable success criteria, rollback/abort conditions, and expected commands/output for PostgreSQL 17.
+- [x] Commit as `docs: add LAN failover runbooks`.
 
 ### Task 5: Define audit retention and verified deletion
 
