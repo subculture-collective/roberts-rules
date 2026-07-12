@@ -12,8 +12,8 @@ STAGING := docker compose -p $(STAGING_PROJECT) --env-file $(STAGING_ENV) -f $(S
 .PHONY: help deps dev dev-db dev-api dev-web dev-fixture dev-status dev-logs dev-down \
 	verify fmt lint test test-e2e test-e2e-ui test-e2e-install build backup-test \
 	compose-config open-pilot-check pilot-config pilot-build pilot-up pilot-status \
-	pilot-logs pilot-fixture pilot-fixture-cleanup pilot-smoke pilot-test pilot-down
-	pilot-backup pilot-restore-test
+	pilot-logs pilot-fixture pilot-fixture-cleanup pilot-smoke pilot-test pilot-test-remote \
+	pilot-down pilot-backup pilot-restore-test
 
 help:
 	@awk 'BEGIN {FS = ":.*##"; printf "Commands:\n"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -95,6 +95,13 @@ pilot-smoke: ## Check staging health, readiness, and security headers
 
 pilot-test: ## Run the browser matrix against an already running packaged stack
 	PACKAGED_URL="$${STAGING_URL:-$$(sed -n 's/^APP_ORIGIN=//p' $(STAGING_ENV))}" pnpm test:packaged
+
+pilot-test-remote: ## Run the browser matrix against staging with fixtures managed over SSH
+	@test -n "$(STAGING_REMOTE_HOST)"
+	PACKAGED_URL="$${STAGING_URL:-https://meetings-staging.subcult.tv}" \
+		STAGING_REMOTE_HOST="$(STAGING_REMOTE_HOST)" \
+		STAGING_REMOTE_PATH="$${STAGING_REMOTE_PATH:-/srv/server/projects/roberts-rules-staging}" \
+		pnpm test:packaged
 
 pilot-backup: ## Create a private mode-0600 staging journal backup
 	@test -n "$(BACKUP_ID)"

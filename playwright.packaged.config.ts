@@ -6,7 +6,8 @@ export default defineConfig({
   fullyParallel:true,
   forbidOnly:Boolean(process.env.CI),
   reporter:process.env.CI?'github':'list',
-  use:{baseURL:process.env.PACKAGED_URL??'http://127.0.0.1:18042',trace:'off',screenshot:'only-on-failure'},
+  // Enrollment values are credentials. Never persist browser artifacts from this suite.
+  use:{baseURL:process.env.PACKAGED_URL??'http://127.0.0.1:18042',trace:'off',screenshot:'off',video:'off'},
   projects:[
     {name:'chromium',use:{...devices['Desktop Chrome']}},
     {name:'firefox',use:{...devices['Desktop Firefox']}},
