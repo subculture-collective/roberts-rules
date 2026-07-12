@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { open } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import type { MeetingRole, RulesProfile } from '@subculture/roberts-rules-meeting-domain';
-import type { Pool } from 'pg';
+import { Pool } from 'pg';
 import { z } from 'zod';
 import { withTransaction } from './db.js';
 import { issueEnrollment } from './enrollment-cli.js';
@@ -24,6 +24,7 @@ export async function createDevFixture(pool:Pool,origin:string,id:()=>string=ran
     await submit('secretary-1','secretary',{type:'CheckInParticipant',participantId:'delegate-1',participantRole:'delegate'});
     await submit('secretary-1','secretary',{type:'CheckInParticipant',participantId:'delegate-2',participantRole:'delegate'});
     await submit('chair-1','chair',{type:'OpenMeeting'});
+    await submit('delegate-1','delegate',{type:'IntroduceMotion',motionId:`development-motion-${meetingId}`,text:'Demonstrate the live meeting workflow'});
     const enrollments:Record<string,string>={};
     await withTransaction(pool,async(client)=>{const store=new PostgresSessionStore(client);for(const role of roles)enrollments[role.role]=await issueEnrollment(store,{meetingId,...role,ttlMinutes:15});});
     return{meetingId,meetingUrl:`${origin}/meetings/${meetingId}`,enrollments};
@@ -31,4 +32,6 @@ export async function createDevFixture(pool:Pool,origin:string,id:()=>string=ran
 }
 
 export async function cleanupDevFixture(pool:Pool,meetingId:string):Promise<void>{await pool.query('DELETE FROM meetings WHERE id=$1',[meetingId]);}
+export async function createDevFixtureFromDatabase(databaseUrl:string,origin:string):Promise<DevFixture>{const pool=new Pool({connectionString:databaseUrl});try{return await createDevFixture(pool,origin);}finally{await pool.end();}}
+export async function cleanupDevFixtureFromDatabase(databaseUrl:string,meetingId:string):Promise<void>{const pool=new Pool({connectionString:databaseUrl});try{await cleanupDevFixture(pool,meetingId);}finally{await pool.end();}}
 export async function writeDevFixture(path:string,fixture:DevFixture):Promise<void>{const handle=await open(path,'wx',0o600);try{await handle.writeFile(`${JSON.stringify(fixture)}\n`,'utf8');}finally{await handle.close();}}

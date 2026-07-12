@@ -57,7 +57,7 @@ export function MeetingPage({ meetingId, clients: provided }: { meetingId: strin
   async function redeem(token: string) {
     setMessage(undefined);
     try { setSession(await clients.action.redeem(token)); }
-    catch { setMessage('Enrollment token is invalid or expired.'); }
+    catch (error) { const code=error instanceof MeetingActionError?error.code:'REQUEST_FAILED';setMessage(code==='ENROLLMENT_INVALID'?'Enrollment token is invalid or expired.':`Meeting access request failed (${code}).`); }
   }
   async function logout() {
     clients.projection.stop();

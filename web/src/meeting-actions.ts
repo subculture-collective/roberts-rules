@@ -6,7 +6,7 @@ export interface SessionInfo{meetingId:string;actorId:string;role:MeetingRole}
 
 export class MeetingActionClient {
   private state:ActionState={status:'idle'};private readonly listeners=new Set<(state:ActionState)=>void>();
-  constructor(private readonly apiBase:string,private readonly meetingId:string,private readonly refreshSnapshot:()=>Promise<void>,private readonly fetcher:typeof fetch=fetch,private readonly id:()=>string=()=>crypto.randomUUID(),private readonly now:()=>string=()=>new Date().toISOString()){}
+  constructor(private readonly apiBase:string,private readonly meetingId:string,private readonly refreshSnapshot:()=>Promise<void>,private readonly fetcher:typeof fetch=(input,init)=>fetch(input,init),private readonly id:()=>string=()=>crypto.randomUUID(),private readonly now:()=>string=()=>new Date().toISOString()){}
   subscribe(listener:(state:ActionState)=>void):()=>void{this.listeners.add(listener);listener(this.state);return()=>this.listeners.delete(listener)}
   private update(state:ActionState){this.state=state;for(const listener of this.listeners)listener(state)}
   async current():Promise<SessionInfo>{const response=await this.fetcher(`${this.apiBase}/api/meetings/${this.meetingId}/session`,{credentials:'include'});if(!response.ok)throw new MeetingActionError((await this.errorCode(response))??`HTTP_${response.status}`);return response.json() as Promise<SessionInfo>}

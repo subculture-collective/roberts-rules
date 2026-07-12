@@ -12,6 +12,7 @@
     "start": "node dist/index.js"
     ,"enrollment:issue": "tsx src/enrollment-cli.ts",
     "dev:fixture": "tsx src/dev-fixture-cli.ts",
+    "dev:fixture:cleanup": "tsx src/dev-fixture-cleanup-cli.ts",
     "journal:digest": "tsx src/journal-digest-cli.ts",
     "load:fixture": "tsx src/load-fixture-cli.ts",
     "load:events": "tsx src/event-stream-load-cli.ts"

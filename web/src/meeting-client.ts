@@ -10,7 +10,7 @@ export class MeetingProjectionClient {
   private readonly listeners = new Set<(projection: Projection) => void>();
 
   constructor(private readonly apiBase: string, private readonly meetingId: string,
-    private readonly fetcher: typeof fetch = fetch, private readonly sockets: (url: string) => SocketLike = (url) => new WebSocket(url) as unknown as SocketLike,
+    private readonly fetcher: typeof fetch = (input, init) => fetch(input, init), private readonly sockets: (url: string) => SocketLike = (url) => new WebSocket(url) as unknown as SocketLike,
     private readonly schedule: (callback: () => void, delay: number) => unknown = setTimeout,
     private readonly random: () => number = Math.random) {}
 

@@ -51,7 +51,7 @@ lint:
 test:
 	pnpm run test
 
-test-e2e: ## Run Playwright across desktop and mobile browser projects
+test-e2e: dev-db ## Run Playwright across desktop and mobile browser projects
 	pnpm test:e2e
 
 test-e2e-ui: ## Open the interactive Playwright test runner
