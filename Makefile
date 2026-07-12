@@ -3,7 +3,7 @@ SHELL := /usr/bin/env bash
 DEV_POSTGRES_PORT ?= 55433
 DEV_DATABASE_URL ?= postgres://roberts_rules:change-me@localhost:$(DEV_POSTGRES_PORT)/roberts_rules?sslmode=disable
 
-.PHONY: help deps dev dev-db dev-api dev-web dev-status dev-logs dev-down \
+.PHONY: help deps dev dev-db dev-api dev-web dev-fixture dev-status dev-logs dev-down \
 	verify fmt lint test test-e2e test-e2e-ui test-e2e-install build backup-test \
 	compose-config open-pilot-check
 
@@ -27,6 +27,9 @@ dev-api: ## Start the API development server (requires dev-db)
 
 dev-web: ## Start the Vite development server
 	pnpm --filter @subculture/roberts-rules-web dev
+
+dev-fixture: ## Create a disposable open meeting and print enrollment tokens once
+	DATABASE_URL='$(DEV_DATABASE_URL)' CONFIRM_DEV_FIXTURE=local-only pnpm --filter @subculture/roberts-rules-api dev:fixture
 
 dev-status: ## Show development service status
 	docker compose ps
