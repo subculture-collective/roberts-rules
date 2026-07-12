@@ -29,6 +29,11 @@ export function createHttpHandler(application: MeetingApplication, principals: P
     try {
       const url = new URL(request.url ?? '/', 'http://localhost');
       const sessionMatch=url.pathname.match(/^\/api\/meetings\/([^/]+)\/session$/);
+      if(sessionMatch&&request.method==='GET'){
+        const meetingId=uuid.parse(sessionMatch[1]);const principal=await principals.authenticate(request,meetingId);
+        if(!principal)throw new HttpError(401,'AUTHENTICATION_REQUIRED');
+        send(response,200,{meetingId,actorId:principal.actorId,role:principal.role});return;
+      }
       if(sessionMatch&&request.method==='POST'){
         if(request.headers.origin!==allowedOrigin)throw new HttpError(403,'ORIGIN_FORBIDDEN');
         if(!sessions)throw new HttpError(503,'AUTHENTICATION_UNAVAILABLE');

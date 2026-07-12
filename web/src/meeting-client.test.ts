@@ -34,4 +34,11 @@ describe('MeetingProjectionClient', () => {
     await Promise.resolve(); await Promise.resolve();
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
+
+  it('constructs a same-origin WebSocket URL when the API base is empty', async () => {
+    let socketUrl = '';
+    const client = new MeetingProjectionClient('', 'meeting-1', vi.fn().mockResolvedValue({ ok: true, json: async () => state }) as never, (url) => { socketUrl = url; return new FakeSocket(); });
+    await client.start();
+    expect(socketUrl).toBe('ws://localhost/api/meetings/meeting-1/events?after=1');
+  });
 });

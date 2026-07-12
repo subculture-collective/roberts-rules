@@ -19,6 +19,26 @@ describe('private meeting HTTP boundary', () => {
     const response=await fetch(`${url}/api/meetings/00000000-0000-4000-8000-000000000030/session`,{method:'POST',headers:{origin:'http://localhost:5173'},body:JSON.stringify({enrollmentToken:'enrollment-token-long-enough'})});
     expect(response.status).toBe(201);expect(response.headers.get('set-cookie')).toContain('HttpOnly');expect(await response.json()).not.toHaveProperty('token');
   });
+
+  it('returns the current meeting session and fails closed without one', async () => {
+    const meetingId = '00000000-0000-4000-8000-000000000030';
+    const principals = {
+      authenticate: vi.fn(async (_request, requestedMeetingId?: string) =>
+        requestedMeetingId === meetingId ? { actorId: 'chair-1', role: 'chair' as const } : null,
+      ),
+    };
+    const application={createMeeting:vi.fn(),submitCommand:vi.fn(),snapshot:vi.fn()};
+    const server=createApp({application:application as never,principals});servers.push(server);await new Promise<void>((resolve)=>server.listen(0,resolve));
+    const url=`http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+
+    const current = await fetch(`${url}/api/meetings/${meetingId}/session`);
+    expect(current.status).toBe(200);
+    await expect(current.json()).resolves.toEqual({ meetingId, actorId: 'chair-1', role: 'chair' });
+
+    const missing = await fetch(`${url}/api/meetings/00000000-0000-4000-8000-000000000031/session`);
+    expect(missing.status).toBe(401);
+    await expect(missing.json()).resolves.toEqual({ error: 'AUTHENTICATION_REQUIRED' });
+  });
   it('creates a meeting for an authenticated administrator', async () => {
     const { application, url } = await start({ actorId: 'admin-1', role: 'administrator' });
     const profile = { id: 'standard', version: 1, quorum: { type: 'fixed', minimum: 1 }, debate: { defaultDurationSeconds: 300 }, voteMethods: ['counted'], motionThreshold: { numerator: 1, denominator: 2, basis: 'votesCast' }, tiePolicy: 'motionFails', overrides: { quorumIndependentActions: [] } };
