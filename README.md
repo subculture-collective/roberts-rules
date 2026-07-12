@@ -58,6 +58,19 @@ The same operations are available as `make test-e2e-install`, `make test-e2e`, a
 
 Use `pnpm test:e2e:ui` for an interactive browser session. The suite covers the public landing page plus authenticated restoration, role boundaries, multi-client journal delivery, reconnect catch-up, logout revocation, token ephemerality, browser errors, and responsive overflow. These flows remain a non-secret procedural simulation; they are not binding, secure voting or a production deployment claim.
 
+## Staging pilot
+
+A disposable staging pilot is available at `https://meetings-staging.subcult.tv`. It runs on the NUC behind the Almaz/Cloudflare edge; PostgreSQL and the API are not published directly. It is suitable for operator validation with generated fixtures, not real meeting data or production voting.
+
+Run the public smoke and authenticated browser matrix from a configured operator workstation:
+
+```bash
+STAGING_URL=https://meetings-staging.subcult.tv make pilot-smoke
+STAGING_REMOTE_HOST=nuc make pilot-test-remote
+```
+
+See the [NUC staging runbook](docs/runbooks/nuc-staging.md) for exact-revision deployment, private backup/restore, restart recovery, and rollback. Enrollment tokens remain paste-only credentials and browser traces, screenshots, and videos are disabled in credential-bearing suites.
+
 See the [implementation plan](docs/PLAN.md), [documentation index](docs/README.md), and [architecture decisions](docs/adr/README.md).
 
 ## Open Pilot

@@ -18,6 +18,7 @@
 - [x] The meeting-domain simulator implements all planned commands, strict replay, canonical output, JSONL fixtures, non-secret voting strategies, and property-based invariants.
 - [x] The live command API, resumable event stream, meeting-scoped sessions, role-aware PWA controls, and approved AT Protocol publication boundary are implemented.
 - [x] The browser entry point redeems or restores meeting-scoped sessions and connects the role-aware live floor to the authoritative journal.
+- [x] A disposable staging deployment runs on the NUC behind Almaz and Cloudflare, with edge-only origin access, scoped backups, tested restart recovery, and public multi-browser validation.
 - [ ] No cryptographically secure secret-ballot system or reviewed 1,500-client LAN appliance exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
@@ -190,6 +191,20 @@ The completed implementation sequence and acceptance boundary are in [the Milest
 - [x] Compose role-aware command controls, reconnect behavior, and logout around the server-resolved meeting principal.
 - [x] Add disposable local fixtures and multi-browser Playwright coverage for chair, delegate, observer, and mobile flows.
 - [x] Keep all voting explicitly non-secret, simulation-only, non-binding, and outside the secret-ballot implementation gate.
+
+## Milestone 7: NUC Staging Pilot
+
+**Outcome:** Operators can deploy and validate an exact application revision on the NUC through the Almaz/Cloudflare edge without exposing PostgreSQL or the API directly.
+
+The implementation and evidence are in [the Milestone 7 NUC staging plan](plans/2026-07-11-milestone-7-nuc-staging.md). Day-two commands and rollback are in [the NUC staging runbook](runbooks/nuc-staging.md).
+
+- [x] Package pinned, unprivileged production API and web images and validate the deployment profile.
+- [x] Publish only the web proxy on the NUC's edge-only address and allow that port only from Almaz.
+- [x] Terminate public TLS through the existing Cloudflare Tunnel and Almaz Caddy route.
+- [x] Rehearse mode-`0600` backup/restore, volume-preserving restart recovery, and scoped fixture cleanup.
+- [x] Validate the public authenticated flow in Chromium, Firefox, WebKit, and mobile Safari without credential-bearing browser artifacts.
+- [ ] Add an authenticated Uptime Kuma monitor for the public readiness endpoint; this requires an operator session and must not be implemented through direct live-database edits.
+- [ ] Repeat the 1,500-client, replication, fencing, and failure drills on reviewed final hardware before making any production capacity or availability claim.
 
 ## Architecture Decision Records
 
