@@ -37,6 +37,14 @@ Start PostgreSQL, the API, and the Vite development server together, then open `
 make dev
 ```
 
+In a second terminal, create a disposable open meeting. The command prints its meeting URL and single-use chair, secretary, delegate, and observer enrollment tokens once:
+
+```bash
+make dev-fixture
+```
+
+Open the printed `meetingUrl`, paste one enrollment token into the form, and enter the live floor. Tokens are private credentials: do not put them in URLs, browser storage, screenshots, chat, or committed files. Each token expires after 15 minutes and can be redeemed only once.
+
 Use `make dev-db`, `make dev-api`, and `make dev-web` when separate terminals are more useful for debugging. The development database defaults to host port `55433`; override it with `make dev DEV_POSTGRES_PORT=65432`. `make dev-status`, `make dev-logs`, and `make dev-down` inspect or stop the local stack; stopping it preserves the database volume. Run `make help` for the complete command list.
 
 Install the Playwright browser runtimes once, then run the browser suite across Chromium, Firefox, WebKit, and mobile Safari emulation:
@@ -48,7 +56,7 @@ pnpm test:e2e
 
 The same operations are available as `make test-e2e-install`, `make test-e2e`, and `make test-e2e-ui`.
 
-Use `pnpm test:e2e:ui` for an interactive browser session. The initial suite covers the public landing page, authentication boundary, keyboard navigation, browser console errors, and responsive overflow. Authenticated multi-user live-floor coverage follows the application entry-point wiring.
+Use `pnpm test:e2e:ui` for an interactive browser session. The suite covers the public landing page plus authenticated restoration, role boundaries, multi-client journal delivery, reconnect catch-up, logout revocation, token ephemerality, browser errors, and responsive overflow. These flows remain a non-secret procedural simulation; they are not binding, secure voting or a production deployment claim.
 
 See the [implementation plan](docs/PLAN.md), [documentation index](docs/README.md), and [architecture decisions](docs/adr/README.md).
 

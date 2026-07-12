@@ -17,6 +17,7 @@
 - [x] The generated template identity has been replaced in code, package metadata, Compose configuration, and project documentation.
 - [x] The meeting-domain simulator implements all planned commands, strict replay, canonical output, JSONL fixtures, non-secret voting strategies, and property-based invariants.
 - [x] The live command API, resumable event stream, meeting-scoped sessions, role-aware PWA controls, and approved AT Protocol publication boundary are implemented.
+- [x] The browser entry point redeems or restores meeting-scoped sessions and connects the role-aware live floor to the authoritative journal.
 - [ ] No cryptographically secure secret-ballot system or reviewed 1,500-client LAN appliance exists yet.
 
 `docs/PLAN.md` is the canonical roadmap. `README.md` must link here once the project identity is adapted. Do not create a duplicate root-level plan.
@@ -177,6 +178,18 @@ The accepted authority topology is [ADR 0008: Primary/Standby LAN Authority](adr
 - [x] Define primary/standby replication, failover, backup, restore, and audit-retention runbooks.
 - [x] Build a reproducible load test for 1,500 simultaneous event-stream clients and publish measured limits, host specification, and failure behavior.
 - [x] Treat the WAN gateway as optional and isolate it from private LAN meeting authority.
+
+## Milestone 6: Usable Authenticated Meeting Session
+
+**Outcome:** A developer can create a disposable meeting, redeem a scoped enrollment in the browser, and exercise the live floor across multiple role-specific clients.
+
+The completed implementation sequence and acceptance boundary are in [the Milestone 6 implementation plan](plans/2026-07-11-milestone-6-usable-meeting-session.md).
+
+- [x] Add current-session discovery and same-origin development proxying without broadening the cookie scope.
+- [x] Route `/meetings/:meetingId` through paste-only enrollment into the authoritative snapshot and resumable event stream.
+- [x] Compose role-aware command controls, reconnect behavior, and logout around the server-resolved meeting principal.
+- [x] Add disposable local fixtures and multi-browser Playwright coverage for chair, delegate, observer, and mobile flows.
+- [x] Keep all voting explicitly non-secret, simulation-only, non-binding, and outside the secret-ballot implementation gate.
 
 ## Architecture Decision Records
 
