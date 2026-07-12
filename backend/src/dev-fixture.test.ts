@@ -7,7 +7,7 @@ import { migrate } from './db.js';
 import { cleanupDevFixture,createDevFixture,parseDevFixtureConfig,writeDevFixture } from './dev-fixture.js';
 
 describe('development fixture safeguards',()=>{
-  it('requires exact confirmation and a local database',()=>{expect(()=>parseDevFixtureConfig({DATABASE_URL:'postgres://localhost/db'})).toThrow();expect(()=>parseDevFixtureConfig({DATABASE_URL:'postgres://db.example/db',CONFIRM_DEV_FIXTURE:'local-only'})).toThrow('local database');});
+  it('requires exact confirmation matching a local or staging database scope',()=>{expect(()=>parseDevFixtureConfig({DATABASE_URL:'postgres://localhost/db'})).toThrow();expect(()=>parseDevFixtureConfig({DATABASE_URL:'postgres://db.example/db',CONFIRM_DEV_FIXTURE:'local-only'})).toThrow('confirmation scope');expect(parseDevFixtureConfig({DATABASE_URL:'postgres://user:secret@postgres/db',CONFIRM_DEV_FIXTURE:'staging-only',DEV_WEB_ORIGIN:'https://meetings-staging.subcult.tv'}).origin).toBe('https://meetings-staging.subcult.tv');expect(()=>parseDevFixtureConfig({DATABASE_URL:'postgres://user:secret@postgres/db',CONFIRM_DEV_FIXTURE:'staging-only',DEV_WEB_ORIGIN:'https://meetings.subcult.tv'})).toThrow('confirmation scope');});
   it('writes an explicitly requested token file with owner-only permissions',async()=>{const directory=await mkdtemp(join(tmpdir(),'rr-fixture-'));const path=join(directory,'fixture.json');const fixture={meetingId:'m',meetingUrl:'http://localhost/meetings/m',enrollments:{chair:'secret'}};await writeDevFixture(path,fixture);expect(JSON.parse(await readFile(path,'utf8'))).toEqual(fixture);expect((await stat(path)).mode&0o777).toBe(0o600);});
 });
 

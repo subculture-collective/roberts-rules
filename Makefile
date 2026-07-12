@@ -2,10 +2,16 @@ SHELL := /usr/bin/env bash
 .DEFAULT_GOAL := help
 DEV_POSTGRES_PORT ?= 55433
 DEV_DATABASE_URL ?= postgres://roberts_rules:change-me@localhost:$(DEV_POSTGRES_PORT)/roberts_rules?sslmode=disable
+STAGING_COMPOSE ?= deploy/compose.staging.yml
+STAGING_ENV ?= deploy/staging.env
+STAGING_PROJECT ?= roberts-rules-staging
+FIXTURE_CONFIRMATION ?= staging-only
+STAGING := docker compose -p $(STAGING_PROJECT) --env-file $(STAGING_ENV) -f $(STAGING_COMPOSE)
 
 .PHONY: help deps dev dev-db dev-api dev-web dev-fixture dev-status dev-logs dev-down \
 	verify fmt lint test test-e2e test-e2e-ui test-e2e-install build backup-test \
-	compose-config open-pilot-check
+	compose-config open-pilot-check pilot-config pilot-build pilot-up pilot-status \
+	pilot-logs pilot-fixture pilot-fixture-cleanup pilot-smoke pilot-test pilot-down
 
 help:
 	@awk 'BEGIN {FS = ":.*##"; printf "Commands:\n"} /^[a-zA-Z0-9_-]+:.*##/ {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -60,6 +66,37 @@ test-e2e-ui: ## Open the interactive Playwright test runner
 test-e2e-install: ## Install Playwright browser runtimes
 	pnpm test:e2e:install
 
+pilot-config: ## Validate the staging Compose profile
+	$(STAGING) config --quiet
+
+pilot-build: pilot-config ## Build the staging application images
+	$(STAGING) build
+
+pilot-up: pilot-config ## Start or update the staging stack
+	$(STAGING) up -d --wait
+
+pilot-status: ## Show staging service status
+	$(STAGING) ps
+
+pilot-logs: ## Follow staging service logs
+	$(STAGING) logs -f --tail=200
+
+pilot-fixture: ## Print a disposable staging meeting URL and enrollment tokens once
+	$(STAGING) exec -T -e CONFIRM_DEV_FIXTURE=$(FIXTURE_CONFIRMATION) -e DEV_WEB_ORIGIN="$$(sed -n 's/^APP_ORIGIN=//p' $(STAGING_ENV))" api node dist/dev-fixture-cli.js
+
+pilot-fixture-cleanup: ## Delete one disposable staging meeting by exact UUID
+	@test -n "$(MEETING_ID)"
+	$(STAGING) exec -T -e CONFIRM_DEV_FIXTURE=$(FIXTURE_CONFIRMATION) -e DEV_WEB_ORIGIN="$$(sed -n 's/^APP_ORIGIN=//p' $(STAGING_ENV))" api node dist/dev-fixture-cleanup-cli.js "$(MEETING_ID)"
+
+pilot-smoke: ## Check staging health, readiness, and security headers
+	scripts/smoke-staging.sh "$${STAGING_URL:-$$(sed -n 's/^APP_ORIGIN=//p' $(STAGING_ENV))}"
+
+pilot-test: ## Run the browser matrix against an already running packaged stack
+	PACKAGED_URL="$${STAGING_URL:-$$(sed -n 's/^APP_ORIGIN=//p' $(STAGING_ENV))}" pnpm test:packaged
+
+pilot-down: ## Stop staging containers without deleting the journal volume
+	$(STAGING) down
+
 backup-test: ## Run private journal backup and restore script tests
 	pnpm exec bats tests/backup-private-journal.bats tests/restore-private-journal.bats
 
@@ -68,6 +105,7 @@ build:
 
 compose-config:
 	docker compose config --quiet
+	docker compose --env-file deploy/staging.env.example -f deploy/compose.staging.yml config --quiet
 
 open-pilot-check:
 	@test -f .gitea/ISSUE_TEMPLATE/open-pilot-task.yaml

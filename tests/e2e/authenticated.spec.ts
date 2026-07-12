@@ -4,6 +4,7 @@ import { promisify } from 'node:util';
 
 const databaseUrl=process.env.E2E_DATABASE_URL??'postgres://roberts_rules:change-me@127.0.0.1:55433/roberts_rules?sslmode=disable';
 const origin='http://127.0.0.1:4173';
+test.use({trace:'off'});
 let fixture:DevFixture;
 const contexts:BrowserContext[]=[];
 interface DevFixture{meetingId:string;meetingUrl:string;enrollments:Record<'chair'|'secretary'|'delegate'|'observer',string>}

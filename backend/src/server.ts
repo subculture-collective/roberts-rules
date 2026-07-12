@@ -7,6 +7,7 @@ import type { SessionPrincipalProvider } from './session-principal.js';
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8080),
+  COOKIE_SECURE: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
   DATABASE_URL: z
     .string()
     .default(

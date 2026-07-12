@@ -21,7 +21,7 @@ const app = createApp({
   principals,
   sessions: principals,
   allowedOrigin,
-  secureCookies: process.env.NODE_ENV === 'production',
+  secureCookies: config.COOKIE_SECURE ?? process.env.NODE_ENV === 'production',
   readiness: () => isWritablePrimary(pool),
 });
 new MeetingEventStream(app, principals, {

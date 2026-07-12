@@ -13,6 +13,12 @@ describe('getConfig', () => {
     );
   });
 
+  it('parses an explicit secure-cookie override and rejects ambiguous values', () => {
+    expect(getConfig({ COOKIE_SECURE: 'true' }).COOKIE_SECURE).toBe(true);
+    expect(getConfig({ COOKIE_SECURE: 'false' }).COOKIE_SECURE).toBe(false);
+    expect(() => getConfig({ COOKIE_SECURE: 'yes' })).toThrow();
+  });
+
   it('reports not ready without exposing the readiness failure', async () => {
     const app = createApp({ readiness: async () => { throw new Error('postgres://private-host/meeting'); } } as never);
     await new Promise<void>((resolve) => app.listen(0, '127.0.0.1', resolve));

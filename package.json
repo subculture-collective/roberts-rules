@@ -11,6 +11,7 @@
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
     "test:e2e": "playwright test",
+    "test:packaged": "playwright test -c playwright.packaged.config.ts",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install chromium firefox webkit",
     "format": "pnpm -r --if-present run format",
