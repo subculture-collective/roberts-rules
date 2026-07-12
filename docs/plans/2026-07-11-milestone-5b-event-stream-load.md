@@ -58,12 +58,12 @@
 - Create: `docs/runbooks/event-stream-load-test.md`
 - Modify: `docs/PLAN.md`
 
-- [ ] Record source commit, dirty state, date/timezone, OS/kernel, CPU, RAM, Node/pnpm/PostgreSQL versions, open-file limit, database topology/durability mode, API configuration, exact commands, and raw JSON result digest.
-- [ ] Run 1,500 distinct authenticated clients with a controlled ramp, at least 35-second hold, and at least 10% jittered reconnects.
-- [ ] Run boundary/failure profiles for invalid sessions, a reconnect storm, slow/non-reading consumers where reproducible, and database/API interruption; document observed close/error behavior.
-- [ ] Publish measured p50/p95/p99 ready/reconnect latency, success/failure counts, API/harness peak RSS and CPU, database connections/load, and limitations.
-- [ ] Mark the roadmap load item complete only if the real 1,500-client run succeeds; otherwise publish the measured ceiling and leave it unchecked.
-- [ ] Commit as `perf: publish 1500 client event stream results`.
+- [x] Record source commit, dirty state, date/timezone, OS/kernel, CPU, RAM, Node/pnpm/PostgreSQL versions, open-file limit, database topology/durability mode, API configuration, exact commands, and raw JSON result digest.
+- [x] Run 1,500 distinct authenticated clients with a controlled ramp, at least 35-second hold, and at least 10% jittered reconnects.
+- [x] Run boundary/failure profiles for invalid sessions, a reconnect storm, slow/non-reading consumers where reproducible, and database/API interruption; document observed close/error behavior.
+- [x] Publish measured p50/p95/p99 ready/reconnect latency, success/failure counts, API/harness peak RSS and CPU, database connections/load, and limitations.
+- [x] Mark the roadmap load item complete only if the real 1,500-client run succeeds; otherwise publish the measured ceiling and leave it unchecked.
+- [x] Commit as `perf: publish 1500 client event stream results`.
 
 ### Task 5: Complete Milestone 5
 

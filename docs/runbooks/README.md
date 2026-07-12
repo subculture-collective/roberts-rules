@@ -19,3 +19,4 @@ Add project runbooks when deployment and operations work begins in later milesto
 - [Primary/standby failover](primary-standby-failover.md)
 - [Primary/standby failback](primary-standby-failback.md)
 - [Private audit retention and verified deletion](private-audit-retention.md)
+- [Authenticated event-stream load test](event-stream-load-test.md)
