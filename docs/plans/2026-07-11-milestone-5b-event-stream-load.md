@@ -45,11 +45,11 @@
 - Create: `backend/src/event-stream-load.test.ts`
 - Modify: `backend/package.json`
 
-- [ ] Accept URL, Origin, session JSONL, connection count, ramp duration, hold duration, reconnect percentage, and per-connection timeout through validated environment variables.
-- [ ] Connect each client with a distinct `rr_meeting_session` cookie and `after=0`; require the expected ready frame before counting it connected.
-- [ ] Hold through at least one 30-second server heartbeat, close and reconnect the configured subset with jitter, and record ready latency, reconnect latency, unexpected HTTP responses, socket errors, close codes, and peak harness RSS.
-- [ ] Emit one canonical JSON result and nonzero exit status unless every initial/reconnect target succeeds and remains open for the hold window.
-- [ ] Add small deterministic integration tests against the real event stream and commit as `perf: add authenticated event stream load harness`.
+- [x] Accept URL, Origin, session JSONL, connection count, ramp duration, hold duration, reconnect percentage, and per-connection timeout through validated environment variables.
+- [x] Connect each client with a distinct `rr_meeting_session` cookie and `after=0`; require the expected ready frame before counting it connected.
+- [x] Hold through at least one 30-second server heartbeat, close and reconnect the configured subset with jitter, and record ready latency, reconnect latency, unexpected HTTP responses, socket errors, close codes, and peak harness RSS.
+- [x] Emit one canonical JSON result and nonzero exit status unless every initial/reconnect target succeeds and remains open for the hold window.
+- [x] Add small deterministic integration tests against the real event stream and commit as `perf: add authenticated event stream load harness`.
 
 ### Task 4: Run and publish the 1,500-client profile
 
