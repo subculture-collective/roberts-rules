@@ -170,6 +170,8 @@ Milestone 4B's design artifacts are [ADR 0007](adr/0007-electionguard-compatible
 
 Operational authority and recovery are [Milestone 5A: LAN Appliance Operations](plans/2026-07-11-milestone-5a-lan-operations.md). Reproducible capacity testing will follow as a separate Milestone 5B plan after the readiness and recovery contracts exist.
 
+Authenticated event-stream capacity and failure testing are [Milestone 5B: Event-Stream Load](plans/2026-07-11-milestone-5b-event-stream-load.md).
+
 The accepted authority topology is [ADR 0008: Primary/Standby LAN Authority](adr/0008-primary-standby-lan-authority.md). The current single-node Compose stack remains development-only until the production replication and fencing profile is implemented and rehearsed.
 
 - [x] Define primary/standby replication, failover, backup, restore, and audit-retention runbooks.
