@@ -22,7 +22,7 @@ async function body(request: IncomingMessage): Promise<unknown> {
   try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new HttpError(400, 'MALFORMED_JSON'); }
 }
 class HttpError extends Error { constructor(readonly status: number, readonly code: string) { super(code); } }
-function send(response: ServerResponse, status: number, value: unknown) { response.writeHead(status, { 'content-type': 'application/json' }); response.end(JSON.stringify(value)); }
+function send(response: ServerResponse, status: number, value: unknown) { response.writeHead(status, { 'content-type': 'application/json', 'cache-control': 'no-store' }); response.end(JSON.stringify(value)); }
 
 export function createHttpHandler(application: MeetingApplication, principals: PrincipalProvider, sessions?: SessionPrincipalProvider, allowedOrigin='http://localhost:5173', secureCookies=true) {
   return async (request: IncomingMessage, response: ServerResponse): Promise<void> => {

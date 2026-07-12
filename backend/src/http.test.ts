@@ -33,10 +33,12 @@ describe('private meeting HTTP boundary', () => {
 
     const current = await fetch(`${url}/api/meetings/${meetingId}/session`);
     expect(current.status).toBe(200);
+    expect(current.headers.get('cache-control')).toBe('no-store');
     await expect(current.json()).resolves.toEqual({ meetingId, actorId: 'chair-1', role: 'chair' });
 
     const missing = await fetch(`${url}/api/meetings/00000000-0000-4000-8000-000000000031/session`);
     expect(missing.status).toBe(401);
+    expect(missing.headers.get('cache-control')).toBe('no-store');
     await expect(missing.json()).resolves.toEqual({ error: 'AUTHENTICATION_REQUIRED' });
   });
   it('creates a meeting for an authenticated administrator', async () => {

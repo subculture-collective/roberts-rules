@@ -23,18 +23,18 @@ export function createApp(dependencies: { application?: MeetingApplication; prin
   const api = dependencies.application ? createHttpHandler(dependencies.application, dependencies.principals ?? denyAllPrincipals,dependencies.sessions,dependencies.allowedOrigin,dependencies.secureCookies) : undefined;
   return createServer((req, res) => {
     if (req.url === '/health') {
-      res.writeHead(200, { 'content-type': 'application/json' });
+      res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
       res.end(JSON.stringify({ status: 'ok' }));
       return;
     }
     if (req.url === '/ready') {
       void (dependencies.readiness?.() ?? Promise.resolve(false))
         .then((ready) => {
-          res.writeHead(ready ? 200 : 503, { 'content-type': 'application/json' });
+          res.writeHead(ready ? 200 : 503, { 'content-type': 'application/json', 'cache-control': 'no-store' });
           res.end(JSON.stringify({ status: ready ? 'ready' : 'not_ready' }));
         })
         .catch(() => {
-          res.writeHead(503, { 'content-type': 'application/json' });
+          res.writeHead(503, { 'content-type': 'application/json', 'cache-control': 'no-store' });
           res.end(JSON.stringify({ status: 'not_ready' }));
         });
       return;

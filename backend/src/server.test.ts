@@ -39,9 +39,11 @@ describe('getConfig', () => {
       const port = (app.address() as AddressInfo).port;
       const ready = await fetch(`http://127.0.0.1:${port}/ready`);
       expect(ready.status).toBe(200);
+      expect(ready.headers.get('cache-control')).toBe('no-store');
       expect(await ready.json()).toEqual({ status: 'ready' });
       const health = await fetch(`http://127.0.0.1:${port}/health`);
       expect(health.status).toBe(200);
+      expect(health.headers.get('cache-control')).toBe('no-store');
       expect(await health.json()).toEqual({ status: 'ok' });
     } finally {
       await new Promise<void>((resolve, reject) => app.close((error) => error ? reject(error) : resolve()));
