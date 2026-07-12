@@ -10,5 +10,6 @@
 "outDir": "dist",
 "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.js", "vite.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "eslint.config.js", "vite.config.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }
