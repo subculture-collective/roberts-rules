@@ -27,7 +27,7 @@ export function LiveFloor({ state, role, connection, actions }: { state: Meeting
       {(['pro','con'] as const).map((side) => <div key={side}><h2 className="border-b border-[#1d201c] pb-2 font-mono text-xs font-bold uppercase tracking-[0.18em]">{side === 'pro' ? 'For' : 'Against'} recognition</h2><ol className="mt-3 space-y-2">{state.recognitionQueues[side].map((id, index) => <li key={id} className="flex gap-3"><span className="font-mono text-xs">{String(index + 1).padStart(2, '0')}</span><span>{id}</span></li>)}</ol></div>)}
     </section>
     {actions&&<MeetingControls state={state} role={role} connected={connection==='live'} pending={actions.pending} message={actions.message} onSubmit={actions.submit}/>}
-    {operational && <aside className="mx-auto max-w-7xl border-2 border-[#1d201c] bg-[#1d201c] p-5 text-[#ece8dc]"><p className="font-mono text-xs uppercase tracking-[0.18em]">Operational context / {role}</p><p className="mt-2">Read-only projection. Procedural actions remain unavailable until meeting-scoped credentials are implemented.</p></aside>}
+    {operational && <aside className="mx-auto max-w-7xl border-2 border-[#1d201c] bg-[#1d201c] p-5 text-[#ece8dc]"><p className="font-mono text-xs uppercase tracking-[0.18em]">Operational context / {role}</p><p className="mt-2">Actions are authorized by this meeting-scoped session and recorded in the authoritative journal.</p></aside>}
   </main>;
 }
 

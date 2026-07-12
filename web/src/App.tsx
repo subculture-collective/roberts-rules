@@ -1,6 +1,7 @@
 import { AuthenticationRequired } from './LiveFloor';
+import { MeetingPage, meetingIdFromPath } from './MeetingPage';
 
-export default function App() {
+function LandingPage() {
   return (
     <main className="min-h-screen bg-[#ece8dc] text-[#1d201c] selection:bg-[#c5d15f] selection:text-[#1d201c]">
       <div className="mx-auto flex min-h-screen max-w-7xl flex-col px-5 py-6 sm:px-8 lg:px-12">
@@ -114,4 +115,12 @@ export default function App() {
       </div>
     </main>
   );
+}
+
+export default function App({pathname = globalThis.location?.pathname ?? '/'}:{pathname?:string}) {
+  if (pathname.startsWith('/meetings/')) {
+    const meetingId=meetingIdFromPath(pathname);
+    return meetingId?<MeetingPage meetingId={meetingId}/>:<main className="min-h-screen bg-[#ece8dc] p-8 text-[#1d201c]"><h1 className="font-serif text-4xl font-bold">Invalid meeting link</h1><p className="mt-3">Ask the meeting operator for the complete meeting URL.</p></main>;
+  }
+  return <LandingPage/>;
 }

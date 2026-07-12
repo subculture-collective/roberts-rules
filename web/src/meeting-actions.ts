@@ -1,8 +1,8 @@
-import type { Decision, MeetingCommand } from '@subculture/roberts-rules-meeting-domain';
+import type { Decision, MeetingCommand, MeetingRole } from '@subculture/roberts-rules-meeting-domain';
 
 export class MeetingActionError extends Error { constructor(readonly code: string) { super(code); } }
 export interface ActionState{status:'idle'|'pending'|'error';error?:string}
-export interface SessionInfo{meetingId:string;actorId:string;role:string}
+export interface SessionInfo{meetingId:string;actorId:string;role:MeetingRole}
 
 export class MeetingActionClient {
   private state:ActionState={status:'idle'};private readonly listeners=new Set<(state:ActionState)=>void>();
@@ -10,7 +10,7 @@ export class MeetingActionClient {
   subscribe(listener:(state:ActionState)=>void):()=>void{this.listeners.add(listener);listener(this.state);return()=>this.listeners.delete(listener)}
   private update(state:ActionState){this.state=state;for(const listener of this.listeners)listener(state)}
   async current():Promise<SessionInfo>{const response=await this.fetcher(`${this.apiBase}/api/meetings/${this.meetingId}/session`,{credentials:'include'});if(!response.ok)throw new MeetingActionError((await this.errorCode(response))??`HTTP_${response.status}`);return response.json() as Promise<SessionInfo>}
-  async redeem(enrollmentToken:string):Promise<{actorId:string;role:string;expiresAt:string}>{this.update({status:'pending'});try{
+  async redeem(enrollmentToken:string):Promise<SessionInfo & {expiresAt:string}>{this.update({status:'pending'});try{
     const response=await this.fetcher(`${this.apiBase}/api/meetings/${this.meetingId}/session`,{method:'POST',credentials:'include',headers:{'content-type':'application/json'},body:JSON.stringify({enrollmentToken})});
     if(!response.ok)throw new MeetingActionError((await this.errorCode(response))??'ENROLLMENT_FAILED');const result=await response.json();this.update({status:'idle'});return result;}catch(error){this.update({status:'error',error:error instanceof MeetingActionError?error.code:'REQUEST_FAILED'});throw error;}
   }
