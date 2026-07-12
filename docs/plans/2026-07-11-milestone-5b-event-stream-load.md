@@ -21,10 +21,10 @@
 - Create: `backend/src/load-metrics.ts`
 - Create: `backend/src/load-metrics.test.ts`
 
-- [ ] Add failing tests for nearest-rank p50/p95/p99 percentiles, zero-sample output, failure-rate calculation, and deterministic summary ordering.
-- [ ] Implement pure metrics functions using integer milliseconds and explicit sample counts.
-- [ ] Run focused backend tests.
-- [ ] Commit as `test: add event stream load metrics`.
+- [x] Add failing tests for nearest-rank p50/p95/p99 percentiles, zero-sample output, failure-rate calculation, and deterministic summary ordering.
+- [x] Implement pure metrics functions using integer milliseconds and explicit sample counts.
+- [x] Run focused backend tests.
+- [x] Commit as `test: add event stream load metrics`.
 
 ### Task 2: Create disposable authenticated load fixtures
 
