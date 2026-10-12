@@ -48,7 +48,7 @@ dev-logs: ## Follow PostgreSQL development logs
 dev-down: ## Stop development containers without deleting data
 	docker compose down
 
-verify: deps fmt lint test backup-test build compose-config open-pilot-check ## Run all checks
+verify: deps build fmt lint test backup-test compose-config open-pilot-check ## Run all checks
 
 fmt:
 	pnpm run format
