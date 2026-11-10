@@ -1,82 +1,143 @@
 # Roberts Rules
 
-Roberts Rules is an early-stage platform for chair-led parliamentary meetings. Its first deliverable is a deterministic TypeScript simulator: versioned commands produce an append-only, replayable meeting journal.
+Roberts Rules is software for chair-led parliamentary meetings: motions,
+debate, points of order, the speaking queue and votes, run from a shared live
+view. It is meant for organizations that hold formal meetings under their own
+rules of procedure.
 
-The project models original procedural behavior and organization-specific rules. It does not bundle or reproduce prose from *Robert's Rules of Order*.
+It is early-stage. Meetings run as a deterministic simulation, and votes are
+not secret, binding or production-ready. Do not use it for a real decision.
 
-Public organization identity, rule profiles, meeting manifests, and explicitly approved aggregate outcomes have experimental AT Protocol schemas and a fail-closed publication boundary. Rosters, attendance, credentials, deliberation, participation records, and ballots remain private by default. No production PDS integration or secure voting system exists yet, and the simulator must not be treated as binding or production-ready.
+The project models procedure in original code and organization-specific rule
+profiles. It does not bundle or reproduce prose from *Robert's Rules of Order*.
 
-The private API now has a transactional PostgreSQL journal, durable command idempotency, strict command validation, and an authentication boundary that denies access by default.
-The private API also provides an authenticated, resumable WebSocket event stream with at-least-once delivery. Meeting-scoped sessions and role-gated controls are implemented; hardware-backed device identity and production credential automation remain future security work.
+## Features
 
-The web application includes a live-floor projection client, role-aware dashboard, and authenticated command controls. It refreshes from the authoritative snapshot after event gaps, resumes from the last applied version, and shows an authentication-required boundary until a meeting-scoped session is redeemed.
-
-Operators can issue a short-lived, single-use enrollment token directly against the private database. The raw token is printed once; only its hash is stored:
-
-```bash
-DATABASE_URL='postgres://…' pnpm --filter @subculture/roberts-rules-api enrollment:issue -- --meeting <uuid> --participant <private-id> --role delegate --ttl 10
-```
-
-Redeeming that token creates a 30-minute, revocable, meeting-scoped HttpOnly cookie used by both HTTP commands and WebSocket upgrades. This is not yet hardware-backed device authentication, and initial meeting creation remains an out-of-band operator bootstrap.
-
-Authenticated live-floor controls now cover chair lifecycle actions, recognition queues, and non-secret simulator ballot choices. Commands wait for authoritative event delivery; stale-version responses trigger a full snapshot refresh rather than optimistic reconciliation.
-
-The live-floor control set also covers attendance, agenda, motions, debate deadlines, points of order, appeals, and counted, roll-call, weighted, plurality, and ranked-choice administration. Voting remains explicitly non-secret, simulation-only, and not production-ready. Secret-ballot implementation is prohibited pending the independent security gate documented in Milestone 4B.
-
-LAN operations now have primary/standby authority, backup/restore, failover/failback, and retention runbooks. An authenticated development-host load test served 1,500 simultaneous event-stream clients, but that measurement is not a reviewed production-appliance capacity claim.
+- **Meeting simulator.** Versioned commands produce an append-only meeting
+  journal that can be replayed to the same result. Sample transcripts are in
+  `packages/meeting-domain/fixtures/`.
+- **Meeting lifecycle:** open, recess, resume and adjourn; check-in and
+  check-out, alternates and quorum; agenda adoption and advance.
+- **Floor procedure:** a recognition queue, motions (second, amend, withdraw,
+  table, dispose), debate with deadlines, points of order, rulings, appeals and
+  chair corrections.
+- **Voting:** counted, roll-call, weighted, plurality and ranked-choice votes.
+  All voting is non-secret; there is no secret ballot.
+- **Roles:** administrator, chair, parliamentarian, secretary, teller,
+  delegate, alternate, participant, observer and technical operator, each with
+  its own controls.
+- **Private API** with a PostgreSQL journal, idempotent commands, strict
+  command validation and access denied by default.
+- **Live floor.** The web app follows the meeting over a resumable WebSocket
+  event stream and reloads the full snapshot after a gap.
+- **Enrollment tokens.** An operator issues a short-lived, single-use token for
+  one participant and role. Redeeming it creates a 30-minute, revocable,
+  meeting-scoped session cookie.
+- **Public records (experimental).** AT Protocol lexicons for organization
+  identity, rule profiles, meeting manifests and approved aggregate outcomes.
+  Rosters, attendance, credentials, deliberation, participation and ballots
+  stay private.
+- **Backup and restore** scripts for the private journal.
 
 ## Quick start
 
-```bash
-make verify
+You need Node.js 22 or later, pnpm and Docker with Compose.
+
+```sh
+make verify       # install, build, format, lint, tests and Compose checks
+make dev          # PostgreSQL, API and web app; open http://localhost:5173
 ```
 
-Start PostgreSQL, the API, and the Vite development server together, then open `http://localhost:5173`:
+In a second terminal, create a disposable meeting:
 
-```bash
-make dev
-```
-
-In a second terminal, create a disposable open meeting. The command prints its meeting URL and single-use chair, secretary, delegate, and observer enrollment tokens once:
-
-```bash
+```sh
 make dev-fixture
 ```
 
-Open the printed `meetingUrl`, paste one enrollment token into the form, and enter the live floor. Tokens are private credentials: do not put them in URLs, browser storage, screenshots, chat, or committed files. Each token expires after 15 minutes and can be redeemed only once.
+It prints a meeting URL and single-use enrollment tokens for chair, secretary,
+delegate and observer. Open the URL and paste one token into the form. Tokens
+expire after 15 minutes. Treat them as credentials: keep them out of URLs,
+screenshots and committed files.
 
-Use `make dev-db`, `make dev-api`, and `make dev-web` when separate terminals are more useful for debugging. The development database defaults to host port `55433`; override it with `make dev DEV_POSTGRES_PORT=65432`. `make dev-status`, `make dev-logs`, and `make dev-down` inspect or stop the local stack; stopping it preserves the database volume. Run `make help` for the complete command list.
+`make dev-db`, `make dev-api` and `make dev-web` start the parts separately.
+The development database uses host port `55433`; change it with
+`make dev DEV_POSTGRES_PORT=65432`. `make dev-down` stops the stack and keeps
+the database volume. `make help` lists every target.
 
-Install the Playwright browser runtimes once, then run the browser suite across Chromium, Firefox, WebKit, and mobile Safari emulation:
+Browser tests run on Chromium, Firefox, WebKit and mobile Safari emulation:
 
-```bash
+```sh
 pnpm test:e2e:install
 pnpm test:e2e
 ```
 
-The same operations are available as `make test-e2e-install`, `make test-e2e`, and `make test-e2e-ui`.
+Replay a transcript through the simulator:
 
-Use `pnpm test:e2e:ui` for an interactive browser session. The suite covers the public landing page plus authenticated restoration, role boundaries, multi-client journal delivery, reconnect catch-up, logout revocation, token ephemerality, browser errors, and responsive overflow. These flows remain a non-secret procedural simulation; they are not binding, secure voting or a production deployment claim.
-
-## Staging pilot
-
-A disposable staging pilot is available at `https://meetings-staging.subcult.tv`. It runs on the NUC behind the Almaz/Cloudflare edge; PostgreSQL and the API are not published directly. It is suitable for operator validation with generated fixtures, not real meeting data or production voting.
-
-Run the public smoke and authenticated browser matrix from a configured operator workstation:
-
-```bash
-STAGING_URL=https://meetings-staging.subcult.tv make pilot-smoke
-STAGING_REMOTE_HOST=nuc make pilot-test-remote
+```sh
+pnpm --silent --filter @subculture/roberts-rules-meeting-domain replay packages/meeting-domain/fixtures/completed-meeting.jsonl
 ```
 
-See the [NUC staging runbook](docs/runbooks/nuc-staging.md) for exact-revision deployment, private backup/restore, restart recovery, and rollback. Enrollment tokens remain paste-only credentials and browser traces, screenshots, and videos are disabled in credential-bearing suites.
+Issue an enrollment token against a database:
 
-See the [implementation plan](docs/PLAN.md), [documentation index](docs/README.md), and [architecture decisions](docs/adr/README.md).
+```sh
+DATABASE_URL='postgres://…' pnpm --filter @subculture/roberts-rules-api enrollment:issue -- --meeting <uuid> --participant <private-id> --role delegate --ttl 10
+```
 
-## Open Pilot
+## Configuration
 
-This repository preserves the Open Pilot issue and pull-request templates for focused, verifiable work.
+- `DATABASE_URL`: PostgreSQL connection for the API
+- `APP_ORIGIN`: public origin of the web app
+- `.env.example`: `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PORT` for the local
+  database in `docker-compose.yml`
+- `deploy/staging.env.example`: `POSTGRES_*`, `APP_ORIGIN`, `COOKIE_SECURE`,
+  `PUBLISH_ADDRESS`, `WEB_PORT` and `IMAGE_TAG` for the packaged stack
+
+## Deploy
+
+`deploy/compose.staging.yml` runs the packaged stack: PostgreSQL, the API
+image (`deploy/api.Dockerfile`) and the web image (`deploy/web.Dockerfile`,
+served by nginx). Only the web port is published. Copy
+`deploy/staging.env.example`, fill it in, then:
+
+```sh
+make pilot-config   # validate the Compose file
+make pilot-build    # build the images
+make pilot-up       # start or update the stack
+make pilot-smoke    # check health, readiness and security headers
+```
+
+`make pilot-backup` and `make pilot-restore-test` back up the journal and test
+a restore. This stack is for testing with generated meetings, not real meeting
+data.
+
+## Project layout
+
+- `packages/meeting-domain`: the meeting simulator (commands, events, replay)
+- `packages/meeting-publication`, `packages/atproto-publication`: public record
+  schemas and the publication boundary
+- `backend/`: private API, event stream, sessions and operator commands
+- `web/`: React live-floor app (Vite)
+- `lexicons/`: AT Protocol lexicons
+- `migrations/`: database migrations
+- `tests/`: Playwright browser tests and backup script tests
+- `deploy/`, `scripts/`: packaging, Compose and backup scripts
+- `docs/`: design records, plans and security notes
+
+## Contributing
+
+Report bugs and request features in
+[GitHub issues](https://github.com/subculture-collective/roberts-rules/issues).
+Ask questions and share ideas in
+[GitHub Discussions](https://github.com/subculture-collective/roberts-rules/discussions).
+For security problems, see [SECURITY.md](SECURITY.md).
+
+Send code as a pull request on GitHub against `main`. CI runs `make verify`
+(build, format, lint, unit tests, backup tests and Compose checks) on every
+pull request. [CONTRIBUTING.md](CONTRIBUTING.md) has the commit style and
+project boundaries.
 
 ## License
 
-AGPL-3.0-only. See `LICENSE`.
+AGPL-3.0-only. See [LICENSE](LICENSE).
+
+Built by [SUBCULT](https://subcult.tv).
